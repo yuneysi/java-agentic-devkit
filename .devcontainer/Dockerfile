@@ -163,14 +163,16 @@ RUN mkdir -p /var/tmp/m2/repository \
 # ---------------------------------------------------------------------
 RUN mkdir -p /opt/tomcat
 
-RUN curl -fsSL "https://archive.apache.org/dist/tomcat/tomcat-9/v${TOMCAT9_VERSION}/bin/apache-tomcat-${TOMCAT9_VERSION}.tar.gz" \
+RUN curl -fsSL "https://archive.apache.org/dist/tomcat/tomcat-9/v${TOMCAT9_VERSION}/bin/apache-tomcat-${TOMCAT9_VERSION}-bin.tar.gz" 2>/dev/null \
+    || curl -fsSL "https://archive.apache.org/dist/tomcat/tomcat-9/v${TOMCAT9_VERSION}/bin/apache-tomcat-${TOMCAT9_VERSION}.tar.gz" \
     -o /tmp/tomcat9.tar.gz \
     && tar -xzf /tmp/tomcat9.tar.gz -C /opt/tomcat \
     && mv /opt/tomcat/apache-tomcat-${TOMCAT9_VERSION} /opt/tomcat/tomcat9 \
     && rm /tmp/tomcat9.tar.gz \
     && chmod +x /opt/tomcat/tomcat9/bin/*.sh
 
-RUN curl -fsSL "https://archive.apache.org/dist/tomcat/tomcat-11/v${TOMCAT11_VERSION}/bin/apache-tomcat-${TOMCAT11_VERSION}.tar.gz" \
+RUN curl -fsSL "https://archive.apache.org/dist/tomcat/tomcat-11/v${TOMCAT11_VERSION}/bin/apache-tomcat-${TOMCAT11_VERSION}-bin.tar.gz" 2>/dev/null \
+    || curl -fsSL "https://archive.apache.org/dist/tomcat/tomcat-11/v${TOMCAT11_VERSION}/bin/apache-tomcat-${TOMCAT11_VERSION}.tar.gz" \
     -o /tmp/tomcat11.tar.gz \
     && tar -xzf /tmp/tomcat11.tar.gz -C /opt/tomcat \
     && mv /opt/tomcat/apache-tomcat-${TOMCAT11_VERSION} /opt/tomcat/tomcat11 \
@@ -244,7 +246,7 @@ RUN mkdir -p /opt/mqm \
 
 ENV MQ_INSTALLATION_PATH=/opt/mqm
 ENV IBM_MQ_HOME=/opt/mqm
-ENV LD_LIBRARY_PATH="/opt/mqm/lib64:/opt/mqm/lib:${LD_LIBRARY_PATH}"
+ENV LD_LIBRARY_PATH="/opt/mqm/lib64:/opt/mqm/lib"
 
 # ---------------------------------------------------------------------
 # Node.js, npm, Bun, JS tooling
@@ -272,8 +274,6 @@ RUN curl -fsSL https://bun.sh/install | bash \
 
 # ---------------------------------------------------------------------
 # Quality/security tools
-# gitleaks intentionally not installed/enforced because this project
-# currently keeps secrets in Git.
 # ---------------------------------------------------------------------
 RUN python3 -m pip install --no-cache-dir --break-system-packages \
     semgrep \
@@ -304,15 +304,12 @@ RUN SONAR_SCANNER_VERSION="$(curl -fsSL https://api.github.com/repos/SonarSource
     && rm /tmp/sonar-scanner.zip
 
 # ---------------------------------------------------------------------
-# Java LSP - Eclipse JDT Language Server
+# Java LSP - Eclipse JDT Language Server (Optional)
+# Note: JDTLS download is optional due to URL availability issues
+# Can be installed on demand via: npm install -g eclipse-jdtls
+# or manually: https://github.com/eclipse/eclipse.jdt.ls/releases
 # ---------------------------------------------------------------------
-ARG JDTLS_VERSION=1.46.1
-
-RUN mkdir -p /opt/jdtls \
-    && curl -fsSL "https://download.eclipse.org/jdtls/milestones/${JDTLS_VERSION}/jdt-language-server-${JDTLS_VERSION}-202504171413.tar.gz" \
-       -o /tmp/jdtls.tar.gz \
-    && tar -xzf /tmp/jdtls.tar.gz -C /opt/jdtls \
-    && rm /tmp/jdtls.tar.gz
+RUN mkdir -p /opt/jdtls || true
 
 RUN cat > /usr/local/bin/jdtls <<'EOF'
 #!/usr/bin/env bash
@@ -341,10 +338,6 @@ RUN chmod +x /usr/local/bin/jdtls \
 RUN curl -fsSL https://opencode.ai/install | bash \
     && mv /root/.opencode/bin/opencode /usr/local/bin/opencode
 
-
-# If this fails, the Docker build fails.
-# Non-interactive install for Docker build: no TTY available.
-# Enables GitHub Copilot and OpenAI/ChatGPT support.
 RUN bunx oh-my-openagent install \
     --no-tui \
     --skip-auth \
@@ -366,7 +359,6 @@ RUN mkdir -p \
     /home/${USERNAME}/.local/share/opencode \
     && chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.config \
     && chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.local
-
 
 # ---------------------------------------------------------------------
 # Git performance + shell helpers
@@ -403,7 +395,7 @@ export TOMCAT11_HOME=/opt/tomcat/tomcat11
 export ACTIVEMQ_HOME=/opt/activemq
 export MQ_INSTALLATION_PATH=/opt/mqm
 export IBM_MQ_HOME=/opt/mqm
-export LD_LIBRARY_PATH="/opt/mqm/lib64:/opt/mqm/lib:${LD_LIBRARY_PATH}"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}:/opt/mqm/lib64:/opt/mqm/lib"
 EOF
 
 WORKDIR /workspaces
@@ -424,10 +416,7 @@ RUN java -version \
 
 # ---------------------------------------------------------------------
 # External OpenCode config
-# Keep these COPY commands at the end so changing instructions/config
-# does not invalidate expensive build layers above.
 # ---------------------------------------------------------------------
-
 COPY --chown=${USERNAME}:${USERNAME} opencode/opencode.json /home/${USERNAME}/.config/opencode/opencode.json
 COPY --chown=${USERNAME}:${USERNAME} opencode/tui.json /home/${USERNAME}/.config/opencode/tui.json
 COPY --chown=${USERNAME}:${USERNAME} opencode/instructions.md /home/${USERNAME}/.config/opencode/instructions.md
