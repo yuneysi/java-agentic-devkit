@@ -1,0 +1,147 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "{file:instructions.md}"
+  ],
+  "plugin": [
+    "oh-my-openagent",
+    "opencode-codebase-index"
+  ],
+  "lsp": true,
+  "mcp": {
+    "context7": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@upstash/context7-mcp@latest"
+      ]
+    },
+    "github": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "environment": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "{env:GITHUB_TOKEN}"
+      }
+    },
+    "playwright": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@playwright/mcp@0.0.69",
+        "--headless",
+        "--no-sandbox",
+        "--browser",
+        "chromium",
+        "--viewport-size",
+        "1280x720",
+        "--image-responses",
+        "omit"
+      ]
+    }
+  },
+  "model": "ollama/qwen2.5:7b",
+  "permission": "ask",
+  "provider": {
+    "ollama": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ollama local",
+      "options": {
+        "baseURL": "http://host.containers.internal:11434/v1",
+        "apiKey": "ollama"
+      },
+      "models": {
+        "qwen2.5:7b": {
+          "name": "Qwen 2.5 7B Fast Chat",
+          "tools": true,
+          "options": {
+            "num_ctx": 8192,
+            "temperature": 0.2
+          }
+        },
+        "qwen2.5-coder:7b": {
+          "name": "Qwen 2.5 Coder 7B",
+          "tools": true,
+          "options": {
+            "num_ctx": 8192,
+            "temperature": 0.1
+          }
+        },
+        "qwen2.5-coder:32b": {
+          "name": "Qwen 2.5 Coder 32B",
+          "tools": true,
+          "options": {
+            "num_ctx": 32768,
+            "temperature": 0.1
+          }
+        },
+        "deepseek-r1:32b": {
+          "name": "DeepSeek R1 32B",
+          "tools": true,
+          "options": {
+            "num_ctx": 32768,
+            "temperature": 0.1
+          }
+        },
+        "deepseek-coder:33b": {
+          "name": "DeepSeek Coder 33B",
+          "tools": true,
+          "options": {
+            "num_ctx": 32768,
+            "temperature": 0.1
+          }
+        },
+        "llama3.1:8b": {
+          "name": "Llama 3.1 8B Fast Chat",
+          "tools": true,
+          "options": {
+            "num_ctx": 8192,
+            "temperature": 0.2
+          }
+        }
+      }
+    },
+    "openai": {
+      "npm": "@ai-sdk/openai",
+      "name": "OpenAI / ChatGPT",
+      "options": {
+        "apiKey": "{env:OPENAI_API_KEY}"
+      },
+      "models": {
+        "gpt-4.1": {
+          "name": "GPT-4.1",
+          "tools": true,
+          "options": {
+            "temperature": 0.1
+          }
+        },
+        "gpt-4.1-mini": {
+          "name": "GPT-4.1 Mini",
+          "tools": true,
+          "options": {
+            "temperature": 0.1
+          }
+        },
+        "gpt-4o": {
+          "name": "GPT-4o",
+          "tools": true,
+          "options": {
+            "temperature": 0.1
+          }
+        },
+        "gpt-4o-mini": {
+          "name": "GPT-4o Mini",
+          "tools": true,
+          "options": {
+            "temperature": 0.1
+          }
+        }
+      }
+    }
+  }
+}
