@@ -17,7 +17,7 @@ Use `java-agentic-devkit` to keep the team on the same Java 21 toolchain.
 From the developer machine:
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh /path/to/java21/project java21
 ```
 

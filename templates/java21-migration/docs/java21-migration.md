@@ -45,7 +45,7 @@ All migration work should be performed through `java-agentic-devkit`.
 From the host machine:
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh /path/to/this/project
 ```
 

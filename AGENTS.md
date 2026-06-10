@@ -43,7 +43,7 @@ Prefer copy-pasteable commands.
 Keep examples consistent. Use this command style:
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh /path/to/java/project
 ```
 
@@ -149,7 +149,7 @@ Keep `docs/` focused:
 
 Keep `templates/README.md` as the template inventory and copy-command reference.
 
-Avoid re-creating old docs such as `GETTING_STARTED.md`, `EXAMPLES.md`, `QUICK_START_PROJECT1.md`, or `USING_THE_TEMPLATE.md` unless the user explicitly requests them.
+Do not add extra top-level workflow docs unless the user explicitly asks for them.
 
 ---
 
@@ -177,14 +177,8 @@ Do not revert unrelated user changes.
 
 Do not force push or rewrite Git history.
 
-Before finalizing, check for stale references when files are renamed or removed.
+Before finalizing, keep references aligned with the current repository structure.
 
-Common stale references to avoid:
+Use `AGENTS.md`, `docs/README.md`, `docs/JAVA8_TO_JAVA21_MIGRATION.md`, `templates/README.md`, and the scripts under `scripts/` as the source of truth.
 
-- `opencode/instructions.md`
-- `{file:instructions.md}`
-- `GETTING_STARTED.md`
-- `EXAMPLES.md`
-- `QUICK_START_PROJECT1.md`
-- `USING_THE_TEMPLATE.md`
-- `devkit ~/...` shortcut examples
+Do not document `devkit ~/...` shortcut examples unless the user explicitly asks for that workflow.

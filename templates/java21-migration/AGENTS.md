@@ -49,7 +49,7 @@ Do not run the migration from an ad-hoc local Java or Maven installation unless 
 Start the container from the host machine using:
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh /path/to/this/project
 ```
 

@@ -21,7 +21,7 @@ The devkit itself stays outside the target Java project. Developers start the de
 From the developer machine:
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh /path/to/java/project
 ```
 
@@ -30,7 +30,7 @@ Java 8 is the default runtime.
 Use Java 21 explicitly when needed:
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh /path/to/java/project java21
 ```
 
@@ -47,7 +47,7 @@ Inside the container, the target project is mounted at:
 Open Docker Desktop first and wait until Docker is running. Then run:
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh ~/cip/27801_arus
 ```
 
@@ -73,6 +73,18 @@ cd ~/github/java-agentic-devkit
 
 Keeping both the devkit and Java projects inside the WSL home folder, such as `~/github` and `~/cip`, is usually faster than working from `/mnt/c`.
 
+Template copy scripts also run from WSL. For example:
+
+```bash
+~/github/java-agentic-devkit/scripts/copy-java21-migration-template.sh ~/cip/27801_arus
+```
+
+If the target project is on the Windows `C:` drive, pass the WSL path:
+
+```bash
+~/github/java-agentic-devkit/scripts/copy-java21-migration-template.sh /mnt/c/Users/YOUR_NAME/cip/27801_arus
+```
+
 ---
 
 ## DevKit Scripts
@@ -85,11 +97,14 @@ Run these scripts from the `java-agentic-devkit` directory.
 | `./scripts/devkit.sh` | Full startup script used by `dev.sh`. It accepts the project path and Java version. | Advanced debugging or direct control. |
 | `./scripts/create-image.sh` | Builds the Docker image only. | Rebuild the devkit image without starting a project. |
 | `./scripts/run-image.sh` | Runs an existing image. | Manual container startup. |
+| `./scripts/copy-java8-template.sh` | Copies the Java 8 template into a target project. | Preparing a Java 8 project for agent-assisted work. |
+| `./scripts/copy-java21-template.sh` | Copies the Java 21 template into a target project. | Preparing a Java 21 project for agent-assisted work. |
+| `./scripts/copy-java21-migration-template.sh` | Copies the Java 8 to Java 21 migration template and helper scripts into a target project. | Starting a migration. |
 
 Recommended command style:
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh /path/to/java/project
 ```
 
@@ -102,21 +117,21 @@ Use this same style in examples and team documentation. Do not rely on a `devkit
 Java 8 is the default:
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh /path/to/java8-project
 ```
 
 You can also request Java 8 explicitly:
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh /path/to/java8-project java8
 ```
 
 Use Java 21 explicitly:
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh /path/to/java21-project java21
 ```
 
@@ -159,14 +174,13 @@ target-java-project/
     └── java8-best-practices.md
 ```
 
-Copy command from the target project root:
+Recommended command from macOS, Linux, or Windows WSL:
 
 ```bash
-mkdir -p .github docs
-cp /path/to/java-agentic-devkit/templates/java8/AGENTS.md AGENTS.md
-cp /path/to/java-agentic-devkit/templates/java8/.github/copilot-instructions.md .github/copilot-instructions.md
-cp /path/to/java-agentic-devkit/templates/java8/docs/java8-best-practices.md docs/java8-best-practices.md
+~/github/java-agentic-devkit/scripts/copy-java8-template.sh /path/to/java8-project
 ```
+
+You can also run it from the target project root with no argument.
 
 ### Java 21 Template
 
@@ -181,14 +195,13 @@ target-java-project/
     └── java21-best-practices.md
 ```
 
-Copy command from the target project root:
+Recommended command from macOS, Linux, or Windows WSL:
 
 ```bash
-mkdir -p .github docs
-cp /path/to/java-agentic-devkit/templates/java21/AGENTS.md AGENTS.md
-cp /path/to/java-agentic-devkit/templates/java21/.github/copilot-instructions.md .github/copilot-instructions.md
-cp /path/to/java-agentic-devkit/templates/java21/docs/java21-best-practices.md docs/java21-best-practices.md
+~/github/java-agentic-devkit/scripts/copy-java21-template.sh /path/to/java21-project
 ```
+
+You can also run it from the target project root with no argument.
 
 ### Java 8 to Java 21 Migration Template
 
@@ -207,16 +220,13 @@ target-java-project/
     └── compare-behavior.sh
 ```
 
-Copy command from the target project root:
+Recommended command from macOS, Linux, or Windows WSL:
 
 ```bash
-mkdir -p .github docs scripts
-cp /path/to/java-agentic-devkit/templates/java21-migration/AGENTS.md AGENTS.md
-cp /path/to/java-agentic-devkit/templates/java21-migration/.github/copilot-instructions.md .github/copilot-instructions.md
-cp /path/to/java-agentic-devkit/templates/java21-migration/docs/java21-migration.md docs/java21-migration.md
-cp /path/to/java-agentic-devkit/templates/java21-migration/scripts/*.sh scripts/
-chmod +x scripts/run-java8-baseline.sh scripts/run-java21-candidate.sh scripts/compare-behavior.sh
+~/github/java-agentic-devkit/scripts/copy-java21-migration-template.sh ~/cip/27801_arus
 ```
+
+You can also run it from the target project root with no argument.
 
 For the migration workflow, see [JAVA8_TO_JAVA21_MIGRATION.md](JAVA8_TO_JAVA21_MIGRATION.md).
 
@@ -227,7 +237,7 @@ For the migration workflow, see [JAVA8_TO_JAVA21_MIGRATION.md](JAVA8_TO_JAVA21_M
 ### Work on `~/cip/27801_arus` with Java 8
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh ~/cip/27801_arus
 ```
 
@@ -242,7 +252,7 @@ opencode
 ### Work on a Java 21 project
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh /path/to/java21-project java21
 ```
 
@@ -256,7 +266,7 @@ mvn clean verify
 ### Rebuild the devkit image
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/create-image.sh
 ```
 

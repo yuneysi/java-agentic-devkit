@@ -33,7 +33,7 @@ The migration must be executed from the standardized containerized environment p
 From the developer machine:
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh /path/to/your/java/project
 ```
 
@@ -124,10 +124,10 @@ Copy these files into the root of the target Java project before starting migrat
 
 ```bash
 mkdir -p .github docs scripts
-cp /path/to/java-agentic-devkit/templates/java21-migration/AGENTS.md AGENTS.md
-cp /path/to/java-agentic-devkit/templates/java21-migration/.github/copilot-instructions.md .github/copilot-instructions.md
-cp /path/to/java-agentic-devkit/templates/java21-migration/docs/java21-migration.md docs/java21-migration.md
-cp /path/to/java-agentic-devkit/templates/java21-migration/scripts/*.sh scripts/
+cp ~/github/java-agentic-devkit/templates/java21-migration/AGENTS.md AGENTS.md
+cp ~/github/java-agentic-devkit/templates/java21-migration/.github/copilot-instructions.md .github/copilot-instructions.md
+cp ~/github/java-agentic-devkit/templates/java21-migration/docs/java21-migration.md docs/java21-migration.md
+cp ~/github/java-agentic-devkit/templates/java21-migration/scripts/*.sh scripts/
 chmod +x scripts/run-java8-baseline.sh scripts/run-java21-candidate.sh scripts/compare-behavior.sh
 ```
 
@@ -197,7 +197,7 @@ scripts/compare-behavior.sh
 Start in Java 8 mode and copy the migration template into the target project:
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh ~/cip/27801_arus java8
 ```
 
@@ -205,10 +205,10 @@ Inside the container:
 
 ```bash
 mkdir -p .github docs scripts
-cp /path/to/java-agentic-devkit/templates/java21-migration/AGENTS.md AGENTS.md
-cp /path/to/java-agentic-devkit/templates/java21-migration/.github/copilot-instructions.md .github/copilot-instructions.md
-cp /path/to/java-agentic-devkit/templates/java21-migration/docs/java21-migration.md docs/java21-migration.md
-cp /path/to/java-agentic-devkit/templates/java21-migration/scripts/*.sh scripts/
+cp ~/github/java-agentic-devkit/templates/java21-migration/AGENTS.md AGENTS.md
+cp ~/github/java-agentic-devkit/templates/java21-migration/.github/copilot-instructions.md .github/copilot-instructions.md
+cp ~/github/java-agentic-devkit/templates/java21-migration/docs/java21-migration.md docs/java21-migration.md
+cp ~/github/java-agentic-devkit/templates/java21-migration/scripts/*.sh scripts/
 chmod +x scripts/run-java8-baseline.sh scripts/run-java21-candidate.sh scripts/compare-behavior.sh
 scripts/run-java8-baseline.sh
 ```
@@ -216,7 +216,7 @@ scripts/run-java8-baseline.sh
 After baseline behavior is captured, restart the devkit with Java 21 only when Java 21 validation is required:
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh ~/cip/27801_arus java21
 ```
 
@@ -232,7 +232,7 @@ scripts/compare-behavior.sh
 From the host machine:
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh ~/cip/27801_arus
 ```
 
@@ -251,10 +251,10 @@ Copy the migration instruction files to the target project:
 
 ```bash
 mkdir -p .github docs scripts
-cp /path/to/java-agentic-devkit/templates/java21-migration/AGENTS.md AGENTS.md
-cp /path/to/java-agentic-devkit/templates/java21-migration/.github/copilot-instructions.md .github/copilot-instructions.md
-cp /path/to/java-agentic-devkit/templates/java21-migration/docs/java21-migration.md docs/java21-migration.md
-cp /path/to/java-agentic-devkit/templates/java21-migration/scripts/*.sh scripts/
+cp ~/github/java-agentic-devkit/templates/java21-migration/AGENTS.md AGENTS.md
+cp ~/github/java-agentic-devkit/templates/java21-migration/.github/copilot-instructions.md .github/copilot-instructions.md
+cp ~/github/java-agentic-devkit/templates/java21-migration/docs/java21-migration.md docs/java21-migration.md
+cp ~/github/java-agentic-devkit/templates/java21-migration/scripts/*.sh scripts/
 chmod +x scripts/run-java8-baseline.sh scripts/run-java21-candidate.sh scripts/compare-behavior.sh
 ```
 
@@ -287,7 +287,7 @@ Before making Java 21 changes, capture the Java 8 baseline.
 Start the project in Java 8 mode:
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh /path/to/your/java/project java8
 ```
 
@@ -319,7 +319,7 @@ The Java 8 baseline is the behavioral source of truth.
 When Java 8 baseline behavior is documented, restart the container in Java 21 mode:
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh /path/to/your/java/project java21
 ```
 
@@ -457,10 +457,10 @@ Do not accept Copilot changes that alter behavior without tests.
 
 ```bash
 mkdir -p .github docs scripts
-cp /path/to/java-agentic-devkit/templates/java21-migration/AGENTS.md AGENTS.md
-cp /path/to/java-agentic-devkit/templates/java21-migration/.github/copilot-instructions.md .github/copilot-instructions.md
-cp /path/to/java-agentic-devkit/templates/java21-migration/docs/java21-migration.md docs/java21-migration.md
-cp /path/to/java-agentic-devkit/templates/java21-migration/scripts/*.sh scripts/
+cp ~/github/java-agentic-devkit/templates/java21-migration/AGENTS.md AGENTS.md
+cp ~/github/java-agentic-devkit/templates/java21-migration/.github/copilot-instructions.md .github/copilot-instructions.md
+cp ~/github/java-agentic-devkit/templates/java21-migration/docs/java21-migration.md docs/java21-migration.md
+cp ~/github/java-agentic-devkit/templates/java21-migration/scripts/*.sh scripts/
 chmod +x scripts/run-java8-baseline.sh scripts/run-java21-candidate.sh scripts/compare-behavior.sh
 git add AGENTS.md .github/copilot-instructions.md docs/java21-migration.md scripts/run-java8-baseline.sh scripts/run-java21-candidate.sh scripts/compare-behavior.sh
 git commit -m "chore: add agent instructions for Java 21 migration"

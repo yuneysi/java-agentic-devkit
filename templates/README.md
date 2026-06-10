@@ -38,13 +38,16 @@ templates/java8/
     └── java8-best-practices.md
 ```
 
-Copy command from the target project root:
+Recommended command from macOS, Linux, or Windows WSL:
 
 ```bash
-mkdir -p .github docs
-cp /path/to/java-agentic-devkit/templates/java8/AGENTS.md AGENTS.md
-cp /path/to/java-agentic-devkit/templates/java8/.github/copilot-instructions.md .github/copilot-instructions.md
-cp /path/to/java-agentic-devkit/templates/java8/docs/java8-best-practices.md docs/java8-best-practices.md
+~/github/java-agentic-devkit/scripts/copy-java8-template.sh /path/to/java8-project
+```
+
+Or run it from the target project root:
+
+```bash
+~/github/java-agentic-devkit/scripts/copy-java8-template.sh
 ```
 
 Recommended first commit:
@@ -57,7 +60,7 @@ git commit -m "chore: add Java 8 development instructions"
 Use the devkit with Java 8:
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh /path/to/java8-project
 ```
 
@@ -87,13 +90,16 @@ templates/java21/
     └── java21-best-practices.md
 ```
 
-Copy command from the target project root:
+Recommended command from macOS, Linux, or Windows WSL:
 
 ```bash
-mkdir -p .github docs
-cp /path/to/java-agentic-devkit/templates/java21/AGENTS.md AGENTS.md
-cp /path/to/java-agentic-devkit/templates/java21/.github/copilot-instructions.md .github/copilot-instructions.md
-cp /path/to/java-agentic-devkit/templates/java21/docs/java21-best-practices.md docs/java21-best-practices.md
+~/github/java-agentic-devkit/scripts/copy-java21-template.sh /path/to/java21-project
+```
+
+Or run it from the target project root:
+
+```bash
+~/github/java-agentic-devkit/scripts/copy-java21-template.sh
 ```
 
 Recommended first commit:
@@ -106,7 +112,7 @@ git commit -m "chore: add Java 21 development instructions"
 Use the devkit with Java 21:
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh /path/to/java21-project java21
 ```
 
@@ -144,15 +150,22 @@ templates/java21-migration/
     └── compare-behavior.sh
 ```
 
-Copy command from the target project root:
+Recommended command from macOS, Linux, or Windows WSL:
 
 ```bash
-mkdir -p .github docs scripts
-cp /path/to/java-agentic-devkit/templates/java21-migration/AGENTS.md AGENTS.md
-cp /path/to/java-agentic-devkit/templates/java21-migration/.github/copilot-instructions.md .github/copilot-instructions.md
-cp /path/to/java-agentic-devkit/templates/java21-migration/docs/java21-migration.md docs/java21-migration.md
-cp /path/to/java-agentic-devkit/templates/java21-migration/scripts/*.sh scripts/
-chmod +x scripts/run-java8-baseline.sh scripts/run-java21-candidate.sh scripts/compare-behavior.sh
+~/github/java-agentic-devkit/scripts/copy-java21-migration-template.sh ~/cip/27801_arus
+```
+
+Or run it from the target project root:
+
+```bash
+~/github/java-agentic-devkit/scripts/copy-java21-migration-template.sh
+```
+
+On Windows, run these commands from WSL. If the target project is stored on the Windows `C:` drive, pass its WSL path:
+
+```bash
+~/github/java-agentic-devkit/scripts/copy-java21-migration-template.sh /mnt/c/Users/YOUR_NAME/cip/27801_arus
 ```
 
 ## Migration Helper Scripts
@@ -242,13 +255,13 @@ Projects that are not doing a Java 8 to Java 21 migration do not need to copy th
 They can still use the devkit container:
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh /path/to/java-project
 ```
 
 Use Java 21 explicitly when needed:
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh /path/to/java-project java21
 ```

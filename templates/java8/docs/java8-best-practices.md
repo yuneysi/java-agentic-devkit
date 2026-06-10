@@ -17,14 +17,14 @@ Use `java-agentic-devkit` to keep the team on the same Java 8 toolchain.
 From the developer machine:
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh /path/to/java8/project
 ```
 
 Java 8 is the default runtime. You can also request it explicitly:
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh /path/to/java8/project java8
 ```
 

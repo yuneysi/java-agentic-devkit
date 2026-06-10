@@ -43,7 +43,7 @@ Use `java-agentic-devkit` for development whenever possible.
 Start the container from the host machine using:
 
 ```bash
-cd /path/to/java-agentic-devkit
+cd ~/github/java-agentic-devkit
 ./scripts/dev.sh /path/to/this/project
 ```
 
