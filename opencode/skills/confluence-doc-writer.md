@@ -12,8 +12,8 @@ Create clean, copy-paste friendly documentation for Confluence.
 - Do not create agent instruction files unless explicitly requested.
 - Keep headings clear and hierarchical.
 - Prefer practical commands and checklists.
-- Avoid duplicating long rules that already exist in `.devcontainer/opencode/instructions.md`.
-- When documenting agent behavior, clearly state that `.devcontainer/opencode/instructions.md` is the authoritative source.
+- Avoid duplicating long rules that already exist in the target project's root-level `AGENTS.md`.
+- When documenting agent behavior, clearly state that `AGENTS.md` is the authoritative source.
 - Use code blocks for commands.
 - Use tables only when they improve clarity.
 - Keep Windows, macOS, Docker, Podman, and WSL instructions clearly separated.

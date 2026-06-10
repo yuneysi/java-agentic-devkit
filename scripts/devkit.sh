@@ -21,6 +21,29 @@ NC='\033[0m' # No Color
 
 source "${SCRIPT_DIR}/docker-utils.sh"
 
+normalize_mount_path() {
+    local path="$1"
+
+    if [[ "$path" == "." ]]; then
+        cd "$path" && pwd
+        return
+    fi
+
+    if [[ "$path" =~ ^[A-Za-z]:[\\/].* ]]; then
+        if command -v wslpath > /dev/null 2>&1; then
+            wslpath -u "$path"
+            return
+        fi
+
+        if command -v cygpath > /dev/null 2>&1; then
+            cygpath -u "$path"
+            return
+        fi
+    fi
+
+    printf '%s\n' "$path"
+}
+
 # Default values
 MOUNT_PATH="${1:-.}"
 JAVA_VERSION="${2:-java8}"
@@ -46,14 +69,17 @@ fi
 
 # Step 2: Resolve absolute mount path
 echo -e "${YELLOW}2️⃣  Preparing project mount...${NC}"
-if [[ "$MOUNT_PATH" == "." ]]; then
-    MOUNT_PATH="$(cd "$MOUNT_PATH" && pwd)"
-fi
+MOUNT_PATH="$(normalize_mount_path "$MOUNT_PATH")"
 
 if [ ! -d "$MOUNT_PATH" ]; then
     echo -e "${RED}❌ Directory does not exist: $MOUNT_PATH${NC}"
+    if [[ "$MOUNT_PATH" =~ ^[A-Za-z]:[^\\/].* ]]; then
+        echo -e "${YELLOW}   Tip: use forward slashes for Windows paths, for example C:/Git/2026/27801_arus${NC}"
+    fi
     exit 1
 fi
+
+MOUNT_PATH="$(cd "$MOUNT_PATH" && pwd)"
 
 CONTAINER_MOUNT="/workspaces/project"
 echo -e "${GREEN}✅ Mounting: ${MOUNT_PATH}${NC}"

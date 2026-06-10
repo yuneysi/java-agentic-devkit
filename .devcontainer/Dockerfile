@@ -116,29 +116,29 @@ RUN update-alternatives --install /usr/bin/java java /opt/java/jdk8/bin/java 108
     && update-alternatives --set jar /opt/java/jdk8/bin/jar \
     && update-alternatives --set javadoc /opt/java/jdk8/bin/javadoc
 
-RUN cat > /usr/local/bin/use-java8 <<'EOF'
-#!/usr/bin/env bash
-export JAVA_HOME=/opt/java/jdk8
-export PATH="$JAVA_HOME/bin:${PATH}"
-sudo update-alternatives --set java /opt/java/jdk8/bin/java >/dev/null
-sudo update-alternatives --set javac /opt/java/jdk8/bin/javac >/dev/null
-sudo update-alternatives --set jar /opt/java/jdk8/bin/jar >/dev/null
-sudo update-alternatives --set javadoc /opt/java/jdk8/bin/javadoc >/dev/null
-java -version
-EOF
+RUN printf '%s\n' \
+    '#!/usr/bin/env bash' \
+    'export JAVA_HOME=/opt/java/jdk8' \
+    'export PATH="$JAVA_HOME/bin:${PATH}"' \
+    'sudo update-alternatives --set java /opt/java/jdk8/bin/java >/dev/null' \
+    'sudo update-alternatives --set javac /opt/java/jdk8/bin/javac >/dev/null' \
+    'sudo update-alternatives --set jar /opt/java/jdk8/bin/jar >/dev/null' \
+    'sudo update-alternatives --set javadoc /opt/java/jdk8/bin/javadoc >/dev/null' \
+    'java -version' \
+    > /usr/local/bin/use-java8
 
 RUN chmod +x /usr/local/bin/use-java8
 
-RUN cat > /usr/local/bin/use-java21 <<'EOF'
-#!/usr/bin/env bash
-export JAVA_HOME=/opt/java/jdk21
-export PATH="$JAVA_HOME/bin:${PATH}"
-sudo update-alternatives --set java /opt/java/jdk21/bin/java >/dev/null
-sudo update-alternatives --set javac /opt/java/jdk21/bin/javac >/dev/null
-sudo update-alternatives --set jar /opt/java/jdk21/bin/jar >/dev/null
-sudo update-alternatives --set javadoc /opt/java/jdk21/bin/javadoc >/dev/null
-java -version
-EOF
+RUN printf '%s\n' \
+    '#!/usr/bin/env bash' \
+    'export JAVA_HOME=/opt/java/jdk21' \
+    'export PATH="$JAVA_HOME/bin:${PATH}"' \
+    'sudo update-alternatives --set java /opt/java/jdk21/bin/java >/dev/null' \
+    'sudo update-alternatives --set javac /opt/java/jdk21/bin/javac >/dev/null' \
+    'sudo update-alternatives --set jar /opt/java/jdk21/bin/jar >/dev/null' \
+    'sudo update-alternatives --set javadoc /opt/java/jdk21/bin/javadoc >/dev/null' \
+    'java -version' \
+    > /usr/local/bin/use-java21
 
 RUN chmod +x /usr/local/bin/use-java21
 
@@ -164,17 +164,19 @@ RUN mkdir -p /var/tmp/m2/repository \
 # ---------------------------------------------------------------------
 RUN mkdir -p /opt/tomcat
 
-RUN curl -fsSL "https://archive.apache.org/dist/tomcat/tomcat-9/v${TOMCAT9_VERSION}/bin/apache-tomcat-${TOMCAT9_VERSION}-bin.tar.gz" 2>/dev/null \
+RUN (curl -fsSL "https://archive.apache.org/dist/tomcat/tomcat-9/v${TOMCAT9_VERSION}/bin/apache-tomcat-${TOMCAT9_VERSION}-bin.tar.gz" \
+        -o /tmp/tomcat9.tar.gz \
     || curl -fsSL "https://archive.apache.org/dist/tomcat/tomcat-9/v${TOMCAT9_VERSION}/bin/apache-tomcat-${TOMCAT9_VERSION}.tar.gz" \
-    -o /tmp/tomcat9.tar.gz \
+        -o /tmp/tomcat9.tar.gz) \
     && tar -xzf /tmp/tomcat9.tar.gz -C /opt/tomcat \
     && mv /opt/tomcat/apache-tomcat-${TOMCAT9_VERSION} /opt/tomcat/tomcat9 \
     && rm /tmp/tomcat9.tar.gz \
     && chmod +x /opt/tomcat/tomcat9/bin/*.sh
 
-RUN curl -fsSL "https://archive.apache.org/dist/tomcat/tomcat-11/v${TOMCAT11_VERSION}/bin/apache-tomcat-${TOMCAT11_VERSION}-bin.tar.gz" 2>/dev/null \
+RUN (curl -fsSL "https://archive.apache.org/dist/tomcat/tomcat-11/v${TOMCAT11_VERSION}/bin/apache-tomcat-${TOMCAT11_VERSION}-bin.tar.gz" \
+        -o /tmp/tomcat11.tar.gz \
     || curl -fsSL "https://archive.apache.org/dist/tomcat/tomcat-11/v${TOMCAT11_VERSION}/bin/apache-tomcat-${TOMCAT11_VERSION}.tar.gz" \
-    -o /tmp/tomcat11.tar.gz \
+        -o /tmp/tomcat11.tar.gz) \
     && tar -xzf /tmp/tomcat11.tar.gz -C /opt/tomcat \
     && mv /opt/tomcat/apache-tomcat-${TOMCAT11_VERSION} /opt/tomcat/tomcat11 \
     && rm /tmp/tomcat11.tar.gz \
@@ -184,37 +186,37 @@ ENV TOMCAT9_HOME=/opt/tomcat/tomcat9
 ENV TOMCAT11_HOME=/opt/tomcat/tomcat11
 ENV CATALINA_HOME=/opt/tomcat/tomcat9
 
-RUN cat > /usr/local/bin/start-tomcat9 <<'EOF'
-#!/usr/bin/env bash
-export JAVA_HOME=/opt/java/jdk8
-export CATALINA_HOME=/opt/tomcat/tomcat9
-export CATALINA_BASE=/opt/tomcat/tomcat9
-exec "$CATALINA_HOME/bin/catalina.sh" run
-EOF
+RUN printf '%s\n' \
+    '#!/usr/bin/env bash' \
+    'export JAVA_HOME=/opt/java/jdk8' \
+    'export CATALINA_HOME=/opt/tomcat/tomcat9' \
+    'export CATALINA_BASE=/opt/tomcat/tomcat9' \
+    'exec "$CATALINA_HOME/bin/catalina.sh" run' \
+    > /usr/local/bin/start-tomcat9
 
 RUN chmod +x /usr/local/bin/start-tomcat9
 
-RUN cat > /usr/local/bin/stop-tomcat9 <<'EOF'
-#!/usr/bin/env bash
-/opt/tomcat/tomcat9/bin/catalina.sh stop
-EOF
+RUN printf '%s\n' \
+    '#!/usr/bin/env bash' \
+    '/opt/tomcat/tomcat9/bin/catalina.sh stop' \
+    > /usr/local/bin/stop-tomcat9
 
 RUN chmod +x /usr/local/bin/stop-tomcat9
 
-RUN cat > /usr/local/bin/start-tomcat11 <<'EOF'
-#!/usr/bin/env bash
-export JAVA_HOME=/opt/java/jdk21
-export CATALINA_HOME=/opt/tomcat/tomcat11
-export CATALINA_BASE=/opt/tomcat/tomcat11
-exec "$CATALINA_HOME/bin/catalina.sh" run
-EOF
+RUN printf '%s\n' \
+    '#!/usr/bin/env bash' \
+    'export JAVA_HOME=/opt/java/jdk21' \
+    'export CATALINA_HOME=/opt/tomcat/tomcat11' \
+    'export CATALINA_BASE=/opt/tomcat/tomcat11' \
+    'exec "$CATALINA_HOME/bin/catalina.sh" run' \
+    > /usr/local/bin/start-tomcat11
 
 RUN chmod +x /usr/local/bin/start-tomcat11
 
-RUN cat > /usr/local/bin/stop-tomcat11 <<'EOF'
-#!/usr/bin/env bash
-/opt/tomcat/tomcat11/bin/catalina.sh stop
-EOF
+RUN printf '%s\n' \
+    '#!/usr/bin/env bash' \
+    '/opt/tomcat/tomcat11/bin/catalina.sh stop' \
+    > /usr/local/bin/stop-tomcat11
 
 RUN chmod +x /usr/local/bin/stop-tomcat11
 
@@ -222,8 +224,12 @@ RUN chmod +x /usr/local/bin/stop-tomcat11
 # ActiveMQ Classic
 # ---------------------------------------------------------------------
 RUN mkdir -p /opt/activemq \
-    && curl -fsSL "https://archive.apache.org/dist/activemq/${ACTIVEMQ_VERSION}/apache-activemq-${ACTIVEMQ_VERSION}-bin.tar.gz" \
-       -o /tmp/activemq.tar.gz \
+    && (curl -fsSL "https://repo.maven.apache.org/maven2/org/apache/activemq/apache-activemq/${ACTIVEMQ_VERSION}/apache-activemq-${ACTIVEMQ_VERSION}-bin.tar.gz" \
+            -o /tmp/activemq.tar.gz \
+        || curl -fsSL "https://dlcdn.apache.org/activemq/${ACTIVEMQ_VERSION}/apache-activemq-${ACTIVEMQ_VERSION}-bin.tar.gz" \
+            -o /tmp/activemq.tar.gz \
+        || curl -fsSL "https://archive.apache.org/dist/activemq/${ACTIVEMQ_VERSION}/apache-activemq-${ACTIVEMQ_VERSION}-bin.tar.gz" \
+            -o /tmp/activemq.tar.gz) \
     && tar -xzf /tmp/activemq.tar.gz -C /opt/activemq --strip-components=1 \
     && rm /tmp/activemq.tar.gz \
     && chmod +x /opt/activemq/bin/activemq
@@ -231,11 +237,11 @@ RUN mkdir -p /opt/activemq \
 ENV ACTIVEMQ_HOME=/opt/activemq
 ENV PATH="${ACTIVEMQ_HOME}/bin:${PATH}"
 
-RUN cat > /usr/local/bin/start-activemq <<'EOF'
-#!/usr/bin/env bash
-export JAVA_HOME=/opt/java/jdk8
-exec /opt/activemq/bin/activemq console
-EOF
+RUN printf '%s\n' \
+    '#!/usr/bin/env bash' \
+    'export JAVA_HOME=/opt/java/jdk8' \
+    'exec /opt/activemq/bin/activemq console' \
+    > /usr/local/bin/start-activemq
 
 RUN chmod +x /usr/local/bin/start-activemq
 
@@ -312,22 +318,22 @@ RUN SONAR_SCANNER_VERSION="$(curl -fsSL https://api.github.com/repos/SonarSource
 # ---------------------------------------------------------------------
 RUN mkdir -p /opt/jdtls || true
 
-RUN cat > /usr/local/bin/jdtls <<'EOF'
-#!/usr/bin/env bash
-exec /opt/java/jdk21/bin/java \
-  -Declipse.application=org.eclipse.jdt.ls.core.id1 \
-  -Dosgi.bundles.defaultStartLevel=4 \
-  -Declipse.product=org.eclipse.jdt.ls.core.product \
-  -Dlog.protocol=true \
-  -Dlog.level=ALL \
-  -Xmx2G \
-  --add-modules=ALL-SYSTEM \
-  --add-opens java.base/java.util=ALL-UNNAMED \
-  --add-opens java.base/java.lang=ALL-UNNAMED \
-  -jar /opt/jdtls/plugins/org.eclipse.equinox.launcher_*.jar \
-  -configuration /opt/jdtls/config_linux \
-  -data "${JDTLS_WORKSPACE:-/var/tmp/jdtls-workspace}"
-EOF
+RUN printf '%s\n' \
+                '#!/usr/bin/env bash' \
+                'exec /opt/java/jdk21/bin/java \' \
+                '  -Declipse.application=org.eclipse.jdt.ls.core.id1 \' \
+                '  -Dosgi.bundles.defaultStartLevel=4 \' \
+                '  -Declipse.product=org.eclipse.jdt.ls.core.product \' \
+                '  -Dlog.protocol=true \' \
+                '  -Dlog.level=ALL \' \
+                '  -Xmx2G \' \
+                '  --add-modules=ALL-SYSTEM \' \
+                '  --add-opens java.base/java.util=ALL-UNNAMED \' \
+                '  --add-opens java.base/java.lang=ALL-UNNAMED \' \
+                '  -jar /opt/jdtls/plugins/org.eclipse.equinox.launcher_*.jar \' \
+                '  -configuration /opt/jdtls/config_linux \' \
+                '  -data "${JDTLS_WORKSPACE:-/var/tmp/jdtls-workspace}"' \
+                > /usr/local/bin/jdtls
 
 RUN chmod +x /usr/local/bin/jdtls \
     && mkdir -p /var/tmp/jdtls-workspace \
@@ -371,33 +377,33 @@ RUN git config --global core.untrackedcache true \
     && git config --global feature.manyFiles true \
     && git config --global pull.rebase false
 
-RUN cat >> /home/${USERNAME}/.bashrc <<'EOF'
-
-# Java helpers
-alias java8='source /usr/local/bin/use-java8'
-alias java21='source /usr/local/bin/use-java21'
-
-# Tomcat helpers
-alias t9='start-tomcat9'
-alias t11='start-tomcat11'
-
-# Maven helpers
-alias mvn8='JAVA_HOME=/opt/java/jdk8 mvn'
-alias mvn21='JAVA_HOME=/opt/java/jdk21 mvn'
-
-# Runtime paths
-export JAVA8_HOME=/opt/java/jdk8
-export JAVA21_HOME=/opt/java/jdk21
-export JAVA_HOME=/opt/java/jdk8
-export MAVEN_HOME=/opt/maven
-export MAVEN_OPTS="-Dmaven.repo.local=/var/tmp/m2/repository"
-export TOMCAT9_HOME=/opt/tomcat/tomcat9
-export TOMCAT11_HOME=/opt/tomcat/tomcat11
-export ACTIVEMQ_HOME=/opt/activemq
-export MQ_INSTALLATION_PATH=/opt/mqm
-export IBM_MQ_HOME=/opt/mqm
-export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}:/opt/mqm/lib64:/opt/mqm/lib"
-EOF
+RUN printf '%s\n' \
+    '' \
+    '# Java helpers' \
+    "alias java8='source /usr/local/bin/use-java8'" \
+    "alias java21='source /usr/local/bin/use-java21'" \
+    '' \
+    '# Tomcat helpers' \
+    "alias t9='start-tomcat9'" \
+    "alias t11='start-tomcat11'" \
+    '' \
+    '# Maven helpers' \
+    "alias mvn8='JAVA_HOME=/opt/java/jdk8 mvn'" \
+    "alias mvn21='JAVA_HOME=/opt/java/jdk21 mvn'" \
+    '' \
+    '# Runtime paths' \
+    'export JAVA8_HOME=/opt/java/jdk8' \
+    'export JAVA21_HOME=/opt/java/jdk21' \
+    'export JAVA_HOME=/opt/java/jdk8' \
+    'export MAVEN_HOME=/opt/maven' \
+    'export MAVEN_OPTS="-Dmaven.repo.local=/var/tmp/m2/repository"' \
+    'export TOMCAT9_HOME=/opt/tomcat/tomcat9' \
+    'export TOMCAT11_HOME=/opt/tomcat/tomcat11' \
+    'export ACTIVEMQ_HOME=/opt/activemq' \
+    'export MQ_INSTALLATION_PATH=/opt/mqm' \
+    'export IBM_MQ_HOME=/opt/mqm' \
+    'export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}:/opt/mqm/lib64:/opt/mqm/lib"' \
+    >> /home/${USERNAME}/.bashrc
 
 WORKDIR /workspaces
 
@@ -420,7 +426,6 @@ RUN java -version \
 # ---------------------------------------------------------------------
 COPY --chown=${USERNAME}:${USERNAME} opencode/opencode.json /home/${USERNAME}/.config/opencode/opencode.json
 COPY --chown=${USERNAME}:${USERNAME} opencode/tui.json /home/${USERNAME}/.config/opencode/tui.json
-COPY --chown=${USERNAME}:${USERNAME} opencode/instructions.md /home/${USERNAME}/.config/opencode/instructions.md
 COPY --chown=${USERNAME}:${USERNAME} opencode/skills/ /home/${USERNAME}/.config/opencode/skills/
 
 EXPOSE 8080 8009 5005 61616 8161

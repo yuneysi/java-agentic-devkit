@@ -36,9 +36,9 @@ The README is not an agent instruction file.
 
 - `README.md` is for human developers.
 - `docs/migration/*.md` is long-form human documentation.
-- `.devcontainer/opencode/instructions.md` is the authoritative instruction file for OpenCode agents.
+- `AGENTS.md` in the target project root is the authoritative instruction file for OpenCode agents.
 
-If there is any conflict, `.devcontainer/opencode/instructions.md` wins.
+If there is any conflict, the target project's root-level `AGENTS.md` wins.
 
 ## Recommended Output Style
 
