@@ -20,20 +20,11 @@ You want to develop it with AI assistance using the java-agentic-devkit.
 ~/projects/java-agentic-devkit/scripts/dev.sh ~/projects/project1
 ```
 
-### Option 2: Create Symlink (Most Convenient)
-
-One-time setup, then use `devkit` from anywhere:
+### Option 2: Run from Your Project Directory
 
 ```bash
-# One-time setup
-ln -s /path/to/java-agentic-devkit/scripts/dev.sh /usr/local/bin/devkit
-
-# Then use from anywhere:
-devkit ~/projects/project1
-
-# Or even simpler:
 cd ~/projects/project1
-devkit
+/path/to/java-agentic-devkit/scripts/dev.sh
 ```
 
 ### Option 3: Run from DevKit Directory
@@ -51,14 +42,14 @@ cd /path/to/java-agentic-devkit
 When you run the command:
 
 ```bash
-devkit ~/projects/project1
+/path/to/java-agentic-devkit/scripts/dev.sh ~/projects/project1
 ```
 
 The script will:
 
 1. ✅ Check if Docker image exists (build if needed)
 # Mount your project: `~/projects/project1` → `/workspaces/project` (inside container)
-3. ✅ Configure Java (default: Java 21)
+3. ✅ Configure Java (default: Java 8)
 4. ✅ Show welcome message
 5. ✅ Enter interactive bash shell
 
@@ -98,7 +89,7 @@ exit
 
 ```bash
 # From your home directory
-devkit ~/projects/project1
+/path/to/java-agentic-devkit/scripts/dev.sh ~/projects/project1
 
 # Inside container - first build (2-3 minutes)
 mvn clean install
@@ -198,7 +189,7 @@ opencode
 
 ```bash
 export OPENAI_API_KEY="sk-your-actual-key"
-devkit ~/cip/27801_arus
+/path/to/java-agentic-devkit/scripts/dev.sh ~/cip/27801_arus
 ```
 
 ### Using Local Ollama (Free)
@@ -211,7 +202,7 @@ ollama serve
 ollama pull llama2
 
 # Then start devkit
-devkit ~/projects/project1
+/path/to/java-agentic-devkit/scripts/dev.sh ~/projects/project1
 
 # Inside container
 export OLLAMA_API_BASE="http://host.docker.internal:11434"
@@ -220,14 +211,11 @@ opencode  # Uses local llama2 (free!)
 
 ## Troubleshooting
 
-### Command not found: devkit
+### Script Not Found
 
 ```bash
-# Make sure symlink exists
-ls -la /usr/local/bin/devkit
-
-# If not, create it
-ln -s /path/to/java-agentic-devkit/scripts/dev.sh /usr/local/bin/devkit
+# Make sure the devkit path is correct
+ls -la /path/to/java-agentic-devkit/scripts/dev.sh
 ```
 
 ### Permission denied
@@ -244,7 +232,7 @@ chmod +x /path/to/java-agentic-devkit/scripts/*.sh
 docker system prune
 
 # Try again
-devkit ~/cip/27801_arus
+/path/to/java-agentic-devkit/scripts/dev.sh ~/cip/27801_arus
 ```
 
 ### Project files not visible
@@ -254,7 +242,7 @@ devkit ~/cip/27801_arus
 ls -la ~/projects/project1
 
 # Use absolute path
-devkit /Users/yuneysi/projects/project1
+/path/to/java-agentic-devkit/scripts/dev.sh /Users/yuneysi/projects/project1
 ```
 
 ## Summary
@@ -262,11 +250,7 @@ devkit /Users/yuneysi/projects/project1
 **To develop your project1:**
 
 ```bash
-# One-time setup
-ln -s ~/projects/java-agentic-devkit/scripts/dev.sh /usr/local/bin/devkit
-
-# Then always use
-devkit ~/projects/project1
+/path/to/java-agentic-devkit/scripts/dev.sh ~/projects/project1
 
 # Done! You're inside the container with:
 # ✅ Your project mounted

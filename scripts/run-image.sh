@@ -5,6 +5,8 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # Default values
 IMAGE="${1:-java-agentic-devkit:latest}"
 COMMAND="${2:-/bin/bash}"
@@ -15,6 +17,10 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
+
+source "${SCRIPT_DIR}/docker-utils.sh"
+
+ensure_docker_available
 
 echo -e "${YELLOW}🚀 Running Docker image...${NC}"
 echo -e "${BLUE}Image: ${GREEN}${IMAGE}${NC}"

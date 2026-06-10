@@ -99,6 +99,7 @@ RUN ARCH="$(dpkg --print-architecture)" \
 
 ENV JAVA8_HOME=/opt/java/jdk8
 ENV JAVA21_HOME=/opt/java/jdk21
+ENV DEFAULT_JAVA_VERSION=java8
 ENV JAVA_HOME=/opt/java/jdk8
 ENV PATH="${JAVA_HOME}/bin:${PATH}"
 

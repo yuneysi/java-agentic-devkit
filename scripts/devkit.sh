@@ -6,9 +6,11 @@
 # Examples:
 #   ./scripts/devkit.sh                    # Uses current directory
 #   ./scripts/devkit.sh /path/to/project   # Mount specific project
-#   ./scripts/devkit.sh . java21            # Use Java 21
+#   ./scripts/devkit.sh . java21           # Use Java 21
 
 set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Colors for output
 RED='\033[0;31m'
@@ -17,9 +19,11 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+source "${SCRIPT_DIR}/docker-utils.sh"
+
 # Default values
 MOUNT_PATH="${1:-.}"
-JAVA_VERSION="${2:-java21}"
+JAVA_VERSION="${2:-java8}"
 IMAGE_NAME="java-agentic-devkit"
 TAG="latest"
 FULL_IMAGE="${IMAGE_NAME}:${TAG}"
@@ -27,6 +31,8 @@ FULL_IMAGE="${IMAGE_NAME}:${TAG}"
 echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
 echo -e "${BLUE}   Java Agentic DevKit - Start${NC}"
 echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}\n"
+
+ensure_docker_available
 
 # Step 1: Check if image exists
 echo -e "${YELLOW}1️⃣  Checking Docker image...${NC}"

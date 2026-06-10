@@ -26,36 +26,74 @@
 ```bash
 # One command to build image + start container with your project
 ./scripts/dev.sh /path/to/your/java/project
-```
 
-That's it! The script will:
-1. Build the image (only once)
-2. Mount your project
+Example:
+./scripts/dev.sh ~/cip/27801_arus
+
+```
+# One command to build image + start the container with your project
+./scripts/dev.sh ~/cip/27801_arus
 3. Start an interactive container
 4. Show you all available commands
 
+1. Check that Docker is ready
+2. Build the image if it does not exist yet
+3. Mount `~/cip/27801_arus` at `/workspaces/project`
+4. Start an interactive container with Java 8 by default
+5. Show you all available commands
+
+### Mac Quick Start
+
+1. Open Docker Desktop and wait until it says Docker is running.
+2. Open Terminal.
+3. Start the devkit:
+
+```bash
+cd ~/github/java-agentic-devkit
+./scripts/dev.sh ~/cip/27801_arus
+```
+
+If Docker Desktop is installed but not running, the script will try to start it for you. If Docker still is not ready, wait a moment and run the command again.
+
+### Windows Quick Start
+
+Use Docker Desktop with WSL2. The easiest path is to run the devkit from an Ubuntu or other WSL terminal.
+
+1. Install Docker Desktop.
+2. In Docker Desktop, enable the WSL2 backend.
+3. Open your WSL terminal.
+4. Start the devkit:
+
+```bash
+cd ~/github/java-agentic-devkit
+./scripts/dev.sh ~/cip/27801_arus
+```
+
+If your Java project is stored on the Windows `C:` drive, use the WSL path:
+
+```bash
+./scripts/dev.sh /mnt/c/Users/YOUR_NAME/cip/27801_arus
+```
+
+Tip: keeping both the devkit and your Java projects inside your WSL home folder, such as `~/github` and `~/cip`, is usually faster than working from `/mnt/c`.
+
 ### Real Example: Using devkit with a Specific Project
 
-Let's say you have a Java project at `~/projects/project1`:
+Let's say you have a Java project at `~/cip/27801_arus`:
 
 ```bash
 # From your devkit directory
 cd /path/to/java-agentic-devkit
 
 # Option 1: Use absolute path to your project
-./scripts/dev.sh ~/projects/project1
+./scripts/dev.sh ~/cip/27801_arus
 
-# Option 2: Use absolute path with Java 8
-./scripts/dev.sh ~/projects/project1 java8
+# Option 2: Use Java 21 only when the project needs it
+./scripts/dev.sh ~/cip/27801_arus java21
 
 # Option 3: Navigate to your project first, then use relative path
 cd ~/cip/27801_arus
 /path/to/java-agentic-devkit/scripts/dev.sh
-
-# Option 4: Create symlink for quick access (one-time)
-ln -s /path/to/java-agentic-devkit/scripts/dev.sh /usr/local/bin/devkit
-# Then use from anywhere
-devkit ~/cip/27801_arus
 ```
 
 ### What Happens Inside the Container
@@ -169,8 +207,19 @@ If you only want to run an existing image:
 
 ### Prerequisites
 - Docker Desktop installed and running
+- On Windows, Docker Desktop configured to use WSL2
 - Bash shell access
 - ~10-15 minutes for first build (subsequent runs use cache)
+
+### Docker Desktop Check
+
+Before starting the devkit, make sure Docker can answer a simple command:
+
+```bash
+docker ps
+```
+
+On Mac, the scripts try to start Docker Desktop automatically if it is installed but stopped. On Windows, start Docker Desktop first, then run the scripts from WSL.
 
 ### Automatic Build
 
@@ -241,7 +290,7 @@ When you start the container, you'll see:
 ╚════════════════════════════════════════════════════════════╝
 
 📁 Project: /workspaces/project
-☕ Java: 21.0.1
+☕ Java: 1.8.0_492
 
 Available Commands:
   use-java8         - Switch to Java 8
@@ -728,13 +777,7 @@ exit
 # Method 1: From anywhere with absolute path
 /path/to/java-agentic-devkit/scripts/dev.sh ~/cip/27801_arus
 
-# Method 2: Create symlink for convenience (one-time setup)
-ln -s /path/to/java-agentic-devkit/scripts/dev.sh /usr/local/bin/devkit
-
-# Then use from anywhere:
-devkit ~/cip/27801_arus
-
-# Method 3: From devkit directory
+# Method 2: From devkit directory
 cd /path/to/java-agentic-devkit
 ./scripts/dev.sh ~/cip/27801_arus
 ```
@@ -758,7 +801,7 @@ Changes you make in `/workspaces/project` automatically update on your host.
 **A: Yes, instantly!**
 
 ```bash
-# Start with Java 21 (default)
+# Start with Java 8 (default)
 ./scripts/dev.sh ~/cip/27801_arus
 
 # Inside container, check version
@@ -782,11 +825,11 @@ use-java21
 # Project that needs Java 8
 ./scripts/dev.sh ~/cip/old_legacy_app java8
 
-# Project that needs Java 21 (default)
+# Project that needs Java 21
 ./scripts/dev.sh ~/cip/modern_app java21
 
-# Or omit java version (defaults to java21)
-./scripts/dev.sh ~/cip/modern_app
+# Or omit java version when Java 8 is correct
+./scripts/dev.sh ~/cip/old_legacy_app
 ```
 
 ### Q: Can I have multiple containers running at the same time?
@@ -1041,9 +1084,6 @@ docker run -it --rm \
 ```bash
 # START development with your project (e.g., 27801_arus)
 ./scripts/dev.sh ~/cip/27801_arus
-
-# Or if using symlink
-devkit ~/cip/27801_arus
 
 # Or from your project directory
 cd ~/cip/27801_arus

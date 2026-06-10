@@ -10,6 +10,7 @@ This project serves as a Java template for agentic AI development. Simply copy t
 ```
 
 That's it! The container builds automatically and your project is ready for AI-assisted development.
+Java 8 is the default runtime. Use `java21` only when a project needs Java 21.
 
 ## Documentation
 
@@ -23,8 +24,8 @@ That's it! The container builds automatically and your project is ready for AI-a
 # Navigate to devkit
 cd /path/to/java-agentic-devkit
 
-# Start with your project
-./scripts/dev.sh ~/projects/project1
+# Start with your project using the default Java 8 runtime
+./scripts/dev.sh ~/cip/27801_arus
 
 # Inside container - build and develop
 mvn clean install
@@ -121,8 +122,9 @@ opencode  # Select agent and task
 
 ### Switch Java Version
 ```bash
-./scripts/dev.sh /path/to/project java8   # Java 8
-./scripts/dev.sh /path/to/project java21  # Java 21 (default)
+./scripts/dev.sh /path/to/project         # Java 8 (default)
+./scripts/dev.sh /path/to/project java8   # Java 8 explicitly
+./scripts/dev.sh /path/to/project java21  # Java 21 when needed
 ```
 
 ## Reuse Across Projects

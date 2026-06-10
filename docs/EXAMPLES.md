@@ -8,20 +8,10 @@ Quick examples for common scenarios using the java-agentic-devkit.
 
 You have a Java project at `~/projects/project1` and want to develop with AI assistance.
 
-### Setup (One Time)
-
-```bash
-# Option A: Create symlink for global access
-ln -s /path/to/java-agentic-devkit/scripts/dev.sh /usr/local/bin/devkit
-```
-
 ### Start Development
 
 ```bash
-# Using symlink (from anywhere)
-devkit ~/projects/project1
-
-# Or with full path
+# From anywhere with full path
 /path/to/java-agentic-devkit/scripts/dev.sh ~/projects/project1
 
 # Or from devkit directory
@@ -85,10 +75,7 @@ exit
 You have a modern Spring Boot 3 app at `~/projects/modern-api`.
 
 ```bash
-# Start with Java 21 (default)
-./scripts/dev.sh ~/projects/modern-api
-
-# Or explicit
+# Start with Java 21 explicitly
 ./scripts/dev.sh ~/projects/modern-api java21
 
 # Inside container
@@ -312,7 +299,7 @@ exit
 
 ```bash
 # Most common commands
-devkit ~/cip/27801_arus              # Start with project
+/path/to/devkit/scripts/dev.sh ~/cip/27801_arus  # Start with project
 java -version                        # Check Java
 use-java8 / use-java21              # Switch Java version
 mvn clean install                    # Build
@@ -321,8 +308,6 @@ opencode                             # Start AI agents
 start-tomcat9 / start-activemq      # Start services
 exit                                 # Leave container
 
-# Setup (one-time)
-ln -s /path/to/devkit/scripts/dev.sh /usr/local/bin/devkit
 export ANTHROPIC_API_KEY="sk-ant-..."
 export OPENAI_API_KEY="sk-..."
 export GITHUB_TOKEN="ghp_..."
