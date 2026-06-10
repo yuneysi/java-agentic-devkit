@@ -38,6 +38,144 @@ Java 21 must preserve Java 8 behavior unless a change is explicitly requested an
 
 ---
 
+## How To Migrate With OpenCode
+
+Use this sequence after the migration template has been copied into this project.
+
+### 1. Commit the Migration Template Files
+
+Before making migration changes, commit the template files as a baseline migration setup commit:
+
+```bash
+git add AGENTS.md .github/copilot-instructions.md docs/java21-migration.md scripts/run-java8-baseline.sh scripts/run-java21-candidate.sh scripts/compare-behavior.sh
+git commit -m "chore: add agent instructions for Java 21 migration"
+```
+
+### 2. Capture the Java 8 Baseline
+
+Start the devkit with Java 8 from the developer machine:
+
+```bash
+cd ~/github/java-agentic-devkit
+./scripts/dev.sh /path/to/this/project java8
+```
+
+Inside the container, run the baseline script:
+
+```bash
+scripts/run-java8-baseline.sh
+```
+
+If the project has integration tests or required Maven profiles, pass the real validation command:
+
+```bash
+scripts/run-java8-baseline.sh mvn clean verify -Pintegration-tests
+```
+
+Record the baseline result in the Java 8 Baseline section below. This baseline is the behavioral source of truth for the migration.
+
+### 3. Ask OpenCode for a Plan Before Editing
+
+Still inside the Java 8 container, start OpenCode:
+
+```bash
+opencode
+```
+
+Use this first prompt:
+
+```text
+Read AGENTS.md first and follow it strictly.
+
+We are starting a Java 8 to Java 21 migration.
+
+First, inspect the project without modifying files.
+
+Use docs/java21-migration.md as the migration tracker.
+
+Review the Maven configuration, Java source/target settings, dependency versions, plugins, Spring/Tomcat/JSP usage, SOAP/XML/JAXB usage, JMS, JDBC, tests, and runtime configuration.
+
+Return a prioritized migration plan with small, safe commits.
+
+For each risk, include:
+- affected files
+- why it matters for Java 21
+- how to validate behavior
+- the first small change you recommend
+
+Do not edit files yet.
+```
+
+### 4. Implement One Small Change at a Time
+
+After OpenCode returns the plan, ask it to work on only the first small item:
+
+```text
+Take the first item from the migration plan.
+
+Make the smallest safe change only.
+
+Before editing, explain what validation will prove the change is safe.
+
+After editing, run the narrowest relevant validation command.
+
+Update docs/java21-migration.md with what changed, what was validated, and any remaining risk.
+```
+
+Do not ask OpenCode to migrate the whole project at once.
+
+### 5. Validate With Java 21
+
+When there is a small migration change to validate, restart the devkit with Java 21 from the developer machine:
+
+```bash
+cd ~/github/java-agentic-devkit
+./scripts/dev.sh /path/to/this/project java21
+```
+
+Inside the Java 21 container, start with the smallest useful validation:
+
+```bash
+scripts/run-java21-candidate.sh mvn clean compile
+```
+
+Then increase validation gradually:
+
+```bash
+scripts/run-java21-candidate.sh mvn test
+scripts/run-java21-candidate.sh mvn verify
+```
+
+Compare Java 8 and Java 21 results:
+
+```bash
+scripts/compare-behavior.sh
+```
+
+Review the comparison before committing migration changes.
+
+### 6. Commit Only Reviewed Migration Steps
+
+Before each migration commit, ask OpenCode to review the current diff:
+
+```text
+Read AGENTS.md first and follow it strictly.
+
+Review the current Git diff as a Java 8 to Java 21 migration auditor.
+
+Do not modify files.
+
+Check whether the diff preserves Java 8 behavior.
+
+Classify migration risks.
+
+Report blocking issues, non-blocking issues, missing tests, and whether the change is safe to commit.
+```
+
+Commit only when the change is small, reviewed, and validated.
+
+---
+
 ## Standard Environment
 
 All migration work should be performed through `java-agentic-devkit`.

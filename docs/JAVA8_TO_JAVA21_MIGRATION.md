@@ -123,12 +123,7 @@ java-agentic-devkit/templates/java21-migration/
 Copy these files into the root of the target Java project before starting migration work:
 
 ```bash
-mkdir -p .github docs scripts
-cp ~/github/java-agentic-devkit/templates/java21-migration/AGENTS.md AGENTS.md
-cp ~/github/java-agentic-devkit/templates/java21-migration/.github/copilot-instructions.md .github/copilot-instructions.md
-cp ~/github/java-agentic-devkit/templates/java21-migration/docs/java21-migration.md docs/java21-migration.md
-cp ~/github/java-agentic-devkit/templates/java21-migration/scripts/*.sh scripts/
-chmod +x scripts/run-java8-baseline.sh scripts/run-java21-candidate.sh scripts/compare-behavior.sh
+~/github/java-agentic-devkit/scripts/copy-java21-migration-template.sh /path/to/your/java/project
 ```
 
 Commit them as the first migration commit:
@@ -190,6 +185,153 @@ scripts/compare-behavior.sh
 
 ---
 
+## How To Migrate With OpenCode
+
+Use this sequence when starting a Java 8 to Java 21 migration.
+
+### 1. Copy the Migration Template
+
+From the developer machine:
+
+```bash
+~/github/java-agentic-devkit/scripts/copy-java21-migration-template.sh ~/cip/27801_arus
+```
+
+This adds `AGENTS.md`, `.github/copilot-instructions.md`, `docs/java21-migration.md`, and the migration helper scripts to the target project.
+
+Commit the template files before making migration changes:
+
+```bash
+cd ~/cip/27801_arus
+git add AGENTS.md .github/copilot-instructions.md docs/java21-migration.md scripts/run-java8-baseline.sh scripts/run-java21-candidate.sh scripts/compare-behavior.sh
+git commit -m "chore: add agent instructions for Java 21 migration"
+```
+
+### 2. Capture the Java 8 Baseline
+
+Start the devkit with Java 8:
+
+```bash
+cd ~/github/java-agentic-devkit
+./scripts/dev.sh ~/cip/27801_arus java8
+```
+
+Inside the container, run the baseline script:
+
+```bash
+scripts/run-java8-baseline.sh
+```
+
+If the project has integration tests or required Maven profiles, pass the real validation command:
+
+```bash
+scripts/run-java8-baseline.sh mvn clean verify -Pintegration-tests
+```
+
+The Java 8 baseline is the behavioral source of truth for the migration.
+
+### 3. Ask OpenCode for a Plan Before Editing
+
+Still inside the Java 8 container, start OpenCode:
+
+```bash
+opencode
+```
+
+Use this first prompt:
+
+```text
+Read AGENTS.md first and follow it strictly.
+
+We are starting a Java 8 to Java 21 migration.
+
+First, inspect the project without modifying files.
+
+Use docs/java21-migration.md as the migration tracker.
+
+Review the Maven configuration, Java source/target settings, dependency versions, plugins, Spring/Tomcat/JSP usage, SOAP/XML/JAXB usage, JMS, JDBC, tests, and runtime configuration.
+
+Return a prioritized migration plan with small, safe commits.
+
+For each risk, include:
+- affected files
+- why it matters for Java 21
+- how to validate behavior
+- the first small change you recommend
+
+Do not edit files yet.
+```
+
+### 4. Implement One Small Change at a Time
+
+After OpenCode returns the plan, ask it to work on only the first small item:
+
+```text
+Take the first item from the migration plan.
+
+Make the smallest safe change only.
+
+Before editing, explain what validation will prove the change is safe.
+
+After editing, run the narrowest relevant validation command.
+
+Update docs/java21-migration.md with what changed, what was validated, and any remaining risk.
+```
+
+Do not ask OpenCode to migrate the whole project at once.
+
+### 5. Validate With Java 21
+
+When there is a small migration change to validate, restart the devkit with Java 21:
+
+```bash
+cd ~/github/java-agentic-devkit
+./scripts/dev.sh ~/cip/27801_arus java21
+```
+
+Inside the Java 21 container, start with the smallest useful validation:
+
+```bash
+scripts/run-java21-candidate.sh mvn clean compile
+```
+
+Then increase validation gradually:
+
+```bash
+scripts/run-java21-candidate.sh mvn test
+scripts/run-java21-candidate.sh mvn verify
+```
+
+Compare Java 8 and Java 21 results:
+
+```bash
+scripts/compare-behavior.sh
+```
+
+Review the comparison before committing migration changes.
+
+### 6. Commit Only Reviewed Migration Steps
+
+Before each migration commit, ask OpenCode to review the current diff:
+
+```text
+Read AGENTS.md first and follow it strictly.
+
+Review the current Git diff as a Java 8 to Java 21 migration auditor.
+
+Do not modify files.
+
+Check whether the diff preserves Java 8 behavior.
+
+Classify migration risks.
+
+Report blocking issues, non-blocking issues, missing tests, and whether the change is safe to commit.
+```
+
+Commit only when the change is small, reviewed, and validated.
+
+---
+
 ## Examples
 
 ### Example 1: Start a Java 8 to Java 21 Migration
@@ -204,12 +346,6 @@ cd ~/github/java-agentic-devkit
 Inside the container:
 
 ```bash
-mkdir -p .github docs scripts
-cp ~/github/java-agentic-devkit/templates/java21-migration/AGENTS.md AGENTS.md
-cp ~/github/java-agentic-devkit/templates/java21-migration/.github/copilot-instructions.md .github/copilot-instructions.md
-cp ~/github/java-agentic-devkit/templates/java21-migration/docs/java21-migration.md docs/java21-migration.md
-cp ~/github/java-agentic-devkit/templates/java21-migration/scripts/*.sh scripts/
-chmod +x scripts/run-java8-baseline.sh scripts/run-java21-candidate.sh scripts/compare-behavior.sh
 scripts/run-java8-baseline.sh
 ```
 
@@ -250,12 +386,7 @@ git checkout -b branch/java21
 Copy the migration instruction files to the target project:
 
 ```bash
-mkdir -p .github docs scripts
-cp ~/github/java-agentic-devkit/templates/java21-migration/AGENTS.md AGENTS.md
-cp ~/github/java-agentic-devkit/templates/java21-migration/.github/copilot-instructions.md .github/copilot-instructions.md
-cp ~/github/java-agentic-devkit/templates/java21-migration/docs/java21-migration.md docs/java21-migration.md
-cp ~/github/java-agentic-devkit/templates/java21-migration/scripts/*.sh scripts/
-chmod +x scripts/run-java8-baseline.sh scripts/run-java21-candidate.sh scripts/compare-behavior.sh
+~/github/java-agentic-devkit/scripts/copy-java21-migration-template.sh ~/cip/27801_arus
 ```
 
 Start OpenCode:
@@ -456,12 +587,8 @@ Do not accept Copilot changes that alter behavior without tests.
 ## Recommended First Commit in Each Target Project
 
 ```bash
-mkdir -p .github docs scripts
-cp ~/github/java-agentic-devkit/templates/java21-migration/AGENTS.md AGENTS.md
-cp ~/github/java-agentic-devkit/templates/java21-migration/.github/copilot-instructions.md .github/copilot-instructions.md
-cp ~/github/java-agentic-devkit/templates/java21-migration/docs/java21-migration.md docs/java21-migration.md
-cp ~/github/java-agentic-devkit/templates/java21-migration/scripts/*.sh scripts/
-chmod +x scripts/run-java8-baseline.sh scripts/run-java21-candidate.sh scripts/compare-behavior.sh
+~/github/java-agentic-devkit/scripts/copy-java21-migration-template.sh /path/to/your/java/project
+cd /path/to/your/java/project
 git add AGENTS.md .github/copilot-instructions.md docs/java21-migration.md scripts/run-java8-baseline.sh scripts/run-java21-candidate.sh scripts/compare-behavior.sh
 git commit -m "chore: add agent instructions for Java 21 migration"
 ```
