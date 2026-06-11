@@ -2,11 +2,11 @@
 
 ## Purpose
 
-This document defines the standard workflow for migrating Java projects from Java 8 to Java 21 using `java-agentic-devkit`, OpenCode, oh-my-opencode, and GitHub Copilot.
+This document defines the standard human workflow for migrating Java projects from Java 8 to Java 21 using `java-agentic-devkit`.
 
 Use it as both the migration best-practices reference and the migration tracker for the target project.
 
-Every migration must start from the standardized containerized environment provided by `java-agentic-devkit` so the team uses the same Java versions, Maven setup, shell helpers, and agent configuration.
+Every migration must start from the standardized containerized environment provided by `java-agentic-devkit` so the team uses the same Java versions, Maven setup, and shell helpers.
 
 Do not start the migration directly from an ad-hoc local environment.
 
@@ -52,7 +52,7 @@ Java 21 must preserve Java 8 behavior unless a change is explicitly requested an
 
 ---
 
-## How To Migrate With OpenCode
+## Migration Workflow
 
 Use this sequence after the migration template has been copied into this project.
 
@@ -92,59 +92,32 @@ mvn clean verify -Pintegration-tests 2>&1 | tee docs/migration-results/java8-bas
 
 Record the baseline result in the Java 8 Baseline section below. This baseline is the behavioral source of truth for the migration.
 
-### 3. Ask OpenCode for a Plan Before Editing
+### 3. Plan the First Migration Step
 
-Still inside the Java 8 container, start OpenCode:
+Inspect the project before editing production code.
 
-```bash
-opencode
-```
+Record risks in the Migration Risk Register.
 
-Use this first prompt:
+Plan small commits. Each planned change must include:
 
-```text
-Read AGENTS.md first and follow it strictly.
-
-We are starting a Java 8 to Java 21 migration.
-
-First, inspect the project without modifying files.
-
-Use docs/java21-migration-best-practices.md as the migration tracker.
-
-Review the Maven configuration, Java source/target settings, dependency versions, plugins, Spring/Tomcat/JSP usage, SOAP/XML/JAXB usage, JMS, JDBC, tests, and runtime configuration.
-
-Check the current Java 8 test coverage command and result. If coverage is below 90%, plan focused characterization or regression tests before production migration changes.
-
-Return a prioritized migration plan with small, safe commits.
-
-For each risk, include:
 - affected files
-- why it matters for Java 21
-- how to validate behavior
-- the first small change you recommend
+- why the change is required for Java 21
+- how Java 8 behavior will be preserved
+- the validation command
+- the expected commit boundary
 
-Do not edit files yet.
-```
+Do not migrate the whole project at once.
 
 ### 4. Implement One Small Change at a Time
 
-After OpenCode returns the plan, ask it to work on only the first small item:
+For each migration step:
 
-```text
-Take the first item from the migration plan.
-
-Make the smallest safe change only.
-
-Before editing, explain what validation will prove the change is safe.
-
-After editing, run the narrowest relevant validation command.
+1. Make the smallest safe change.
+2. Run the narrowest useful validation command.
+3. Update this tracker with what changed, what was validated, and any remaining risk.
+4. Commit only after review.
 
 If Java 8 or Java 21 coverage is below 90%, add or repair focused tests before treating the step as complete.
-
-Update docs/java21-migration-best-practices.md with what changed, what was validated, and any remaining risk.
-```
-
-Do not ask OpenCode to migrate the whole project at once.
 
 ### 5. Validate With Java 21
 
@@ -182,25 +155,9 @@ Review the comparison before committing migration changes.
 
 ### 6. Commit Only Reviewed Migration Steps
 
-Before each migration commit, ask OpenCode to review the current diff:
+Before each migration commit, review the current diff against the Java 8 baseline.
 
-```text
-Read AGENTS.md first and follow it strictly.
-
-Review the current Git diff as a Java 8 to Java 21 migration auditor.
-
-Do not modify files.
-
-Check whether the diff preserves Java 8 behavior.
-
-Check whether Java 8 baseline coverage and Java 21 candidate coverage are both at least 90%, or whether the diff adds tests to reach that threshold.
-
-Classify migration risks.
-
-Report blocking issues, non-blocking issues, missing tests, and whether the change is safe to commit.
-```
-
-Commit only when the change is small, reviewed, and validated.
+Commit only when the change is small, reviewed, validated, and recorded in this tracker.
 
 ## Java 8 Baseline
 
@@ -574,95 +531,6 @@ Use this table to keep a migration-level record of meaningful commits.
 
 ---
 
-## OpenCode Prompts Used
-
-Record important prompts used during the migration.
-
-### Initial Audit Prompt
-
-```text
-Read AGENTS.md first and follow it strictly.
-
-Inspect this project for Java 8 to Java 21 migration risks.
-
-Do not modify files.
-
-Focus on Maven, Java version configuration, Spring, Tomcat, JSP, SOAP/XML, JMS, JDBC, JAXB, and test setup.
-
-Identify the Java 8 coverage command and current coverage result. If coverage is below 90%, prioritize characterization or regression tests before production migration changes.
-
-Return a prioritized migration plan with small commits.
-```
-
-### Implementation Prompt Template
-
-```text
-Read AGENTS.md first and follow it strictly.
-
-Apply only the proposed migration step.
-
-Do not refactor unrelated code.
-
-Do not modernize production code.
-
-Preserve Java 8 behavior.
-
-Run the smallest relevant validation command.
-
-If Java 8 or Java 21 coverage is below 90%, add or repair focused tests before treating the step as complete.
-
-Report changed files, risk level, validation result, and proposed commit message.
-```
-
-### Review Prompt Template
-
-```text
-Read AGENTS.md first and follow it strictly.
-
-Review the current Git diff as a Java 8 to Java 21 migration auditor.
-
-Do not modify files.
-
-Check whether the diff preserves Java 8 behavior.
-
-Check whether Java 8 baseline coverage and Java 21 candidate coverage are both at least 90%, or whether the diff adds tests to reach that threshold.
-
-Classify migration risks.
-
-Report blocking issues, non-blocking issues, missing tests, and whether the change is safe to commit.
-```
-
----
-
-## Copilot Usage
-
-Use GitHub Copilot only for small local edits.
-
-Good Copilot tasks:
-
-- generate one characterization test
-- explain one compilation error
-- suggest one Maven plugin configuration
-- add one missing dependency
-- write one targeted assertion
-- convert one small and reviewed import group
-
-Bad Copilot tasks:
-
-- migrate the whole project
-- modernize the codebase
-- upgrade all dependencies
-- rewrite SOAP clients
-- refactor all JSPs
-- change all `javax.*` imports without review
-- fix all tests at once
-
-Copilot suggestions must be reviewed manually before acceptance.
-
-Do not accept Copilot changes that alter behavior without tests.
-
----
-
 ## Final Acceptance Checklist
 
 The migration branch should not be considered ready until:
@@ -682,4 +550,4 @@ The migration branch should not be considered ready until:
 - [ ] Temporary JVM flags are removed or justified.
 - [ ] CI/CD configuration is updated.
 - [ ] Final validation command is documented.
-- [ ] OpenCode review/audit has approved the final diff.
+- [ ] Final migration audit has approved the final diff.

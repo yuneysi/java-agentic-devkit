@@ -129,6 +129,10 @@ Use the installed OpenCode skills when they fit the task:
 
 - `migration-auditor` for migration diff review and risk classification.
 - `migration-test-planner` for baseline and candidate validation planning.
+- `java8-baseline-capturer` for capturing Java 8 baseline results under `docs/migration-results/java8-baseline/`.
+- `java21-first-migration-step-planner` for planning the first small migration step.
+- `java21-small-change-implementer` for applying one focused migration change.
+- `java21-candidate-validator` for validating Java 21 results under `docs/migration-results/java21-candidate/`.
 - `jms-characterization-test-writer` for JMS behavior tests.
 - `jpa-characterization-test-writer` for JPA behavior tests.
 - `soap-contract-test-writer` for SOAP/XML contract tests.
