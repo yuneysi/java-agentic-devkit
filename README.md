@@ -6,32 +6,13 @@ The devkit stays outside the target Java project. Developers build or run the de
 
 Java 8 is the default runtime. Use Java 21 only when the target project already runs on Java 21 or when validating a Java 8 to Java 21 migration candidate.
 
-## Quick Start
+## Recommended Integration
 
-Start a Java 8 target project:
+The recommended way to use this devkit is to integrate it into each target Java project with a project-owned `docker-compose.yml`.
 
-```bash
-cd ~/github/java-agentic-devkit
-./scripts/container/start-devkit-container.sh /path/to/java/project
-```
+This keeps the development entrypoint close to the application code, makes the selected Java mode explicit, and gives the team one shared command for local work, OpenCode sessions, tests, and migration validation.
 
-Start a Java 21 target project:
-
-```bash
-cd ~/github/java-agentic-devkit
-./scripts/container/start-devkit-container.sh /path/to/java/project java21
-```
-
-Start a Java 8 to Java 21 migration baseline:
-
-```bash
-cd ~/github/java-agentic-devkit
-./scripts/container/start-devkit-container.sh /path/to/java/project java21-migration
-```
-
-The startup script builds `java-agentic-devkit:latest` if the image does not exist, mounts the target project at `/workspace`, selects the requested Java mode, and opens a shell inside the container.
-
-On first start, the container copies missing template files into the target project and preserves existing files.
+See [Docker Compose](#docker-compose) for the recommended setup. The devkit can also be started manually from this repository when a target project does not have Compose integration yet; see [Manual Script Workflow](#manual-script-workflow).
 
 ## Repository Structure
 
@@ -66,31 +47,16 @@ java-agentic-devkit/
 └── README.md
 ```
 
-## Scripts
+## Docker Compose
 
-| Script | Purpose |
-|--------|---------|
-| `scripts/create-image.sh` | Builds the Docker image. |
-| `scripts/container/start-devkit-container.sh` | Builds the image if needed and starts a target project container. |
-| `scripts/docker-utils.sh` | Shared Docker availability checks used by the scripts. |
+Add a `docker-compose.yml` file to the target Java project.
 
-Build or rebuild the image manually:
+Build or rebuild the shared image from this repository:
 
 ```bash
 cd ~/github/java-agentic-devkit
 ./scripts/create-image.sh
 ```
-
-Override the image name, tag, or Dockerfile when needed:
-
-```bash
-cd ~/github/java-agentic-devkit
-./scripts/create-image.sh java-agentic-devkit latest .devcontainer/Dockerfile
-```
-
-## Docker Compose
-
-Teams can also keep a `docker-compose.yml` file in the target Java project.
 
 ```yaml
 services:
@@ -137,6 +103,41 @@ DEVKIT_JAVA_VERSION=java21-migration docker compose run --rm devkit
 ```
 
 The `java21-migration` mode starts with Java 8 so the team can capture the Java 8 behavioral baseline before validating the Java 21 candidate.
+
+On first start, the container copies missing template files into the target project and preserves existing files.
+
+## Manual Script Workflow
+
+Use the manual script when the target project does not have a `docker-compose.yml` integration yet.
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/create-image.sh` | Builds the Docker image. |
+| `scripts/container/start-devkit-container.sh` | Builds the image if needed and starts a target project container. |
+| `scripts/docker-utils.sh` | Shared Docker availability checks used by the scripts. |
+
+Start a Java 8 target project:
+
+```bash
+cd ~/github/java-agentic-devkit
+./scripts/container/start-devkit-container.sh /path/to/java/project
+```
+
+Start a Java 21 target project:
+
+```bash
+cd ~/github/java-agentic-devkit
+./scripts/container/start-devkit-container.sh /path/to/java/project java21
+```
+
+Start a Java 8 to Java 21 migration baseline:
+
+```bash
+cd ~/github/java-agentic-devkit
+./scripts/container/start-devkit-container.sh /path/to/java/project java21-migration
+```
+
+The startup script builds `java-agentic-devkit:latest` if the image does not exist, mounts the target project at `/workspace`, selects the requested Java mode, and opens a shell inside the container.
 
 ## Container Contents
 
