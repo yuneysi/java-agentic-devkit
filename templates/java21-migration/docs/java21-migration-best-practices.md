@@ -1,4 +1,18 @@
-# Java 21 Migration Notes
+# Java 8 to Java 21 Migration Best Practices
+
+## Purpose
+
+This document defines the standard workflow for migrating Java projects from Java 8 to Java 21 using `java-agentic-devkit`, OpenCode, oh-my-opencode, and GitHub Copilot.
+
+Use it as both the migration best-practices reference and the migration tracker for the target project.
+
+Every migration must start from the standardized containerized environment provided by `java-agentic-devkit` so the team uses the same Java versions, Maven setup, shell helpers, and agent configuration.
+
+Do not start the migration directly from an ad-hoc local environment.
+
+For the recommended Compose workflow and the manual script workflow, use the root `README.md` in `java-agentic-devkit`.
+
+---
 
 ## Project
 
@@ -47,18 +61,13 @@ Use this sequence after the migration template has been copied into this project
 Before making migration changes, commit the template files as a baseline migration setup commit:
 
 ```bash
-git add AGENTS.md .github/copilot-instructions.md docs/java21-migration.md
+git add AGENTS.md .github/copilot-instructions.md docs/java21-migration-best-practices.md
 git commit -m "chore: add agent instructions for Java 21 migration"
 ```
 
 ### 2. Capture the Java 8 Baseline
 
-Start the devkit with Java 8 from the developer machine:
-
-```bash
-cd ~/github/java-agentic-devkit
-./scripts/container/start-devkit-container.sh /path/to/this/project java8
-```
+Start the project in Java 8 mode using the workflow from the root `README.md`.
 
 Inside the container, capture the baseline with the real validation command:
 
@@ -100,7 +109,7 @@ We are starting a Java 8 to Java 21 migration.
 
 First, inspect the project without modifying files.
 
-Use docs/java21-migration.md as the migration tracker.
+Use docs/java21-migration-best-practices.md as the migration tracker.
 
 Review the Maven configuration, Java source/target settings, dependency versions, plugins, Spring/Tomcat/JSP usage, SOAP/XML/JAXB usage, JMS, JDBC, tests, and runtime configuration.
 
@@ -132,19 +141,14 @@ After editing, run the narrowest relevant validation command.
 
 If Java 8 or Java 21 coverage is below 90%, add or repair focused tests before treating the step as complete.
 
-Update docs/java21-migration.md with what changed, what was validated, and any remaining risk.
+Update docs/java21-migration-best-practices.md with what changed, what was validated, and any remaining risk.
 ```
 
 Do not ask OpenCode to migrate the whole project at once.
 
 ### 5. Validate With Java 21
 
-When there is a small migration change to validate, restart the devkit with Java 21 from the developer machine:
-
-```bash
-cd ~/github/java-agentic-devkit
-./scripts/container/start-devkit-container.sh /path/to/this/project java21
-```
+When there is a small migration change to validate, restart the project in Java 21 mode using the workflow from the root `README.md`.
 
 Inside the Java 21 container, start with the smallest useful validation:
 
@@ -197,43 +201,6 @@ Report blocking issues, non-blocking issues, missing tests, and whether the chan
 ```
 
 Commit only when the change is small, reviewed, and validated.
-
----
-
-## Standard Environment
-
-All migration work should be performed through `java-agentic-devkit`.
-
-From the host machine:
-
-```bash
-cd ~/github/java-agentic-devkit
-./scripts/container/start-devkit-container.sh /path/to/this/project
-```
-
-Java 8 baseline mode:
-
-```bash
-./scripts/container/start-devkit-container.sh /path/to/this/project java8
-```
-
-Java 21 candidate mode:
-
-```bash
-./scripts/container/start-devkit-container.sh /path/to/this/project java21
-```
-
-Inside the container:
-
-```bash
-java -version
-javac -version
-mvn -version
-git --version
-opencode --version
-```
-
----
 
 ## Java 8 Baseline
 
@@ -664,6 +631,35 @@ Classify migration risks.
 
 Report blocking issues, non-blocking issues, missing tests, and whether the change is safe to commit.
 ```
+
+---
+
+## Copilot Usage
+
+Use GitHub Copilot only for small local edits.
+
+Good Copilot tasks:
+
+- generate one characterization test
+- explain one compilation error
+- suggest one Maven plugin configuration
+- add one missing dependency
+- write one targeted assertion
+- convert one small and reviewed import group
+
+Bad Copilot tasks:
+
+- migrate the whole project
+- modernize the codebase
+- upgrade all dependencies
+- rewrite SOAP clients
+- refactor all JSPs
+- change all `javax.*` imports without review
+- fix all tests at once
+
+Copilot suggestions must be reviewed manually before acceptance.
+
+Do not accept Copilot changes that alter behavior without tests.
 
 ---
 
