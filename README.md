@@ -42,18 +42,18 @@ cd ~/github/java-agentic-devkit
 After the container starts, the project is ready for AI-assisted development.
 Java 8 is the default runtime. Use `java21` only when a project needs Java 21.
 
-On first start, the devkit mounts the target project at `/workspace` and creates `AGENTS.md` from the selected Java template when the file does not already exist. Existing `AGENTS.md` files are preserved. This also works when another project starts the image with Docker Compose and sets `DEVKIT_PROJECT_DIR` to the mounted project path.
+On first start, the devkit mounts the target project at `/workspace` and creates missing template files from the selected Java template. Existing project files are preserved. This includes `AGENTS.md`, `.github/copilot-instructions.md`, template docs, and migration helper scripts when `DEVKIT_JAVA_VERSION=java21-migration`. This works on macOS and Windows WSL because generation runs inside the Linux container.
 
 ## Documentation
 
 - **[docs/README.md](docs/README.md)** - General devkit usage, templates, and script reference
 - **[JAVA8_TO_JAVA21_MIGRATION.md](docs/JAVA8_TO_JAVA21_MIGRATION.md)** - Java 8 to Java 21 migration workflow
-- **[templates/README.md](templates/README.md)** - Template inventory and copy commands
+- **[templates/README.md](templates/README.md)** - Template inventory and generated files
 - **[CODING_STANDARDS.md](CODING_STANDARDS.md)** - Development standards and conventions
 
 ## Templates for Target Projects
 
-Templates are files that developers copy into a target Java project so agents and Copilot use the right project rules.
+Templates are files that the devkit applies to a target Java project so agents and Copilot use the right project rules.
 
 | Template | Use when | Copies |
 |----------|----------|--------|
@@ -80,58 +80,9 @@ templates/
     └── scripts/*.sh
 ```
 
-### Java 8 Projects
+Templates are applied automatically when the devkit container starts. Select the template with `DEVKIT_JAVA_VERSION` in Compose or with the Java version argument in the manual script workflow. Existing target-project files are preserved.
 
-Recommended command from macOS, Linux, or Windows WSL:
-
-```bash
-~/github/java-agentic-devkit/scripts/copy-java8-template.sh /path/to/java8-project
-```
-
-Or run it from the target project root:
-
-```bash
-cd /path/to/java8-project
-~/github/java-agentic-devkit/scripts/copy-java8-template.sh
-```
-
-### Java 21 Projects
-
-Recommended command from macOS, Linux, or Windows WSL:
-
-```bash
-~/github/java-agentic-devkit/scripts/copy-java21-template.sh /path/to/java21-project
-```
-
-Or run it from the target project root:
-
-```bash
-cd /path/to/java21-project
-~/github/java-agentic-devkit/scripts/copy-java21-template.sh
-```
-
-### Java 8 to Java 21 Migrations
-
-Recommended command from macOS, Linux, or Windows WSL:
-
-```bash
-~/github/java-agentic-devkit/scripts/copy-java21-migration-template.sh ~/cip/27801_arus
-```
-
-Or run it from the target project root:
-
-```bash
-cd ~/cip/27801_arus
-~/github/java-agentic-devkit/scripts/copy-java21-migration-template.sh
-```
-
-On Windows, run the same commands from WSL. If the target project is stored on the Windows `C:` drive, pass its WSL path:
-
-```bash
-~/github/java-agentic-devkit/scripts/copy-java21-migration-template.sh /mnt/c/Users/YOUR_NAME/cip/27801_arus
-```
-
-`AGENTS.md` must be copied to the root of the target project. It is the authoritative instruction file for OpenCode / oh-my-opencode agents.
+`AGENTS.md` must exist at the root of the target project. The devkit creates it from the selected template when it is missing. It is the authoritative instruction file for OpenCode / oh-my-opencode agents.
 
 ## Example: Using with Your Project
 
@@ -171,9 +122,6 @@ See [docs/README.md](docs/README.md) for Java 8, Java 21, Mac, Windows, template
 | `scripts/container/devkit.sh` | Full control version with detailed output. |
 | `scripts/container/run-image.sh` | Runs an existing image manually. |
 | `scripts/create-image.sh` | Builds the image only. |
-| `scripts/copy-java8-template.sh` | Copies Java 8 project instructions into a target project. |
-| `scripts/copy-java21-template.sh` | Copies Java 21 project instructions into a target project. |
-| `scripts/copy-java21-migration-template.sh` | Copies Java 8 to Java 21 migration instructions and helper scripts into a target project. |
 
 ## AI Integration
 
@@ -205,15 +153,12 @@ java-agentic-devkit/
 │   │   ├── start-devkit-container.sh          # Main script (USE THIS)
 │   │   ├── devkit.sh
 │   │   └── run-image.sh
-│   ├── create-image.sh
-│   ├── copy-java8-template.sh
-│   ├── copy-java21-template.sh
-│   └── copy-java21-migration-template.sh
+│   └── create-image.sh
 ├── docs/
 │   ├── README.md
 │   └── JAVA8_TO_JAVA21_MIGRATION.md
 ├── opencode/               # AI configuration
-├── templates/              # Files copied into target projects
+├── templates/              # Files applied to target projects
 │   ├── README.md
 │   ├── java8/
 │   │   ├── AGENTS.md

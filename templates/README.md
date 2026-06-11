@@ -1,8 +1,8 @@
 # Templates
 
-This directory contains files that developers copy into target Java projects.
+This directory contains files that the devkit applies to target Java projects.
 
-Do not copy the whole `java-agentic-devkit` repository into every project. Keep the devkit as a shared external tool and copy only the template files needed by the target project.
+Do not copy the whole `java-agentic-devkit` repository into every project. Keep the devkit as a shared external tool. The container creates missing template files in the target project on first start and preserves existing files.
 
 ## Available Templates
 
@@ -38,17 +38,14 @@ templates/java8/
     └── java8-best-practices.md
 ```
 
-Recommended command from macOS, Linux, or Windows WSL:
+Apply this template with the manual script workflow:
 
 ```bash
-~/github/java-agentic-devkit/scripts/copy-java8-template.sh /path/to/java8-project
+cd ~/github/java-agentic-devkit
+./scripts/container/start-devkit-container.sh /path/to/java8-project java8
 ```
 
-Or run it from the target project root:
-
-```bash
-~/github/java-agentic-devkit/scripts/copy-java8-template.sh
-```
+For Compose, set `DEVKIT_JAVA_VERSION=java8`.
 
 Recommended first commit:
 
@@ -90,17 +87,14 @@ templates/java21/
     └── java21-best-practices.md
 ```
 
-Recommended command from macOS, Linux, or Windows WSL:
+Apply this template with the manual script workflow:
 
 ```bash
-~/github/java-agentic-devkit/scripts/copy-java21-template.sh /path/to/java21-project
+cd ~/github/java-agentic-devkit
+./scripts/container/start-devkit-container.sh /path/to/java21-project java21
 ```
 
-Or run it from the target project root:
-
-```bash
-~/github/java-agentic-devkit/scripts/copy-java21-template.sh
-```
+For Compose, set `DEVKIT_JAVA_VERSION=java21`.
 
 Recommended first commit:
 
@@ -150,23 +144,14 @@ templates/java21-migration/
     └── compare-behavior.sh
 ```
 
-Recommended command from macOS, Linux, or Windows WSL:
+Apply this template with the manual script workflow:
 
 ```bash
-~/github/java-agentic-devkit/scripts/copy-java21-migration-template.sh ~/cip/27801_arus
+cd ~/github/java-agentic-devkit
+./scripts/container/start-devkit-container.sh ~/cip/27801_arus java21-migration
 ```
 
-Or run it from the target project root:
-
-```bash
-~/github/java-agentic-devkit/scripts/copy-java21-migration-template.sh
-```
-
-On Windows, run these commands from WSL. If the target project is stored on the Windows `C:` drive, pass its WSL path:
-
-```bash
-~/github/java-agentic-devkit/scripts/copy-java21-migration-template.sh /mnt/c/Users/YOUR_NAME/cip/27801_arus
-```
+For Compose, set `DEVKIT_JAVA_VERSION=java21-migration`. On Windows, run manual commands from WSL. If the target project is stored on the Windows `C:` drive, pass its WSL path to `start-devkit-container.sh`.
 
 ## Migration Helper Scripts
 

@@ -137,7 +137,7 @@ Validate Docker availability before Docker build/run operations.
 Preserve the existing public command style:
 
 ```bash
-./scripts/container/start-devkit-container.sh /path/to/project [java8|java21]
+./scripts/container/start-devkit-container.sh /path/to/project [java8|java21|java21-migration]
 ```
 
 ---
@@ -149,7 +149,7 @@ Keep `docs/` focused:
 - `docs/README.md` is the general devkit guide.
 - `docs/JAVA8_TO_JAVA21_MIGRATION.md` is the migration workflow guide.
 
-Keep `templates/README.md` as the template inventory and copy-command reference.
+Keep `templates/README.md` as the template inventory and generated-file reference.
 
 Do not add extra top-level workflow docs unless the user explicitly asks for them.
 

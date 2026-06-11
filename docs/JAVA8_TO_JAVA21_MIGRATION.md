@@ -112,7 +112,7 @@ From this point onward, all migration commands, OpenCode sessions, Maven builds,
 
 ---
 
-## Template Files to Copy Into the Target Project
+## Template Files Created in the Target Project
 
 The migration template lives in:
 
@@ -120,11 +120,14 @@ The migration template lives in:
 java-agentic-devkit/templates/java21-migration/
 ```
 
-Copy these files into the root of the target Java project before starting migration work:
+Start the devkit with the migration template before starting migration work:
 
 ```bash
-~/github/java-agentic-devkit/scripts/copy-java21-migration-template.sh /path/to/your/java/project
+cd ~/github/java-agentic-devkit
+./scripts/container/start-devkit-container.sh /path/to/your/java/project java21-migration
 ```
+
+On first start, the container creates missing migration template files in the target project. Existing files are preserved.
 
 Commit them as the first migration commit:
 
@@ -189,12 +192,13 @@ scripts/compare-behavior.sh
 
 Use this sequence when starting a Java 8 to Java 21 migration.
 
-### 1. Copy the Migration Template
+### 1. Start the DevKit with the Migration Template
 
 From the developer machine:
 
 ```bash
-~/github/java-agentic-devkit/scripts/copy-java21-migration-template.sh ~/cip/27801_arus
+cd ~/github/java-agentic-devkit
+./scripts/container/start-devkit-container.sh ~/cip/27801_arus java21-migration
 ```
 
 This adds `AGENTS.md`, `.github/copilot-instructions.md`, `docs/java21-migration.md`, and the migration helper scripts to the target project.
@@ -383,10 +387,11 @@ git pull
 git checkout -b branch/java21
 ```
 
-Copy the migration instruction files to the target project:
+Start the devkit with the migration template so missing instruction files are created in the target project:
 
 ```bash
-~/github/java-agentic-devkit/scripts/copy-java21-migration-template.sh ~/cip/27801_arus
+cd ~/github/java-agentic-devkit
+./scripts/container/start-devkit-container.sh ~/cip/27801_arus java21-migration
 ```
 
 Start OpenCode:
@@ -587,7 +592,8 @@ Do not accept Copilot changes that alter behavior without tests.
 ## Recommended First Commit in Each Target Project
 
 ```bash
-~/github/java-agentic-devkit/scripts/copy-java21-migration-template.sh /path/to/your/java/project
+cd ~/github/java-agentic-devkit
+./scripts/container/start-devkit-container.sh /path/to/your/java/project java21-migration
 cd /path/to/your/java/project
 git add AGENTS.md .github/copilot-instructions.md docs/java21-migration.md scripts/run-java8-baseline.sh scripts/run-java21-candidate.sh scripts/compare-behavior.sh
 git commit -m "chore: add agent instructions for Java 21 migration"

@@ -40,6 +40,16 @@ docker compose -f compose.yml up -d
 
 The target project's Compose service should use the `java-agentic-devkit:latest` image, mount the project at `/workspace`, and set `DEVKIT_PROJECT_DIR=/workspace`.
 
+Use `DEVKIT_JAVA_VERSION` to choose which target-project template is applied on first start:
+
+| Value | Template applied | Default Java runtime |
+|-------|------------------|----------------------|
+| `java8` | `templates/java8/` | Java 8 |
+| `java21` | `templates/java21/` | Java 21 |
+| `java21-migration` | `templates/java21-migration/` | Java 8 |
+
+The container creates missing files only. Existing files in the target project are preserved. The generated files include `AGENTS.md`, `.github/copilot-instructions.md`, docs, and migration scripts when the migration template is selected. This works the same for macOS and Windows WSL users because template generation runs inside the Linux container.
+
 Example `compose.yml` service:
 
 ```yaml
@@ -138,17 +148,7 @@ cd ~/github/java-agentic-devkit
 
 Keeping both the devkit and Java projects inside the WSL home folder, such as `~/github` and `~/cip`, is usually faster than working from `/mnt/c`.
 
-Template copy scripts also run from WSL. For example:
-
-```bash
-~/github/java-agentic-devkit/scripts/copy-java21-migration-template.sh ~/cip/27801_arus
-```
-
-If the target project is on the Windows `C:` drive, pass the WSL path:
-
-```bash
-~/github/java-agentic-devkit/scripts/copy-java21-migration-template.sh /mnt/c/Users/YOUR_NAME/cip/27801_arus
-```
+Template files are created by the container on first start. Existing files in the target project are preserved.
 
 ---
 
@@ -162,9 +162,6 @@ Run these scripts from the `java-agentic-devkit` directory.
 | `./scripts/container/devkit.sh` | Full startup script used by `start-devkit-container.sh`. It accepts the project path and Java version. | Advanced debugging or direct control. |
 | `./scripts/create-image.sh` | Builds the Docker image only. | Rebuild the devkit image without starting a project. |
 | `./scripts/container/run-image.sh` | Runs an existing image. | Manual container startup. |
-| `./scripts/copy-java8-template.sh` | Copies the Java 8 template into a target project. | Preparing a Java 8 project for agent-assisted work. |
-| `./scripts/copy-java21-template.sh` | Copies the Java 21 template into a target project. | Preparing a Java 21 project for agent-assisted work. |
-| `./scripts/copy-java21-migration-template.sh` | Copies the Java 8 to Java 21 migration template and helper scripts into a target project. | Starting a migration. |
 
 Recommended command style:
 
@@ -204,7 +201,7 @@ cd ~/github/java-agentic-devkit
 
 ## Templates
 
-Templates are files that developers copy into a target Java project when that project needs project-specific agent instructions or migration tracking.
+Templates are files that the devkit creates in a target Java project when that project needs project-specific agent instructions or migration tracking.
 
 Available templates:
 
@@ -228,7 +225,7 @@ Use `templates/java21-migration/` when a target project is being migrated from J
 
 ### Java 8 Template
 
-The Java 8 template copies these files into the target project:
+The Java 8 template creates these files in the target project:
 
 ```text
 target-java-project/
@@ -239,17 +236,18 @@ target-java-project/
     └── java8-best-practices.md
 ```
 
-Recommended command from macOS, Linux, or Windows WSL:
+Apply it by starting the devkit with `DEVKIT_JAVA_VERSION=java8`. With the manual script workflow:
 
 ```bash
-~/github/java-agentic-devkit/scripts/copy-java8-template.sh /path/to/java8-project
+cd ~/github/java-agentic-devkit
+./scripts/container/start-devkit-container.sh /path/to/java8-project java8
 ```
 
-You can also run it from the target project root with no argument.
+Existing files are preserved.
 
 ### Java 21 Template
 
-The Java 21 template copies these files into the target project:
+The Java 21 template creates these files in the target project:
 
 ```text
 target-java-project/
@@ -260,17 +258,18 @@ target-java-project/
     └── java21-best-practices.md
 ```
 
-Recommended command from macOS, Linux, or Windows WSL:
+Apply it by starting the devkit with `DEVKIT_JAVA_VERSION=java21`. With the manual script workflow:
 
 ```bash
-~/github/java-agentic-devkit/scripts/copy-java21-template.sh /path/to/java21-project
+cd ~/github/java-agentic-devkit
+./scripts/container/start-devkit-container.sh /path/to/java21-project java21
 ```
 
-You can also run it from the target project root with no argument.
+Existing files are preserved.
 
 ### Java 8 to Java 21 Migration Template
 
-The migration template copies these files into the target project:
+The migration template creates these files in the target project:
 
 ```text
 target-java-project/
@@ -285,13 +284,14 @@ target-java-project/
     └── compare-behavior.sh
 ```
 
-Recommended command from macOS, Linux, or Windows WSL:
+Apply it by starting the devkit with `DEVKIT_JAVA_VERSION=java21-migration` from Compose. For the manual script workflow, pass `java21-migration`:
 
 ```bash
-~/github/java-agentic-devkit/scripts/copy-java21-migration-template.sh ~/cip/27801_arus
+cd ~/github/java-agentic-devkit
+./scripts/container/start-devkit-container.sh ~/cip/27801_arus java21-migration
 ```
 
-You can also run it from the target project root with no argument.
+Existing files are preserved.
 
 For the migration workflow, see [JAVA8_TO_JAVA21_MIGRATION.md](JAVA8_TO_JAVA21_MIGRATION.md).
 
@@ -340,5 +340,5 @@ cd ~/github/java-agentic-devkit
 ## More Information
 
 - [JAVA8_TO_JAVA21_MIGRATION.md](JAVA8_TO_JAVA21_MIGRATION.md) explains the Java 8 to Java 21 migration workflow.
-- [../templates/README.md](../templates/README.md) lists template files and copy commands.
+- [../templates/README.md](../templates/README.md) lists template files generated by the devkit.
 - [../CODING_STANDARDS.md](../CODING_STANDARDS.md) defines repository coding standards.

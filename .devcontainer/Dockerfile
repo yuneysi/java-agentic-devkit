@@ -430,8 +430,9 @@ COPY --chown=${USERNAME}:${USERNAME} opencode/skills/ /home/${USERNAME}/.config/
 
 USER root
 
-COPY templates/java8/AGENTS.md /opt/java-agentic-devkit/templates/java8/AGENTS.md
-COPY templates/java21/AGENTS.md /opt/java-agentic-devkit/templates/java21/AGENTS.md
+COPY templates/java8/ /opt/java-agentic-devkit/templates/java8/
+COPY templates/java21/ /opt/java-agentic-devkit/templates/java21/
+COPY templates/java21-migration/ /opt/java-agentic-devkit/templates/java21-migration/
 
 RUN printf '%s\n' \
     '#!/usr/bin/env bash' \
@@ -451,16 +452,29 @@ RUN printf '%s\n' \
     '    java21)' \
     '        . /usr/local/bin/use-java21 >/dev/null 2>&1 || true' \
     '        ;;' \
+    '    java21-migration)' \
+    '        . /usr/local/bin/use-java8 >/dev/null 2>&1 || true' \
+    '        ;;' \
     '    *)' \
     '        echo "Unsupported DEVKIT_JAVA_VERSION: ${JAVA_VERSION}" >&2' \
     '        exit 1' \
     '        ;;' \
     'esac' \
     '' \
-    'TEMPLATE_FILE="/opt/java-agentic-devkit/templates/${JAVA_VERSION}/AGENTS.md"' \
-    'if [[ -d "${PROJECT_DIR}" && ! -f "${PROJECT_DIR}/AGENTS.md" && -f "${TEMPLATE_FILE}" ]]; then' \
-    '    cp "${TEMPLATE_FILE}" "${PROJECT_DIR}/AGENTS.md"' \
-    '    echo "Created AGENTS.md from ${JAVA_VERSION} template"' \
+    'TEMPLATE_DIR="/opt/java-agentic-devkit/templates/${JAVA_VERSION}"' \
+    'if [[ -d "${PROJECT_DIR}" && -d "${TEMPLATE_DIR}" ]]; then' \
+    '    while IFS= read -r -d "" TEMPLATE_FILE; do' \
+    '        RELATIVE_PATH="${TEMPLATE_FILE#${TEMPLATE_DIR}/}"' \
+    '        TARGET_FILE="${PROJECT_DIR}/${RELATIVE_PATH}"' \
+    '        mkdir -p "$(dirname "${TARGET_FILE}")"' \
+    '        if [[ ! -e "${TARGET_FILE}" ]]; then' \
+    '            cp "${TEMPLATE_FILE}" "${TARGET_FILE}"' \
+    '            echo "Created ${RELATIVE_PATH} from ${JAVA_VERSION} template"' \
+    '        fi' \
+    '    done < <(find "${TEMPLATE_DIR}" -type f -print0)' \
+    '    if [[ -d "${PROJECT_DIR}/scripts" ]]; then' \
+    '        find "${PROJECT_DIR}/scripts" -maxdepth 1 -type f -name "*.sh" -exec chmod +x {} \;' \
+    '    fi' \
     'fi' \
     '' \
     'OPENCODE_CONFIG="${HOME}/.config/opencode/opencode.json"' \
