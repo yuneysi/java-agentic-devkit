@@ -18,7 +18,7 @@ From the developer machine:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/start-devkit-container.sh /path/to/java21/project java21
+./scripts/container/start-devkit-container.sh /path/to/java21/project java21
 ```
 
 Inside the container:

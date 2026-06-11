@@ -44,7 +44,7 @@ Keep examples consistent. Use this command style:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/start-devkit-container.sh /path/to/java/project
+./scripts/container/start-devkit-container.sh /path/to/java/project
 ```
 
 Do not document a `devkit` shell shortcut or symlink unless the user explicitly asks for one.
@@ -60,9 +60,9 @@ Use Java 21 only when explicitly requested or when the documented workflow requi
 Examples:
 
 ```bash
-./scripts/start-devkit-container.sh /path/to/java/project
-./scripts/start-devkit-container.sh /path/to/java/project java8
-./scripts/start-devkit-container.sh /path/to/java/project java21
+./scripts/container/start-devkit-container.sh /path/to/java/project
+./scripts/container/start-devkit-container.sh /path/to/java/project java8
+./scripts/container/start-devkit-container.sh /path/to/java/project java21
 ```
 
 ---
@@ -135,7 +135,7 @@ Validate Docker availability before Docker build/run operations.
 Preserve the existing public command style:
 
 ```bash
-./scripts/start-devkit-container.sh /path/to/project [java8|java21]
+./scripts/container/start-devkit-container.sh /path/to/project [java8|java21]
 ```
 
 ---

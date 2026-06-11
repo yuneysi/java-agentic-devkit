@@ -61,7 +61,7 @@ Use the devkit with Java 8:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/start-devkit-container.sh /path/to/java8-project
+./scripts/container/start-devkit-container.sh /path/to/java8-project
 ```
 
 ### `java21/`
@@ -113,7 +113,7 @@ Use the devkit with Java 21:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/start-devkit-container.sh /path/to/java21-project java21
+./scripts/container/start-devkit-container.sh /path/to/java21-project java21
 ```
 
 ### `java21-migration/`
@@ -256,12 +256,12 @@ They can still use the devkit container:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/start-devkit-container.sh /path/to/java-project
+./scripts/container/start-devkit-container.sh /path/to/java-project
 ```
 
 Use Java 21 explicitly when needed:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/start-devkit-container.sh /path/to/java-project java21
+./scripts/container/start-devkit-container.sh /path/to/java-project java21
 ```

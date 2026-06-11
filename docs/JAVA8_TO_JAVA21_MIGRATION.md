@@ -34,7 +34,7 @@ From the developer machine:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/start-devkit-container.sh /path/to/your/java/project
+./scripts/container/start-devkit-container.sh /path/to/your/java/project
 ```
 
 By default, the container starts with Java 8.
@@ -42,22 +42,22 @@ By default, the container starts with Java 8.
 Use Java 8 mode to capture the legacy baseline behavior:
 
 ```bash
-./scripts/start-devkit-container.sh /path/to/your/java/project
+./scripts/container/start-devkit-container.sh /path/to/your/java/project
 ```
 
 or explicitly:
 
 ```bash
-./scripts/start-devkit-container.sh /path/to/your/java/project java8
+./scripts/container/start-devkit-container.sh /path/to/your/java/project java8
 ```
 
 Use Java 21 only when the project needs to be compiled, tested, or executed with Java 21:
 
 ```bash
-./scripts/start-devkit-container.sh /path/to/your/java/project java21
+./scripts/container/start-devkit-container.sh /path/to/your/java/project java21
 ```
 
-The target project is passed to `java-agentic-devkit` through `./scripts/start-devkit-container.sh`.
+The target project is passed to `java-agentic-devkit` through `./scripts/container/start-devkit-container.sh`.
 
 Do not manually clone or mount the target project inside the devkit workspace unless there is a specific documented reason.
 
@@ -98,7 +98,7 @@ From this point onward, all migration commands, OpenCode sessions, Maven builds,
 
 ```text
 1. Clone or update java-agentic-devkit.
-2. Start the devkit using ./scripts/start-devkit-container.sh /path/to/your/java/project.
+2. Start the devkit using ./scripts/container/start-devkit-container.sh /path/to/your/java/project.
 3. Use Java 8 first to capture the behavioral baseline.
 4. Verify Java, Maven, Git, OpenCode, oh-my-opencode, and Copilot-related configuration inside the container.
 5. Create or switch to branch/java21 from feature/migrate_to_java21.
@@ -213,7 +213,7 @@ Start the devkit with Java 8:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/start-devkit-container.sh ~/cip/27801_arus java8
+./scripts/container/start-devkit-container.sh ~/cip/27801_arus java8
 ```
 
 Inside the container, run the baseline script:
@@ -286,7 +286,7 @@ When there is a small migration change to validate, restart the devkit with Java
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/start-devkit-container.sh ~/cip/27801_arus java21
+./scripts/container/start-devkit-container.sh ~/cip/27801_arus java21
 ```
 
 Inside the Java 21 container, start with the smallest useful validation:
@@ -340,7 +340,7 @@ Start in Java 8 mode and copy the migration template into the target project:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/start-devkit-container.sh ~/cip/27801_arus java8
+./scripts/container/start-devkit-container.sh ~/cip/27801_arus java8
 ```
 
 Inside the container:
@@ -353,7 +353,7 @@ After baseline behavior is captured, restart the devkit with Java 21 only when J
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/start-devkit-container.sh ~/cip/27801_arus java21
+./scripts/container/start-devkit-container.sh ~/cip/27801_arus java21
 ```
 
 Inside the container:
@@ -369,7 +369,7 @@ From the host machine:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/start-devkit-container.sh ~/cip/27801_arus
+./scripts/container/start-devkit-container.sh ~/cip/27801_arus
 ```
 
 Inside the container:
@@ -419,7 +419,7 @@ Start the project in Java 8 mode:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/start-devkit-container.sh /path/to/your/java/project java8
+./scripts/container/start-devkit-container.sh /path/to/your/java/project java8
 ```
 
 Inside the container, run the current build and tests:
@@ -451,7 +451,7 @@ When Java 8 baseline behavior is documented, restart the container in Java 21 mo
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/start-devkit-container.sh /path/to/your/java/project java21
+./scripts/container/start-devkit-container.sh /path/to/your/java/project java21
 ```
 
 Inside the container, run the smallest relevant Java 21 validation command first:

@@ -1,16 +1,17 @@
 #!/bin/bash
 
 # Start the Java Agentic DevKit - builds image and runs container
-# Usage: ./scripts/devkit.sh [mount-path] [java-version]
+# Usage: ./scripts/container/devkit.sh [mount-path] [java-version]
 # 
 # Examples:
-#   ./scripts/devkit.sh                    # Uses current directory
-#   ./scripts/devkit.sh /path/to/project   # Mount specific project
-#   ./scripts/devkit.sh . java21           # Use Java 21
+#   ./scripts/container/devkit.sh                    # Uses current directory
+#   ./scripts/container/devkit.sh /path/to/project   # Mount specific project
+#   ./scripts/container/devkit.sh . java21           # Use Java 21
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEVKIT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 # Colors for output
 RED='\033[0;31m'
@@ -19,7 +20,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-source "${SCRIPT_DIR}/docker-utils.sh"
+source "${DEVKIT_DIR}/scripts/docker-utils.sh"
 
 normalize_mount_path() {
     local path="$1"
@@ -63,7 +64,7 @@ if docker image inspect "${FULL_IMAGE}" > /dev/null 2>&1; then
     echo -e "${GREEN}✅ Image already exists: ${FULL_IMAGE}${NC}\n"
 else
     echo -e "${YELLOW}📦 Building image: ${FULL_IMAGE}${NC}"
-    docker build -t "${FULL_IMAGE}" -f .devcontainer/Dockerfile . > /dev/null 2>&1
+    docker build -t "${FULL_IMAGE}" -f "${DEVKIT_DIR}/.devcontainer/Dockerfile" "${DEVKIT_DIR}" > /dev/null 2>&1
     echo -e "${GREEN}✅ Image built successfully${NC}\n"
 fi
 
@@ -81,7 +82,8 @@ fi
 
 MOUNT_PATH="$(cd "$MOUNT_PATH" && pwd)"
 
-CONTAINER_MOUNT="/workspaces/project"
+PROJECT_NAME="$(basename "$MOUNT_PATH")"
+CONTAINER_MOUNT="/workspaces/${PROJECT_NAME}"
 echo -e "${GREEN}✅ Mounting: ${MOUNT_PATH}${NC}"
 echo -e "${GREEN}   at: ${CONTAINER_MOUNT}${NC}\n"
 
@@ -103,7 +105,7 @@ case "$JAVA_VERSION" in
         ;;
 esac
 
-TEMPLATE_DIR="$(cd "${SCRIPT_DIR}/../templates/${JAVA_VERSION}" && pwd)"
+TEMPLATE_DIR="$(cd "${DEVKIT_DIR}/templates/${JAVA_VERSION}" && pwd)"
 if [[ -f "${MOUNT_PATH}/AGENTS.md" ]]; then
     echo -e "${GREEN}✅ AGENTS.md already exists${NC}\n"
 else
@@ -116,6 +118,8 @@ echo -e "${BLUE}═════════════════════�
 echo -e "${YELLOW}4️⃣  Starting container...${NC}\n"
 
 docker run -it --rm \
+    -e "DEVKIT_JAVA_VERSION=${JAVA_VERSION}" \
+    -e "DEVKIT_PROJECT_DIR=${CONTAINER_MOUNT}" \
     -v "${MOUNT_PATH}:${CONTAINER_MOUNT}" \
     -v /var/run/docker.sock:/var/run/docker.sock \
     "${FULL_IMAGE}" \
@@ -124,7 +128,7 @@ docker run -it --rm \
         ${JAVA_SETUP}
         
         # Navigate to project
-        cd ${CONTAINER_MOUNT}
+        cd "${CONTAINER_MOUNT}"
         
         # Print welcome message
         echo ''

@@ -428,6 +428,58 @@ COPY --chown=${USERNAME}:${USERNAME} opencode/opencode.json /home/${USERNAME}/.c
 COPY --chown=${USERNAME}:${USERNAME} opencode/tui.json /home/${USERNAME}/.config/opencode/tui.json
 COPY --chown=${USERNAME}:${USERNAME} opencode/skills/ /home/${USERNAME}/.config/opencode/skills/
 
+USER root
+
+COPY templates/java8/AGENTS.md /opt/java-agentic-devkit/templates/java8/AGENTS.md
+COPY templates/java21/AGENTS.md /opt/java-agentic-devkit/templates/java21/AGENTS.md
+
+RUN printf '%s\n' \
+    '#!/usr/bin/env bash' \
+    'set -euo pipefail' \
+    '' \
+    'PROJECT_DIR="${DEVKIT_PROJECT_DIR:-}"' \
+    'JAVA_VERSION="${DEVKIT_JAVA_VERSION:-${DEFAULT_JAVA_VERSION:-java8}}"' \
+    '' \
+    'if [[ -z "${PROJECT_DIR}" ]]; then' \
+    '    if [[ -d /workspaces/project ]]; then' \
+    '        PROJECT_DIR=/workspaces/project' \
+    '    else' \
+    '        PROJECT_COUNT="$(find /workspaces -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)"' \
+    '        if [[ "${PROJECT_COUNT}" -eq 1 ]]; then' \
+    '            PROJECT_DIR="$(find /workspaces -mindepth 1 -maxdepth 1 -type d -print -quit)"' \
+    '        else' \
+    '            PROJECT_DIR=/workspaces/project' \
+    '        fi' \
+    '    fi' \
+    'fi' \
+    '' \
+    'case "${JAVA_VERSION}" in' \
+    '    java8)' \
+    '        . /usr/local/bin/use-java8 >/dev/null 2>&1 || true' \
+    '        ;;' \
+    '    java21)' \
+    '        . /usr/local/bin/use-java21 >/dev/null 2>&1 || true' \
+    '        ;;' \
+    '    *)' \
+    '        echo "Unsupported DEVKIT_JAVA_VERSION: ${JAVA_VERSION}" >&2' \
+    '        exit 1' \
+    '        ;;' \
+    'esac' \
+    '' \
+    'TEMPLATE_FILE="/opt/java-agentic-devkit/templates/${JAVA_VERSION}/AGENTS.md"' \
+    'if [[ -d "${PROJECT_DIR}" && ! -f "${PROJECT_DIR}/AGENTS.md" && -f "${TEMPLATE_FILE}" ]]; then' \
+    '    cp "${TEMPLATE_FILE}" "${PROJECT_DIR}/AGENTS.md"' \
+    '    echo "Created AGENTS.md from ${JAVA_VERSION} template"' \
+    'fi' \
+    '' \
+    'exec "$@"' \
+    > /usr/local/bin/devkit-entrypoint
+
+RUN chmod +x /usr/local/bin/devkit-entrypoint
+
+USER ${USERNAME}
+
 EXPOSE 8080 8009 5005 61616 8161
 
+ENTRYPOINT ["devkit-entrypoint"]
 CMD ["bash"]

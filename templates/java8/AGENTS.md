@@ -44,19 +44,19 @@ Start the container from the host machine using:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/start-devkit-container.sh /path/to/this/project
+./scripts/container/start-devkit-container.sh /path/to/this/project
 ```
 
 Java 8 is the default runtime:
 
 ```bash
-./scripts/start-devkit-container.sh /path/to/this/project
+./scripts/container/start-devkit-container.sh /path/to/this/project
 ```
 
 or:
 
 ```bash
-./scripts/start-devkit-container.sh /path/to/this/project java8
+./scripts/container/start-devkit-container.sh /path/to/this/project java8
 ```
 
 All OpenCode sessions, Maven builds, tests, and commits should be executed from inside the `java-agentic-devkit` container unless there is a documented exception.

@@ -44,7 +44,7 @@ Start the container from the host machine using Java 21 mode:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/start-devkit-container.sh /path/to/this/project java21
+./scripts/container/start-devkit-container.sh /path/to/this/project java21
 ```
 
 All OpenCode sessions, Maven builds, tests, and commits should be executed from inside the `java-agentic-devkit` container unless there is a documented exception.

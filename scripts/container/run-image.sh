@@ -1,11 +1,12 @@
 #!/bin/bash
 
 # Script to run a Docker image
-# Usage: ./scripts/run-image.sh [image:tag] [command]
+# Usage: ./scripts/container/run-image.sh [image:tag] [command]
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEVKIT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 # Default values
 IMAGE="${1:-java-agentic-devkit:latest}"
@@ -18,7 +19,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-source "${SCRIPT_DIR}/docker-utils.sh"
+source "${DEVKIT_DIR}/scripts/docker-utils.sh"
 
 ensure_docker_available
 
