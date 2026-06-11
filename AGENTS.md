@@ -87,13 +87,15 @@ Do not reintroduce `opencode/instructions.md` unless the user explicitly decides
 
 ## OpenCode Configuration
 
-`opencode/opencode.json` should reference:
+`opencode/opencode.json` should reference the default project mount:
 
 ```json
 "instructions": [
-  "{file:AGENTS.md}"
+  "{file:/workspace/AGENTS.md}"
 ]
 ```
+
+The container entrypoint rewrites this reference at startup when `DEVKIT_PROJECT_DIR` points to a different mounted project path.
 
 Do not point OpenCode back to `instructions.md`.
 

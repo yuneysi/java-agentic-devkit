@@ -50,7 +50,7 @@ For Windows users:
 For macOS users:
 
 - Support Podman or Docker.
-- Use `/workspaces/<project-name>` as the mounted project path inside the container.
+- Use `/workspace` as the mounted project path inside the container.
 - Warn that shell commands using `\` must not contain blank lines between continued lines.
 - Recommend a script for repeatable startup.
 

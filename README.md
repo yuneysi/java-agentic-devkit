@@ -6,18 +6,43 @@ Developers use it to work on Java 8 projects, Java 21 projects, and Java 8 to Ja
 
 ## Quick Start
 
+There are two supported ways to use this devkit with another Java project.
+
+### Option 1: Build the DevKit Image, Then Start the Target Project Compose File
+
+This is the preferred workflow when the target project owns its own `compose.yml`.
+
+First build the shared devkit image from this repository:
+
+```bash
+cd ~/github/java-agentic-devkit
+./scripts/create-image.sh
+```
+
+Then start Docker Compose from the target project:
+
+```bash
+cd /path/to/your/java/project
+docker compose -f compose.yml up -d
+```
+
+The target project's Compose service should use the `java-agentic-devkit:latest` image, mount the project at `/workspace`, and set `DEVKIT_PROJECT_DIR=/workspace`. A typical service also mounts `/var/run/docker.sock`, exposes the Java, debug, ActiveMQ, and web console ports, and starts with `command: /bin/bash`; see [docs/README.md](docs/README.md) for a complete example.
+
+### Option 2: Start a Project Manually with the DevKit Scripts
+
 ```bash
 # Start from the devkit directory
 cd ~/github/java-agentic-devkit
 
-# Start developing with your project
+# Build the image and start developing with your project
+./scripts/create-image.sh
 ./scripts/container/start-devkit-container.sh /path/to/your/java/project
 ```
 
-That's it! The container builds automatically and your project is ready for AI-assisted development.
+After the container starts, the project is ready for AI-assisted development.
 Java 8 is the default runtime. Use `java21` only when a project needs Java 21.
 
-On first start, the devkit creates `AGENTS.md` in the target project from the selected Java template when the file does not already exist. Existing `AGENTS.md` files are preserved. This also works when another project starts the image with Docker Compose and mounts the project at `/workspaces/<project-name>`.
+On first start, the devkit mounts the target project at `/workspace` and creates `AGENTS.md` from the selected Java template when the file does not already exist. Existing `AGENTS.md` files are preserved. This also works when another project starts the image with Docker Compose and sets `DEVKIT_PROJECT_DIR` to the mounted project path.
 
 ## Documentation
 

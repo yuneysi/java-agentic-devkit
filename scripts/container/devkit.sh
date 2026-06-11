@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Start the Java Agentic DevKit - builds image and runs container
 # Usage: ./scripts/container/devkit.sh [mount-path] [java-version]
@@ -8,7 +8,7 @@
 #   ./scripts/container/devkit.sh /path/to/project   # Mount specific project
 #   ./scripts/container/devkit.sh . java21           # Use Java 21
 
-set -e
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEVKIT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
@@ -82,8 +82,7 @@ fi
 
 MOUNT_PATH="$(cd "$MOUNT_PATH" && pwd)"
 
-PROJECT_NAME="$(basename "$MOUNT_PATH")"
-CONTAINER_MOUNT="/workspaces/${PROJECT_NAME}"
+CONTAINER_MOUNT="/workspace"
 echo -e "${GREEN}✅ Mounting: ${MOUNT_PATH}${NC}"
 echo -e "${GREEN}   at: ${CONTAINER_MOUNT}${NC}\n"
 

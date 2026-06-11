@@ -358,8 +358,8 @@ RUN bunx oh-my-openagent install \
     --kimi-for-coding=no \
     --vercel-ai-gateway=no
 
-RUN mkdir -p /workspaces \
-    && chown ${USERNAME}:${USERNAME} /workspaces
+RUN mkdir -p /workspace \
+    && chown ${USERNAME}:${USERNAME} /workspace
 
 RUN mkdir -p \
     /home/${USERNAME}/.config/opencode \
@@ -405,7 +405,7 @@ RUN printf '%s\n' \
     'export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}:/opt/mqm/lib64:/opt/mqm/lib"' \
     >> /home/${USERNAME}/.bashrc
 
-WORKDIR /workspaces
+WORKDIR /workspace
 
 RUN java -version \
     && javac -version \
@@ -441,16 +441,7 @@ RUN printf '%s\n' \
     'JAVA_VERSION="${DEVKIT_JAVA_VERSION:-${DEFAULT_JAVA_VERSION:-java8}}"' \
     '' \
     'if [[ -z "${PROJECT_DIR}" ]]; then' \
-    '    if [[ -d /workspaces/project ]]; then' \
-    '        PROJECT_DIR=/workspaces/project' \
-    '    else' \
-    '        PROJECT_COUNT="$(find /workspaces -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)"' \
-    '        if [[ "${PROJECT_COUNT}" -eq 1 ]]; then' \
-    '            PROJECT_DIR="$(find /workspaces -mindepth 1 -maxdepth 1 -type d -print -quit)"' \
-    '        else' \
-    '            PROJECT_DIR=/workspaces/project' \
-    '        fi' \
-    '    fi' \
+    '    PROJECT_DIR=/workspace' \
     'fi' \
     '' \
     'case "${JAVA_VERSION}" in' \
@@ -470,6 +461,13 @@ RUN printf '%s\n' \
     'if [[ -d "${PROJECT_DIR}" && ! -f "${PROJECT_DIR}/AGENTS.md" && -f "${TEMPLATE_FILE}" ]]; then' \
     '    cp "${TEMPLATE_FILE}" "${PROJECT_DIR}/AGENTS.md"' \
     '    echo "Created AGENTS.md from ${JAVA_VERSION} template"' \
+    'fi' \
+    '' \
+    'OPENCODE_CONFIG="${HOME}/.config/opencode/opencode.json"' \
+    'if [[ -f "${OPENCODE_CONFIG}" && -d "${PROJECT_DIR}" ]]; then' \
+    '    TMP_CONFIG="$(mktemp)"' \
+    '    jq --arg instructions_file "{file:${PROJECT_DIR}/AGENTS.md}" ".instructions = [\$instructions_file]" "${OPENCODE_CONFIG}" > "${TMP_CONFIG}"' \
+    '    mv "${TMP_CONFIG}" "${OPENCODE_CONFIG}"' \
     'fi' \
     '' \
     'exec "$@"' \

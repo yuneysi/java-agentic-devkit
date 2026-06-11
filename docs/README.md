@@ -18,10 +18,72 @@ The devkit itself stays outside the target Java project. Developers start the de
 
 ## Basic Usage
 
-From the developer machine:
+There are two supported ways to use `java-agentic-devkit` from another Java project.
+
+### Option 1: Build the DevKit Image, Then Start the Target Project Compose File
+
+This is the preferred workflow when the target project owns its own `compose.yml`.
+
+From the developer machine, build or rebuild the shared devkit image:
 
 ```bash
 cd ~/github/java-agentic-devkit
+./scripts/create-image.sh
+```
+
+Then start Docker Compose from the target project:
+
+```bash
+cd /path/to/java/project
+docker compose -f compose.yml up -d
+```
+
+The target project's Compose service should use the `java-agentic-devkit:latest` image, mount the project at `/workspace`, and set `DEVKIT_PROJECT_DIR=/workspace`.
+
+Example `compose.yml` service:
+
+```yaml
+services:
+    dev:
+        image: java-agentic-devkit:latest
+        working_dir: /workspace
+        environment:
+            DEVKIT_JAVA_VERSION: java8
+            DEVKIT_PROJECT_DIR: /workspace
+        volumes:
+            - ..:/workspace
+            - /var/run/docker.sock:/var/run/docker.sock
+        ports:
+            - "8080:8080"
+            - "5005:5005"
+            - "61616:61616"
+            - "8161:8161"
+        stdin_open: true
+        tty: true
+        command: /bin/bash
+```
+
+This example assumes the Compose file lives in a project subdirectory such as `.devcontainer/`, so `..:/workspace` mounts the target project root. If `compose.yml` lives at the target project root, use `.:/workspace` instead.
+
+Example `devcontainer.json` for VS Code Dev Containers:
+
+```json
+{
+    "name": "Java Agentic DevKit",
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "dev",
+    "workspaceFolder": "/workspace",
+    "remoteUser": "vscode"
+}
+```
+
+### Option 2: Start a Project Manually with the DevKit Scripts
+
+Use this workflow when the target project does not provide its own Compose file or when you want a quick interactive container from the devkit repository:
+
+```bash
+cd ~/github/java-agentic-devkit
+./scripts/create-image.sh
 ./scripts/container/start-devkit-container.sh /path/to/java/project
 ```
 
@@ -31,30 +93,17 @@ Use Java 21 explicitly when needed:
 
 ```bash
 cd ~/github/java-agentic-devkit
+./scripts/create-image.sh
 ./scripts/container/start-devkit-container.sh /path/to/java/project java21
 ```
 
-Inside the container, the target project is mounted under `/workspaces` using the project directory name. For example:
+Inside the container, the target project is mounted at a stable path:
 
 ```text
-/workspaces/my-java-project
+/workspace
 ```
 
-On first start, the devkit creates `AGENTS.md` in the target project from the selected Java template when the file does not already exist. Existing `AGENTS.md` files are preserved. This also works when another project starts the image with Docker Compose and mounts the project at `/workspaces/<project-name>`.
-
-For Docker Compose, set `DEVKIT_JAVA_VERSION` to choose which template is used:
-
-```yaml
-services:
-    dev:
-        image: java-agentic-devkit:latest
-        working_dir: /workspaces/27801_VISSV
-        environment:
-            DEVKIT_JAVA_VERSION: java8
-            DEVKIT_PROJECT_DIR: /workspaces/27801_VISSV
-        volumes:
-            - ..:/workspaces/27801_VISSV
-```
+On first start, the devkit creates `AGENTS.md` in the target project from the selected Java template when the file does not already exist. Existing `AGENTS.md` files are preserved. This works for both the Compose workflow and the manual script workflow.
 
 ---
 
