@@ -103,6 +103,14 @@ case "$JAVA_VERSION" in
         ;;
 esac
 
+TEMPLATE_DIR="$(cd "${SCRIPT_DIR}/../templates/${JAVA_VERSION}" && pwd)"
+if [[ -f "${MOUNT_PATH}/AGENTS.md" ]]; then
+    echo -e "${GREEN}✅ AGENTS.md already exists${NC}\n"
+else
+    cp "${TEMPLATE_DIR}/AGENTS.md" "${MOUNT_PATH}/AGENTS.md"
+    echo -e "${GREEN}✅ Created AGENTS.md from ${JAVA_VERSION} template${NC}\n"
+fi
+
 # Step 4: Start container
 echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
 echo -e "${YELLOW}4️⃣  Starting container...${NC}\n"

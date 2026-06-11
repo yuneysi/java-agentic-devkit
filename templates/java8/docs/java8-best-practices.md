@@ -18,14 +18,14 @@ From the developer machine:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/dev.sh /path/to/java8/project
+./scripts/start-devkit-container.sh /path/to/java8/project
 ```
 
 Java 8 is the default runtime. You can also request it explicitly:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/dev.sh /path/to/java8/project java8
+./scripts/start-devkit-container.sh /path/to/java8/project java8
 ```
 
 Inside the container:

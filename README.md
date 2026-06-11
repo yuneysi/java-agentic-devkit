@@ -11,11 +11,13 @@ Developers use it to work on Java 8 projects, Java 21 projects, and Java 8 to Ja
 cd ~/github/java-agentic-devkit
 
 # Start developing with your project
-./scripts/dev.sh /path/to/your/java/project
+./scripts/start-devkit-container.sh /path/to/your/java/project
 ```
 
 That's it! The container builds automatically and your project is ready for AI-assisted development.
 Java 8 is the default runtime. Use `java21` only when a project needs Java 21.
+
+On first start, `start-devkit-container.sh` creates `AGENTS.md` in the target project from the selected Java template when the file does not already exist. Existing `AGENTS.md` files are preserved.
 
 ## Documentation
 
@@ -113,7 +115,7 @@ On Windows, run the same commands from WSL. If the target project is stored on t
 cd ~/github/java-agentic-devkit
 
 # Start with your project using the default Java 8 runtime
-./scripts/dev.sh ~/cip/27801_arus
+./scripts/start-devkit-container.sh ~/cip/27801_arus
 
 # Inside container - build and develop
 mvn clean install
@@ -140,7 +142,7 @@ See [docs/README.md](docs/README.md) for Java 8, Java 21, Mac, Windows, template
 
 | Script | Purpose |
 |--------|---------|
-| `dev.sh` | ⭐ Recommended - Build & run everything |
+| `start-devkit-container.sh` | Recommended entry point. Builds the image if needed and starts the project container. |
 | `devkit.sh` | Full control version with detailed output |
 | `create-image.sh` | Build only (manual mode) |
 | `run-image.sh` | Run only (manual mode) |
@@ -174,7 +176,7 @@ java-agentic-devkit/
 │   ├── Dockerfile
 │   └── ...
 ├── scripts/
-│   ├── dev.sh              # Main script (USE THIS)
+│   ├── start-devkit-container.sh              # Main script (USE THIS)
 │   ├── devkit.sh
 │   ├── create-image.sh
 │   ├── run-image.sh
@@ -209,17 +211,17 @@ java-agentic-devkit/
 ```bash
 # Terminal 1
 cd ~/github/java-agentic-devkit
-./scripts/dev.sh ~/cip/project1
+./scripts/start-devkit-container.sh ~/cip/project1
 
 # Terminal 2 (new window)
 cd ~/github/java-agentic-devkit
-./scripts/dev.sh ~/cip/project2
+./scripts/start-devkit-container.sh ~/cip/project2
 ```
 
 ### Use with Tomcat
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/dev.sh /path/to/project
+./scripts/start-devkit-container.sh /path/to/project
 # Inside container
 start-tomcat9
 ```
@@ -227,7 +229,7 @@ start-tomcat9
 ### Use AI Agents
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/dev.sh /path/to/project
+./scripts/start-devkit-container.sh /path/to/project
 # Inside container
 export ANTHROPIC_API_KEY="your-key"
 opencode  # Select agent and task
@@ -236,9 +238,9 @@ opencode  # Select agent and task
 ### Switch Java Version
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/dev.sh /path/to/project         # Java 8 (default)
-./scripts/dev.sh /path/to/project java8   # Java 8 explicitly
-./scripts/dev.sh /path/to/project java21  # Java 21 when needed
+./scripts/start-devkit-container.sh /path/to/project         # Java 8 (default)
+./scripts/start-devkit-container.sh /path/to/project java8   # Java 8 explicitly
+./scripts/start-devkit-container.sh /path/to/project java21  # Java 21 when needed
 ```
 
 ## Reuse Across Projects
@@ -248,13 +250,13 @@ The same image is used for all your Java projects. No rebuilding needed:
 ```bash
 # First project (builds image)
 cd ~/github/java-agentic-devkit
-./scripts/dev.sh ~/cip/27801_arus
+./scripts/start-devkit-container.sh ~/cip/27801_arus
 
 # Second project (reuses image - instant start)
-./scripts/dev.sh ~/cip/45678_myapp
+./scripts/start-devkit-container.sh ~/cip/45678_myapp
 
 # 10th project (still reuses image)
-./scripts/dev.sh ~/projects/another-app
+./scripts/start-devkit-container.sh ~/projects/another-app
 ```
 
 ## For More Information

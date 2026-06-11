@@ -50,25 +50,25 @@ Start the container from the host machine using:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/dev.sh /path/to/this/project
+./scripts/start-devkit-container.sh /path/to/this/project
 ```
 
 Java 8 is the default runtime and must be used to capture the behavioral baseline:
 
 ```bash
-./scripts/dev.sh /path/to/this/project
+./scripts/start-devkit-container.sh /path/to/this/project
 ```
 
 or:
 
 ```bash
-./scripts/dev.sh /path/to/this/project java8
+./scripts/start-devkit-container.sh /path/to/this/project java8
 ```
 
 Use Java 21 mode only when compiling, testing, or running the Java 21 migration candidate:
 
 ```bash
-./scripts/dev.sh /path/to/this/project java21
+./scripts/start-devkit-container.sh /path/to/this/project java21
 ```
 
 All OpenCode sessions, Maven builds, tests, and migration commits should be executed from inside the `java-agentic-devkit` container unless there is a documented exception.

@@ -57,7 +57,7 @@ Start the devkit with Java 8 from the developer machine:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/dev.sh /path/to/this/project java8
+./scripts/start-devkit-container.sh /path/to/this/project java8
 ```
 
 Inside the container, run the baseline script:
@@ -130,7 +130,7 @@ When there is a small migration change to validate, restart the devkit with Java
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/dev.sh /path/to/this/project java21
+./scripts/start-devkit-container.sh /path/to/this/project java21
 ```
 
 Inside the Java 21 container, start with the smallest useful validation:
@@ -184,19 +184,19 @@ From the host machine:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/dev.sh /path/to/this/project
+./scripts/start-devkit-container.sh /path/to/this/project
 ```
 
 Java 8 baseline mode:
 
 ```bash
-./scripts/dev.sh /path/to/this/project java8
+./scripts/start-devkit-container.sh /path/to/this/project java8
 ```
 
 Java 21 candidate mode:
 
 ```bash
-./scripts/dev.sh /path/to/this/project java21
+./scripts/start-devkit-container.sh /path/to/this/project java21
 ```
 
 Inside the container:

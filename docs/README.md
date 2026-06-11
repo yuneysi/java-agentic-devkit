@@ -22,7 +22,7 @@ From the developer machine:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/dev.sh /path/to/java/project
+./scripts/start-devkit-container.sh /path/to/java/project
 ```
 
 Java 8 is the default runtime.
@@ -31,7 +31,7 @@ Use Java 21 explicitly when needed:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/dev.sh /path/to/java/project java21
+./scripts/start-devkit-container.sh /path/to/java/project java21
 ```
 
 Inside the container, the target project is mounted at:
@@ -39,6 +39,8 @@ Inside the container, the target project is mounted at:
 ```text
 /workspaces/project
 ```
+
+On first start, `start-devkit-container.sh` creates `AGENTS.md` in the target project from the selected Java template when the file does not already exist. Existing `AGENTS.md` files are preserved.
 
 ---
 
@@ -48,7 +50,7 @@ Open Docker Desktop first and wait until Docker is running. Then run:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/dev.sh ~/cip/27801_arus
+./scripts/start-devkit-container.sh ~/cip/27801_arus
 ```
 
 If Docker Desktop is installed but stopped, the scripts try to start it automatically.
@@ -61,14 +63,14 @@ Use Docker Desktop with the WSL2 backend and run the devkit from a WSL terminal:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/dev.sh ~/cip/27801_arus
+./scripts/start-devkit-container.sh ~/cip/27801_arus
 ```
 
 If the target project is on the Windows `C:` drive, use the WSL path:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/dev.sh /mnt/c/Users/YOUR_NAME/cip/27801_arus
+./scripts/start-devkit-container.sh /mnt/c/Users/YOUR_NAME/cip/27801_arus
 ```
 
 Keeping both the devkit and Java projects inside the WSL home folder, such as `~/github` and `~/cip`, is usually faster than working from `/mnt/c`.
@@ -93,8 +95,8 @@ Run these scripts from the `java-agentic-devkit` directory.
 
 | Script | Purpose | Typical use |
 |--------|---------|-------------|
-| `./scripts/dev.sh` | Recommended entry point. Builds the image if needed and starts the container. | Daily development. |
-| `./scripts/devkit.sh` | Full startup script used by `dev.sh`. It accepts the project path and Java version. | Advanced debugging or direct control. |
+| `./scripts/start-devkit-container.sh` | Recommended entry point. Builds the image if needed and starts the container. | Daily development. |
+| `./scripts/devkit.sh` | Full startup script used by `start-devkit-container.sh`. It accepts the project path and Java version. | Advanced debugging or direct control. |
 | `./scripts/create-image.sh` | Builds the Docker image only. | Rebuild the devkit image without starting a project. |
 | `./scripts/run-image.sh` | Runs an existing image. | Manual container startup. |
 | `./scripts/copy-java8-template.sh` | Copies the Java 8 template into a target project. | Preparing a Java 8 project for agent-assisted work. |
@@ -105,7 +107,7 @@ Recommended command style:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/dev.sh /path/to/java/project
+./scripts/start-devkit-container.sh /path/to/java/project
 ```
 
 Use this same style in examples and team documentation. Do not rely on a `devkit` shell shortcut or symlink.
@@ -118,21 +120,21 @@ Java 8 is the default:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/dev.sh /path/to/java8-project
+./scripts/start-devkit-container.sh /path/to/java8-project
 ```
 
 You can also request Java 8 explicitly:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/dev.sh /path/to/java8-project java8
+./scripts/start-devkit-container.sh /path/to/java8-project java8
 ```
 
 Use Java 21 explicitly:
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/dev.sh /path/to/java21-project java21
+./scripts/start-devkit-container.sh /path/to/java21-project java21
 ```
 
 ---
@@ -238,7 +240,7 @@ For the migration workflow, see [JAVA8_TO_JAVA21_MIGRATION.md](JAVA8_TO_JAVA21_M
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/dev.sh ~/cip/27801_arus
+./scripts/start-devkit-container.sh ~/cip/27801_arus
 ```
 
 Inside the container:
@@ -253,7 +255,7 @@ opencode
 
 ```bash
 cd ~/github/java-agentic-devkit
-./scripts/dev.sh /path/to/java21-project java21
+./scripts/start-devkit-container.sh /path/to/java21-project java21
 ```
 
 Inside the container:
