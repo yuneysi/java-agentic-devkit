@@ -89,7 +89,7 @@ Templates are applied automatically when the devkit container starts. Select the
 cd ~/github/java-agentic-devkit
 
 # Start with your project using the default Java 8 runtime
-./scripts/container/start-devkit-container.sh ~/cip/27801_arus
+./scripts/container/start-devkit-container.sh ~/cip/project1
 
 # Inside container - build and develop
 mvn clean install
@@ -216,10 +216,10 @@ The same image is used for all your Java projects. No rebuilding needed:
 ```bash
 # First project (builds image)
 cd ~/github/java-agentic-devkit
-./scripts/container/start-devkit-container.sh ~/cip/27801_arus
+./scripts/container/start-devkit-container.sh ~/cip/project1
 
 # Second project (reuses image - instant start)
-./scripts/container/start-devkit-container.sh ~/cip/45678_myapp
+./scripts/container/start-devkit-container.sh ~/cip/project2
 
 # 10th project (still reuses image)
 ./scripts/container/start-devkit-container.sh ~/projects/another-app
