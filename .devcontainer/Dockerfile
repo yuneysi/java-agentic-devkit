@@ -430,6 +430,7 @@ COPY --chown=${USERNAME}:${USERNAME} opencode/skills/ /home/${USERNAME}/.config/
 
 USER root
 
+COPY templates/AGENTS.md /opt/java-agentic-devkit/templates/AGENTS.md
 COPY templates/java8/ /opt/java-agentic-devkit/templates/java8/
 COPY templates/java21/ /opt/java-agentic-devkit/templates/java21/
 COPY templates/java21-migration/ /opt/java-agentic-devkit/templates/java21-migration/
@@ -461,6 +462,12 @@ RUN printf '%s\n' \
     '        ;;' \
     'esac' \
     '' \
+    'SHARED_AGENTS_FILE="/opt/java-agentic-devkit/templates/AGENTS.md"' \
+    'if [[ -d "${PROJECT_DIR}" && ! -e "${PROJECT_DIR}/AGENTS.md" && -f "${SHARED_AGENTS_FILE}" ]]; then' \
+    '    cp "${SHARED_AGENTS_FILE}" "${PROJECT_DIR}/AGENTS.md"' \
+    '    echo "Created AGENTS.md from shared template"' \
+    'fi' \
+    '' \
     'TEMPLATE_DIR="/opt/java-agentic-devkit/templates/${JAVA_VERSION}"' \
     'if [[ -d "${PROJECT_DIR}" && -d "${TEMPLATE_DIR}" ]]; then' \
     '    while IFS= read -r -d "" TEMPLATE_FILE; do' \
@@ -471,10 +478,7 @@ RUN printf '%s\n' \
     '            cp "${TEMPLATE_FILE}" "${TARGET_FILE}"' \
     '            echo "Created ${RELATIVE_PATH} from ${JAVA_VERSION} template"' \
     '        fi' \
-    '    done < <(find "${TEMPLATE_DIR}" -type f -print0)' \
-    '    if [[ -d "${PROJECT_DIR}/scripts" ]]; then' \
-    '        find "${PROJECT_DIR}/scripts" -maxdepth 1 -type f -name "*.sh" -exec chmod +x {} \;' \
-    '    fi' \
+    '    done < <(find "${TEMPLATE_DIR}" -type f ! -path "${TEMPLATE_DIR}/scripts/*" -print0)' \
     'fi' \
     '' \
     'OPENCODE_CONFIG="${HOME}/.config/opencode/opencode.json"' \

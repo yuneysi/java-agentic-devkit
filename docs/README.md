@@ -48,18 +48,18 @@ Use `DEVKIT_JAVA_VERSION` to choose which target-project template is applied on 
 | `java21` | `templates/java21/` | Java 21 |
 | `java21-migration` | `templates/java21-migration/` | Java 8 |
 
-The container creates missing files only. Existing files in the target project are preserved. The generated files include `AGENTS.md`, `.github/copilot-instructions.md`, docs, and migration scripts when the migration template is selected. This works the same for macOS and Windows WSL users because template generation runs inside the Linux container.
+The container creates missing files only. Existing files in the target project are preserved. The generated files include `AGENTS.md`, `.github/copilot-instructions.md`, and docs. This works the same for macOS and Windows WSL users because template generation runs inside the Linux container.
 
 Example `compose.yml` service:
 
 ```yaml
 services:
-    dev:
+    dev-vissv:
         image: java-agentic-devkit:latest
         working_dir: /workspace
         environment:
-            DEVKIT_JAVA_VERSION: java8
             DEVKIT_PROJECT_DIR: /workspace
+            DEVKIT_JAVA_VERSION: java21-migration
         volumes:
             - ..:/workspace
             - /var/run/docker.sock:/var/run/docker.sock
@@ -73,7 +73,15 @@ services:
         command: /bin/bash
 ```
 
-This example assumes the Compose file lives in a project subdirectory such as `.devcontainer/`, so `..:/workspace` mounts the target project root. If `compose.yml` lives at the target project root, use `.:/workspace` instead.
+    This example starts the target project in Java 8 to Java 21 migration mode. It assumes the Compose file lives in a project subdirectory such as `.devcontainer/`, so `..:/workspace` mounts the target project root. If `compose.yml` lives at the target project root, use `.:/workspace` instead.
+
+    Start the migration container with:
+
+    ```bash
+    docker compose run --rm dev-vissv
+    ```
+
+    Switch `DEVKIT_JAVA_VERSION` to `java8` for Java 8 maintenance work or to `java21` when validating the Java 21 candidate.
 
 Example `devcontainer.json` for VS Code Dev Containers:
 
@@ -81,7 +89,7 @@ Example `devcontainer.json` for VS Code Dev Containers:
 {
     "name": "Java Agentic DevKit",
     "dockerComposeFile": "docker-compose.yml",
-    "service": "dev",
+    "service": "dev-vissv",
     "workspaceFolder": "/workspace",
     "remoteUser": "vscode"
 }
@@ -277,11 +285,7 @@ target-java-project/
 ├── .github/
 │   └── copilot-instructions.md
 ├── docs/
-│   └── java21-migration.md
-└── scripts/
-    ├── run-java8-baseline.sh
-    ├── run-java21-candidate.sh
-    └── compare-behavior.sh
+    └── java21-migration.md
 ```
 
 Apply it by starting the devkit with `DEVKIT_JAVA_VERSION=java21-migration` from Compose. For the manual script workflow, pass `java21-migration`:

@@ -47,7 +47,7 @@ Use this sequence after the migration template has been copied into this project
 Before making migration changes, commit the template files as a baseline migration setup commit:
 
 ```bash
-git add AGENTS.md .github/copilot-instructions.md docs/java21-migration.md scripts/run-java8-baseline.sh scripts/run-java21-candidate.sh scripts/compare-behavior.sh
+git add AGENTS.md .github/copilot-instructions.md docs/java21-migration.md
 git commit -m "chore: add agent instructions for Java 21 migration"
 ```
 
@@ -60,16 +60,25 @@ cd ~/github/java-agentic-devkit
 ./scripts/container/start-devkit-container.sh /path/to/this/project java8
 ```
 
-Inside the container, run the baseline script:
+Inside the container, capture the baseline with the real validation command:
 
 ```bash
-scripts/run-java8-baseline.sh
+mkdir -p docs/migration-results/java8-baseline
+mvn clean verify 2>&1 | tee docs/migration-results/java8-baseline/mvn-clean-verify.log
 ```
 
-If the project has integration tests or required Maven profiles, pass the real validation command:
+Measure Java 8 test coverage as part of the baseline. Use the project's existing coverage command when available, for example:
 
 ```bash
-scripts/run-java8-baseline.sh mvn clean verify -Pintegration-tests
+mvn test jacoco:report 2>&1 | tee docs/migration-results/java8-baseline/mvn-test-jacoco.log
+```
+
+If Java 8 coverage is below 90%, create focused characterization or regression tests until coverage reaches at least 90% before making Java 21 migration changes.
+
+If the project has integration tests or required Maven profiles, run that command and store its output:
+
+```bash
+mvn clean verify -Pintegration-tests 2>&1 | tee docs/migration-results/java8-baseline/mvn-clean-verify-integration.log
 ```
 
 Record the baseline result in the Java 8 Baseline section below. This baseline is the behavioral source of truth for the migration.
@@ -95,6 +104,8 @@ Use docs/java21-migration.md as the migration tracker.
 
 Review the Maven configuration, Java source/target settings, dependency versions, plugins, Spring/Tomcat/JSP usage, SOAP/XML/JAXB usage, JMS, JDBC, tests, and runtime configuration.
 
+Check the current Java 8 test coverage command and result. If coverage is below 90%, plan focused characterization or regression tests before production migration changes.
+
 Return a prioritized migration plan with small, safe commits.
 
 For each risk, include:
@@ -119,6 +130,8 @@ Before editing, explain what validation will prove the change is safe.
 
 After editing, run the narrowest relevant validation command.
 
+If Java 8 or Java 21 coverage is below 90%, add or repair focused tests before treating the step as complete.
+
 Update docs/java21-migration.md with what changed, what was validated, and any remaining risk.
 ```
 
@@ -136,20 +149,29 @@ cd ~/github/java-agentic-devkit
 Inside the Java 21 container, start with the smallest useful validation:
 
 ```bash
-scripts/run-java21-candidate.sh mvn clean compile
+mkdir -p docs/migration-results/java21-candidate
+mvn clean compile 2>&1 | tee docs/migration-results/java21-candidate/mvn-clean-compile.log
 ```
 
 Then increase validation gradually:
 
 ```bash
-scripts/run-java21-candidate.sh mvn test
-scripts/run-java21-candidate.sh mvn verify
+mvn test 2>&1 | tee docs/migration-results/java21-candidate/mvn-test.log
+mvn verify 2>&1 | tee docs/migration-results/java21-candidate/mvn-verify.log
 ```
+
+Measure Java 21 test coverage with the project's coverage command, for example:
+
+```bash
+mvn test jacoco:report 2>&1 | tee docs/migration-results/java21-candidate/mvn-test-jacoco.log
+```
+
+If Java 21 coverage is below 90%, add or repair tests before considering candidate validation complete.
 
 Compare Java 8 and Java 21 results:
 
 ```bash
-scripts/compare-behavior.sh
+diff -ru docs/migration-results/java8-baseline docs/migration-results/java21-candidate | tee docs/migration-results/java8-vs-java21.diff || true
 ```
 
 Review the comparison before committing migration changes.
@@ -166,6 +188,8 @@ Review the current Git diff as a Java 8 to Java 21 migration auditor.
 Do not modify files.
 
 Check whether the diff preserves Java 8 behavior.
+
+Check whether Java 8 baseline coverage and Java 21 candidate coverage are both at least 90%, or whether the diff adds tests to reach that threshold.
 
 Classify migration risks.
 
@@ -238,6 +262,7 @@ Use this section to record the current Java 8 behavior before Java 21 changes.
 ```bash
 mvn clean test
 mvn clean verify
+mvn test jacoco:report
 ```
 
 or:
@@ -245,7 +270,19 @@ or:
 ```bash
 ./mvnw clean test
 ./mvnw clean verify
+./mvnw test jacoco:report
 ```
+
+### Java 8 Coverage
+
+```text
+Coverage percentage: <percent>
+Coverage command: <command>
+Coverage report path: <path>
+Status: Passed >= 90% | Failed < 90% | Not measured
+```
+
+If coverage is below 90%, record the missing areas and create characterization or regression tests before starting Java 21 production changes.
 
 ### Baseline Result
 
@@ -318,6 +355,27 @@ or:
 ```bash
 ./mvnw verify
 ```
+
+### Java 21 Coverage
+
+```bash
+mvn test jacoco:report
+```
+
+or:
+
+```bash
+./mvnw test jacoco:report
+```
+
+```text
+Coverage percentage: <percent>
+Coverage command: <command>
+Coverage report path: <path>
+Status: Passed >= 90% | Failed < 90% | Not measured
+```
+
+If coverage is below 90%, add or repair tests before considering Java 21 candidate validation complete.
 
 ### Java 21 Result
 
@@ -516,6 +574,8 @@ Inspect and document:
 
 Track tests that capture Java 8 behavior.
 
+Coverage target for both Java 8 baseline and Java 21 candidate validation is at least 90%.
+
 | ID | Test Class | Behavior Captured | Area | Status |
 |----|------------|-------------------|------|--------|
 | CT-001 | TBD | TBD | TBD | Planned |
@@ -562,6 +622,8 @@ Do not modify files.
 
 Focus on Maven, Java version configuration, Spring, Tomcat, JSP, SOAP/XML, JMS, JDBC, JAXB, and test setup.
 
+Identify the Java 8 coverage command and current coverage result. If coverage is below 90%, prioritize characterization or regression tests before production migration changes.
+
 Return a prioritized migration plan with small commits.
 ```
 
@@ -580,6 +642,8 @@ Preserve Java 8 behavior.
 
 Run the smallest relevant validation command.
 
+If Java 8 or Java 21 coverage is below 90%, add or repair focused tests before treating the step as complete.
+
 Report changed files, risk level, validation result, and proposed commit message.
 ```
 
@@ -594,6 +658,8 @@ Do not modify files.
 
 Check whether the diff preserves Java 8 behavior.
 
+Check whether Java 8 baseline coverage and Java 21 candidate coverage are both at least 90%, or whether the diff adds tests to reach that threshold.
+
 Classify migration risks.
 
 Report blocking issues, non-blocking issues, missing tests, and whether the change is safe to commit.
@@ -606,7 +672,9 @@ Report blocking issues, non-blocking issues, missing tests, and whether the chan
 The migration branch should not be considered ready until:
 
 - [ ] Java 8 baseline behavior is documented.
+- [ ] Java 8 test coverage is at least 90%.
 - [ ] Java 21 compile passes.
+- [ ] Java 21 test coverage is at least 90%.
 - [ ] Unit tests pass or known failures are documented.
 - [ ] Integration tests pass or known failures are documented.
 - [ ] SOAP/XML compatibility risks are reviewed.

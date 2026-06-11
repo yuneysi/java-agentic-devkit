@@ -42,7 +42,7 @@ cd ~/github/java-agentic-devkit
 After the container starts, the project is ready for AI-assisted development.
 Java 8 is the default runtime. Use `java21` only when a project needs Java 21.
 
-On first start, the devkit mounts the target project at `/workspace` and creates missing template files from the selected Java template. Existing project files are preserved. This includes `AGENTS.md`, `.github/copilot-instructions.md`, template docs, and migration helper scripts when `DEVKIT_JAVA_VERSION=java21-migration`. This works on macOS and Windows WSL because generation runs inside the Linux container.
+On first start, the devkit mounts the target project at `/workspace` and creates missing template files from the selected Java template. Existing project files are preserved. This includes `AGENTS.md`, `.github/copilot-instructions.md`, and template docs. This works on macOS and Windows WSL because generation runs inside the Linux container.
 
 ## Documentation
 
@@ -57,32 +57,30 @@ Templates are files that the devkit applies to a target Java project so agents a
 
 | Template | Use when | Copies |
 |----------|----------|--------|
-| `templates/java8/` | The target project stays on Java 8. | `AGENTS.md`, `.github/copilot-instructions.md`, `docs/java8-best-practices.md` |
-| `templates/java21/` | The target project already runs on Java 21. | `AGENTS.md`, `.github/copilot-instructions.md`, `docs/java21-best-practices.md` |
-| `templates/java21-migration/` | The target project is migrating from Java 8 to Java 21. | `AGENTS.md`, `.github/copilot-instructions.md`, `docs/java21-migration.md`, migration helper scripts |
+| `templates/AGENTS.md` | All target projects. | `AGENTS.md` |
+| `templates/java8/` | The target project stays on Java 8. | `.github/copilot-instructions.md`, `docs/java8-best-practices.md` |
+| `templates/java21/` | The target project already runs on Java 21. | `.github/copilot-instructions.md`, `docs/java21-best-practices.md` |
+| `templates/java21-migration/` | The target project is migrating from Java 8 to Java 21. | `.github/copilot-instructions.md`, `docs/java21-migration.md` |
 
 Source files in this repository:
 
 ```text
 templates/
+├── AGENTS.md
 ├── java8/
-│   ├── AGENTS.md
 │   ├── .github/copilot-instructions.md
 │   └── docs/java8-best-practices.md
 ├── java21/
-│   ├── AGENTS.md
 │   ├── .github/copilot-instructions.md
 │   └── docs/java21-best-practices.md
 └── java21-migration/
-    ├── AGENTS.md
     ├── .github/copilot-instructions.md
-    ├── docs/java21-migration.md
-    └── scripts/*.sh
+    └── docs/java21-migration.md
 ```
 
 Templates are applied automatically when the devkit container starts. Select the template with `DEVKIT_JAVA_VERSION` in Compose or with the Java version argument in the manual script workflow. Existing target-project files are preserved.
 
-`AGENTS.md` must exist at the root of the target project. The devkit creates it from the selected template when it is missing. It is the authoritative instruction file for OpenCode / oh-my-opencode agents.
+`AGENTS.md` must exist at the root of the target project. The devkit creates it from `templates/AGENTS.md` when it is missing. It is the authoritative instruction file for OpenCode / oh-my-opencode agents.
 
 ## Example: Using with Your Project
 
@@ -160,19 +158,16 @@ java-agentic-devkit/
 ├── opencode/               # AI configuration
 ├── templates/              # Files applied to target projects
 │   ├── README.md
+│   ├── AGENTS.md
 │   ├── java8/
-│   │   ├── AGENTS.md
 │   │   ├── .github/copilot-instructions.md
 │   │   └── docs/java8-best-practices.md
 │   ├── java21/
-│   │   ├── AGENTS.md
 │   │   ├── .github/copilot-instructions.md
 │   │   └── docs/java21-best-practices.md
 │   └── java21-migration/
-│       ├── AGENTS.md
 │       ├── .github/copilot-instructions.md
-│       ├── docs/java21-migration.md
-│       └── scripts/*.sh
+│       └── docs/java21-migration.md
 └── README.md
 ```
 

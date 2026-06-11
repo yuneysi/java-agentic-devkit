@@ -30,6 +30,41 @@ The migration must be executed from the standardized containerized environment p
 
 ## Standard Developer Flow
 
+Preferred target-project `compose.yml` service for Java 8 to Java 21 migration:
+
+```yaml
+services:
+    dev-vissv:
+        image: java-agentic-devkit:latest
+        working_dir: /workspace
+        environment:
+            DEVKIT_PROJECT_DIR: /workspace
+            DEVKIT_JAVA_VERSION: java21-migration
+        volumes:
+            - ..:/workspace
+            - /var/run/docker.sock:/var/run/docker.sock
+        ports:
+            - "8080:8080"
+            - "5005:5005"
+            - "61616:61616"
+            - "8161:8161"
+        stdin_open: true
+        tty: true
+        command: /bin/bash
+```
+
+Start it from the directory that contains the Compose file:
+
+```bash
+docker compose run --rm dev-vissv
+```
+
+This example assumes the Compose file lives in a project subdirectory such as `.devcontainer/`, so `..:/workspace` mounts the target project root. If `compose.yml` lives at the target project root, use `.:/workspace` instead.
+
+Use `DEVKIT_JAVA_VERSION=java21-migration` to create the migration template files and capture the Java 8 baseline. Change it to `java21` when validating the Java 21 candidate.
+
+Manual script alternative:
+
 From the developer machine:
 
 ```bash
@@ -132,7 +167,7 @@ On first start, the container creates missing migration template files in the ta
 Commit them as the first migration commit:
 
 ```bash
-git add AGENTS.md .github/copilot-instructions.md docs/java21-migration.md scripts/run-java8-baseline.sh scripts/run-java21-candidate.sh scripts/compare-behavior.sh
+git add AGENTS.md .github/copilot-instructions.md docs/java21-migration.md
 git commit -m "chore: add agent instructions for Java 21 migration"
 ```
 
@@ -154,36 +189,39 @@ target-java-project/
 ├── .github/
 │   └── copilot-instructions.md
 ├── docs/
-│   └── java21-migration.md
-└── scripts/
-    ├── run-java8-baseline.sh
-    ├── run-java21-candidate.sh
-    └── compare-behavior.sh
+    └── java21-migration.md
 ```
 
 ---
 
-## What the Migration Scripts Do
+## Capturing Migration Results
 
-The migration template includes three helper scripts. They are copied into the target Java project so every developer captures and compares migration results in the same way.
+The migration template does not create helper scripts in the target Java project. Capture Java 8 baseline and Java 21 candidate results with direct Maven commands and store logs under `docs/migration-results/`.
 
-| Script | When to run it | What it does |
-|--------|----------------|--------------|
-| `scripts/run-java8-baseline.sh` | In Java 8 mode, before migration changes. | Runs the current project validation and stores Java 8 baseline logs under `docs/migration-results/java8-baseline-<timestamp>/`. |
-| `scripts/run-java21-candidate.sh` | In Java 21 mode, after or during migration changes. | Runs Java 21 validation and stores candidate logs under `docs/migration-results/java21-candidate-<timestamp>/`. |
-| `scripts/compare-behavior.sh` | After at least one baseline run and one candidate run. | Compares Java 8 and Java 21 logs and writes a diff under `docs/migration-results/comparison-<timestamp>/`. |
-
-Both run scripts use `mvn clean verify` by default. You can pass a smaller or project-specific command when needed:
+Java 8 baseline example:
 
 ```bash
-scripts/run-java8-baseline.sh mvn clean test
-scripts/run-java21-candidate.sh mvn clean compile
+mkdir -p docs/migration-results/java8-baseline
+mvn clean verify 2>&1 | tee docs/migration-results/java8-baseline/mvn-clean-verify.log
+mvn test jacoco:report 2>&1 | tee docs/migration-results/java8-baseline/mvn-test-jacoco.log
 ```
 
-The comparison script finds the latest baseline and candidate automatically:
+Java 8 baseline coverage must be at least 90%. If it is lower, create focused characterization or regression tests before making Java 21 migration changes.
+
+Java 21 candidate example:
 
 ```bash
-scripts/compare-behavior.sh
+mkdir -p docs/migration-results/java21-candidate
+mvn clean compile 2>&1 | tee docs/migration-results/java21-candidate/mvn-clean-compile.log
+mvn test jacoco:report 2>&1 | tee docs/migration-results/java21-candidate/mvn-test-jacoco.log
+```
+
+Java 21 candidate coverage must also be at least 90%. If it is lower, add or repair tests before considering candidate validation complete.
+
+Compare captured logs when useful:
+
+```bash
+diff -ru docs/migration-results/java8-baseline docs/migration-results/java21-candidate | tee docs/migration-results/java8-vs-java21.diff || true
 ```
 
 ---
@@ -201,13 +239,13 @@ cd ~/github/java-agentic-devkit
 ./scripts/container/start-devkit-container.sh ~/cip/27801_arus java21-migration
 ```
 
-This adds `AGENTS.md`, `.github/copilot-instructions.md`, `docs/java21-migration.md`, and the migration helper scripts to the target project.
+This adds `AGENTS.md`, `.github/copilot-instructions.md`, and `docs/java21-migration.md` to the target project.
 
 Commit the template files before making migration changes:
 
 ```bash
 cd ~/cip/27801_arus
-git add AGENTS.md .github/copilot-instructions.md docs/java21-migration.md scripts/run-java8-baseline.sh scripts/run-java21-candidate.sh scripts/compare-behavior.sh
+git add AGENTS.md .github/copilot-instructions.md docs/java21-migration.md
 git commit -m "chore: add agent instructions for Java 21 migration"
 ```
 
@@ -220,16 +258,20 @@ cd ~/github/java-agentic-devkit
 ./scripts/container/start-devkit-container.sh ~/cip/27801_arus java8
 ```
 
-Inside the container, run the baseline script:
+Inside the container, capture the baseline with the real validation command:
 
 ```bash
-scripts/run-java8-baseline.sh
+mkdir -p docs/migration-results/java8-baseline
+mvn clean verify 2>&1 | tee docs/migration-results/java8-baseline/mvn-clean-verify.log
+mvn test jacoco:report 2>&1 | tee docs/migration-results/java8-baseline/mvn-test-jacoco.log
 ```
 
-If the project has integration tests or required Maven profiles, pass the real validation command:
+If Java 8 coverage is below 90%, create characterization or regression tests until coverage reaches at least 90% before making Java 21 migration changes.
+
+If the project has integration tests or required Maven profiles, run that command and store its output:
 
 ```bash
-scripts/run-java8-baseline.sh mvn clean verify -Pintegration-tests
+mvn clean verify -Pintegration-tests 2>&1 | tee docs/migration-results/java8-baseline/mvn-clean-verify-integration.log
 ```
 
 The Java 8 baseline is the behavioral source of truth for the migration.
@@ -255,6 +297,8 @@ Use docs/java21-migration.md as the migration tracker.
 
 Review the Maven configuration, Java source/target settings, dependency versions, plugins, Spring/Tomcat/JSP usage, SOAP/XML/JAXB usage, JMS, JDBC, tests, and runtime configuration.
 
+Check the current Java 8 test coverage command and result. If coverage is below 90%, plan focused characterization or regression tests before production migration changes.
+
 Return a prioritized migration plan with small, safe commits.
 
 For each risk, include:
@@ -279,6 +323,8 @@ Before editing, explain what validation will prove the change is safe.
 
 After editing, run the narrowest relevant validation command.
 
+If Java 8 or Java 21 coverage is below 90%, add or repair focused tests before treating the step as complete.
+
 Update docs/java21-migration.md with what changed, what was validated, and any remaining risk.
 ```
 
@@ -296,20 +342,24 @@ cd ~/github/java-agentic-devkit
 Inside the Java 21 container, start with the smallest useful validation:
 
 ```bash
-scripts/run-java21-candidate.sh mvn clean compile
+mkdir -p docs/migration-results/java21-candidate
+mvn clean compile 2>&1 | tee docs/migration-results/java21-candidate/mvn-clean-compile.log
 ```
 
 Then increase validation gradually:
 
 ```bash
-scripts/run-java21-candidate.sh mvn test
-scripts/run-java21-candidate.sh mvn verify
+mvn test 2>&1 | tee docs/migration-results/java21-candidate/mvn-test.log
+mvn verify 2>&1 | tee docs/migration-results/java21-candidate/mvn-verify.log
+mvn test jacoco:report 2>&1 | tee docs/migration-results/java21-candidate/mvn-test-jacoco.log
 ```
+
+If Java 21 coverage is below 90%, add or repair tests before considering candidate validation complete.
 
 Compare Java 8 and Java 21 results:
 
 ```bash
-scripts/compare-behavior.sh
+diff -ru docs/migration-results/java8-baseline docs/migration-results/java21-candidate | tee docs/migration-results/java8-vs-java21.diff || true
 ```
 
 Review the comparison before committing migration changes.
@@ -326,6 +376,8 @@ Review the current Git diff as a Java 8 to Java 21 migration auditor.
 Do not modify files.
 
 Check whether the diff preserves Java 8 behavior.
+
+Check whether Java 8 baseline coverage and Java 21 candidate coverage are both at least 90%, or whether the diff adds tests to reach that threshold.
 
 Classify migration risks.
 
@@ -350,7 +402,8 @@ cd ~/github/java-agentic-devkit
 Inside the container:
 
 ```bash
-scripts/run-java8-baseline.sh
+mkdir -p docs/migration-results/java8-baseline
+mvn clean verify 2>&1 | tee docs/migration-results/java8-baseline/mvn-clean-verify.log
 ```
 
 After baseline behavior is captured, restart the devkit with Java 21 only when Java 21 validation is required:
@@ -363,8 +416,9 @@ cd ~/github/java-agentic-devkit
 Inside the container:
 
 ```bash
-scripts/run-java21-candidate.sh mvn clean compile
-scripts/compare-behavior.sh
+mkdir -p docs/migration-results/java21-candidate
+mvn clean compile 2>&1 | tee docs/migration-results/java21-candidate/mvn-clean-compile.log
+diff -ru docs/migration-results/java8-baseline docs/migration-results/java21-candidate | tee docs/migration-results/java8-vs-java21.diff || true
 ```
 
 ### Example 2: Ask OpenCode for the First Migration Plan
@@ -431,13 +485,14 @@ Inside the container, run the current build and tests:
 
 ```bash
 mvn -version
-scripts/run-java8-baseline.sh
+mkdir -p docs/migration-results/java8-baseline
+mvn clean verify 2>&1 | tee docs/migration-results/java8-baseline/mvn-clean-verify.log
 ```
 
 If available, run integration tests or project-specific validation:
 
 ```bash
-scripts/run-java8-baseline.sh mvn clean verify -Pintegration-tests
+mvn clean verify -Pintegration-tests 2>&1 | tee docs/migration-results/java8-baseline/mvn-clean-verify-integration.log
 ```
 
 Document the results in:
@@ -462,20 +517,21 @@ cd ~/github/java-agentic-devkit
 Inside the container, run the smallest relevant Java 21 validation command first:
 
 ```bash
-scripts/run-java21-candidate.sh mvn clean compile
+mkdir -p docs/migration-results/java21-candidate
+mvn clean compile 2>&1 | tee docs/migration-results/java21-candidate/mvn-clean-compile.log
 ```
 
 Then proceed gradually:
 
 ```bash
-scripts/run-java21-candidate.sh mvn test
-scripts/run-java21-candidate.sh mvn verify
+mvn test 2>&1 | tee docs/migration-results/java21-candidate/mvn-test.log
+mvn verify 2>&1 | tee docs/migration-results/java21-candidate/mvn-verify.log
 ```
 
-Compare the latest Java 8 and Java 21 logs:
+Compare the Java 8 and Java 21 logs:
 
 ```bash
-scripts/compare-behavior.sh
+diff -ru docs/migration-results/java8-baseline docs/migration-results/java21-candidate | tee docs/migration-results/java8-vs-java21.diff || true
 ```
 
 Do not jump directly into broad fixes.
@@ -595,7 +651,7 @@ Do not accept Copilot changes that alter behavior without tests.
 cd ~/github/java-agentic-devkit
 ./scripts/container/start-devkit-container.sh /path/to/your/java/project java21-migration
 cd /path/to/your/java/project
-git add AGENTS.md .github/copilot-instructions.md docs/java21-migration.md scripts/run-java8-baseline.sh scripts/run-java21-candidate.sh scripts/compare-behavior.sh
+git add AGENTS.md .github/copilot-instructions.md docs/java21-migration.md
 git commit -m "chore: add agent instructions for Java 21 migration"
 ```
 

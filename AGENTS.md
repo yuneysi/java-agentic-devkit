@@ -77,7 +77,11 @@ This repository has three target-project templates:
 | `templates/java21/` | The target project already runs on Java 21. |
 | `templates/java21-migration/` | The target project is migrating from Java 8 to Java 21. |
 
-Each template must include a root-level `AGENTS.md` for the target project.
+`templates/AGENTS.md` is the single shared `AGENTS.md` template for target projects.
+
+The root `AGENTS.md` in this repository is not visible to target Java projects. Put target-project agent behavior, migration rules, validation rules, and prompts in `templates/AGENTS.md` or the files under `templates/`.
+
+Do not add separate `AGENTS.md` files under `templates/java8/`, `templates/java21/`, or `templates/java21-migration/`.
 
 For target projects, `AGENTS.md` is the authoritative instruction file for OpenCode and oh-my-opencode agents.
 

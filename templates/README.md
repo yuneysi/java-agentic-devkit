@@ -8,9 +8,10 @@ Do not copy the whole `java-agentic-devkit` repository into every project. Keep 
 
 | Template | Use when | Main files copied |
 |----------|----------|-------------------|
-| `java8/` | The target project stays on Java 8. | `AGENTS.md`, `.github/copilot-instructions.md`, `docs/java8-best-practices.md` |
-| `java21/` | The target project already runs on Java 21. | `AGENTS.md`, `.github/copilot-instructions.md`, `docs/java21-best-practices.md` |
-| `java21-migration/` | The target project is migrating from Java 8 to Java 21. | `AGENTS.md`, `.github/copilot-instructions.md`, `docs/java21-migration.md`, `scripts/*.sh` |
+| `AGENTS.md` | All target projects. | `AGENTS.md` |
+| `java8/` | The target project stays on Java 8. | `.github/copilot-instructions.md`, `docs/java8-best-practices.md` |
+| `java21/` | The target project already runs on Java 21. | `.github/copilot-instructions.md`, `docs/java21-best-practices.md` |
+| `java21-migration/` | The target project is migrating from Java 8 to Java 21. | `.github/copilot-instructions.md`, `docs/java21-migration.md` |
 
 ### `java8/`
 
@@ -30,8 +31,8 @@ target-java-project/
 Source files:
 
 ```text
+templates/AGENTS.md
 templates/java8/
-├── AGENTS.md
 ├── .github/
 │   └── copilot-instructions.md
 └── docs/
@@ -79,8 +80,8 @@ target-java-project/
 Source files:
 
 ```text
+templates/AGENTS.md
 templates/java21/
-├── AGENTS.md
 ├── .github/
 │   └── copilot-instructions.md
 └── docs/
@@ -122,26 +123,18 @@ target-java-project/
 ├── .github/
 │   └── copilot-instructions.md
 ├── docs/
-│   └── java21-migration.md
-└── scripts/
-    ├── run-java8-baseline.sh
-    ├── run-java21-candidate.sh
-    └── compare-behavior.sh
+    └── java21-migration.md
 ```
 
 Source files:
 
 ```text
+templates/AGENTS.md
 templates/java21-migration/
-├── AGENTS.md
 ├── .github/
 │   └── copilot-instructions.md
 ├── docs/
-│   └── java21-migration.md
-└── scripts/
-    ├── run-java8-baseline.sh
-    ├── run-java21-candidate.sh
-    └── compare-behavior.sh
+    └── java21-migration.md
 ```
 
 Apply this template with the manual script workflow:
@@ -153,85 +146,31 @@ cd ~/github/java-agentic-devkit
 
 For Compose, set `DEVKIT_JAVA_VERSION=java21-migration`. On Windows, run manual commands from WSL. If the target project is stored on the Windows `C:` drive, pass its WSL path to `start-devkit-container.sh`.
 
-## Migration Helper Scripts
+## Migration Result Capture
 
-The migration template includes three helper scripts. They are copied into the target project so every developer captures and compares migration results in the same way.
+The migration template does not create helper scripts in the target project. Capture baseline and candidate results with direct Maven commands and store the logs under `docs/migration-results/`.
 
-### `scripts/run-java8-baseline.sh`
-
-Run this script inside the devkit container while it is using Java 8.
-
-It captures the current Java 8 behavior before migration changes are made. By default, it runs:
+Example Java 8 baseline capture:
 
 ```bash
-mvn clean verify
+mkdir -p docs/migration-results/java8-baseline
+mvn clean verify 2>&1 | tee docs/migration-results/java8-baseline/mvn-clean-verify.log
 ```
 
-It writes results to:
-
-```text
-docs/migration-results/java8-baseline-<timestamp>/
-```
-
-Use it with the default command:
+Example Java 21 candidate capture:
 
 ```bash
-scripts/run-java8-baseline.sh
+mkdir -p docs/migration-results/java21-candidate
+mvn clean compile 2>&1 | tee docs/migration-results/java21-candidate/mvn-clean-compile.log
 ```
 
-Or pass a project-specific Maven command:
+Compare captured logs when useful:
 
 ```bash
-scripts/run-java8-baseline.sh mvn clean verify -Pintegration-tests
+diff -ru docs/migration-results/java8-baseline docs/migration-results/java21-candidate | tee docs/migration-results/java8-vs-java21.diff || true
 ```
 
-### `scripts/run-java21-candidate.sh`
-
-Run this script inside the devkit container while it is using Java 21.
-
-It validates the migration candidate against Java 21. By default, it runs:
-
-```bash
-mvn clean verify
-```
-
-It writes results to:
-
-```text
-docs/migration-results/java21-candidate-<timestamp>/
-```
-
-Use it for small validation steps first:
-
-```bash
-scripts/run-java21-candidate.sh mvn clean compile
-scripts/run-java21-candidate.sh mvn test
-scripts/run-java21-candidate.sh mvn verify
-```
-
-### `scripts/compare-behavior.sh`
-
-Run this script after there is at least one Java 8 baseline run and one Java 21 candidate run.
-
-It compares the latest Java 8 and Java 21 logs and writes the comparison to:
-
-```text
-docs/migration-results/comparison-<timestamp>/
-```
-
-Use the latest available runs:
-
-```bash
-scripts/compare-behavior.sh
-```
-
-Or compare two specific result directories:
-
-```bash
-scripts/compare-behavior.sh docs/migration-results/java8-baseline-<timestamp> docs/migration-results/java21-candidate-<timestamp>
-```
-
-The comparison does not decide whether a difference is safe. Developers must review the diff and classify the result as migration-safe, behavior-changing, or requiring more tests.
+Developers must review differences and classify each result as migration-safe, behavior-changing, or requiring more tests.
 
 ## Java 8 Only and Java 21 Only Projects
 
