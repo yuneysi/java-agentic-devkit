@@ -52,7 +52,7 @@
       "npm": "@ai-sdk/openai-compatible",
       "name": "Ollama local",
       "options": {
-        "baseURL": "http://host.containers.internal:11434/v1",
+        "baseURL": "http://host.docker.internal:11434/v1",
         "apiKey": "ollama"
       },
       "models": {

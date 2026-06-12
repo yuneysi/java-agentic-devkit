@@ -51,13 +51,6 @@ java-agentic-devkit/
 
 Add a `docker-compose.yml` file to the target Java project.
 
-Build or rebuild the shared image from this repository:
-
-```bash
-cd ~/github/java-agentic-devkit
-./scripts/create-image.sh
-```
-
 To build a registry-tagged image directly with Docker, keep the build context as the repository root:
 
 ```bash
@@ -70,7 +63,7 @@ Do not use `.devcontainer` as the build context. The Dockerfile copies `opencode
 ```yaml
 services:
   devkit:
-    image: java-agentic-devkit:latest
+    image: ghcr.io/yuneysi/java-agentic-devkit:latest
     working_dir: /workspace
     environment:
       DEVKIT_PROJECT_DIR: /workspace
@@ -81,8 +74,6 @@ services:
     ports:
       - "8080:8080"
       - "5005:5005"
-      - "61616:61616"
-      - "8161:8161"
     stdin_open: true
     tty: true
     command: /bin/bash
@@ -207,7 +198,7 @@ Use these variables from the target project's `docker-compose.yml`, from the man
 | `GITHUB_TOKEN` | Passed to the GitHub MCP server as `GITHUB_PERSONAL_ACCESS_TOKEN`. |
 | `GITHUB_PERSONAL_ACCESS_TOKEN` | Internal MCP environment variable populated from `GITHUB_TOKEN` by `opencode/opencode.json`. |
 | `ANTHROPIC_API_KEY` | Optional for Anthropic-compatible tools if enabled by the user. |
-| `OLLAMA_API_BASE` | Optional for local Ollama clients. Use `http://host.docker.internal:11434` on Docker Desktop for Windows/macOS. The bundled OpenCode config points to `http://host.containers.internal:11434/v1` by default. |
+| `OLLAMA_API_BASE` | Optional for local Ollama clients. Use `http://host.docker.internal:11434` on Docker Desktop for Windows/macOS. The bundled OpenCode config points to `http://host.docker.internal:11434/v1` by default. |
 
 Example:
 
@@ -278,13 +269,6 @@ OpenAI models use `OPENAI_API_KEY`.
 For GitHub Copilot, select the Copilot provider in OpenCode or oh-my-opencode. When the login flow prints a public URL and device code, open the public URL in your browser and enter the code shown in the terminal.
 
 For Ollama, make sure Ollama is running on the host machine. Use `ollama` as the API key when a client asks for one. The bundled OpenCode config uses:
-
-```text
-Base URL: http://host.containers.internal:11434/v1
-API key: ollama
-```
-
-On Windows with Docker Desktop or WSL, the host URL is usually different:
 
 ```text
 Base URL: http://host.docker.internal:11434/v1
