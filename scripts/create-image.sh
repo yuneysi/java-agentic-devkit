@@ -1,16 +1,31 @@
 #!/bin/bash
 
-# Script to create a Docker image
-# Usage: ./scripts/create-image.sh [image-name] [tag]
+# Script to create the Docker image.
+# Usage:
+#   ./scripts/create-image.sh
+#   ./scripts/create-image.sh [image-name] [tag]
+#   ./scripts/create-image.sh [full-image-ref]
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEVKIT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-# Default values
-IMAGE_NAME="${1:-java-agentic-devkit}"
+IMAGE_REF="${1:-java-agentic-devkit}"
 TAG="${2:-latest}"
-DOCKERFILE="${3:-.devcontainer/Dockerfile}"
+DOCKERFILE_ARG="${3:-.devcontainer/Dockerfile}"
+
+if [[ $# -eq 1 && "${IMAGE_REF}" == *:* ]]; then
+    FULL_IMAGE="${IMAGE_REF}"
+else
+    FULL_IMAGE="${IMAGE_REF}:${TAG}"
+fi
+
+if [[ "${DOCKERFILE_ARG}" = /* ]]; then
+    DOCKERFILE="${DOCKERFILE_ARG}"
+else
+    DOCKERFILE="${DEVKIT_DIR}/${DOCKERFILE_ARG}"
+fi
 
 # Colors for output
 RED='\033[0;31m'
@@ -22,18 +37,18 @@ source "${SCRIPT_DIR}/docker-utils.sh"
 
 ensure_docker_available
 
-echo -e "${YELLOW}🔨 Building Docker image...${NC}"
-echo -e "${YELLOW}Image: ${GREEN}${IMAGE_NAME}:${TAG}${NC}"
-echo -e "${YELLOW}Dockerfile: ${GREEN}${DOCKERFILE}${NC}\n${NC}"
+echo -e "${YELLOW}Building Docker image...${NC}"
+echo -e "${YELLOW}Image: ${GREEN}${FULL_IMAGE}${NC}"
+echo -e "${YELLOW}Dockerfile: ${GREEN}${DOCKERFILE}${NC}"
+echo -e "${YELLOW}Build context: ${GREEN}${DEVKIT_DIR}${NC}\n${NC}"
 
-# Build the image
-if docker build -t "${IMAGE_NAME}:${TAG}" -f "${DOCKERFILE}" .; then
-    echo -e "\n${GREEN}✅ Image created successfully: ${IMAGE_NAME}:${TAG}${NC}\n"
+if docker build -t "${FULL_IMAGE}" -f "${DOCKERFILE}" "${DEVKIT_DIR}"; then
+    echo -e "\n${GREEN}Image created successfully: ${FULL_IMAGE}${NC}\n"
     echo "Useful commands:"
-    echo "  View image:     docker images | grep ${IMAGE_NAME}"
-    echo "  Run image:      docker run -it ${IMAGE_NAME}:${TAG}"
-    echo "  Run bash:       docker run -it ${IMAGE_NAME}:${TAG} /bin/bash"
+    echo "  View image:     docker images | grep ${IMAGE_REF%%:*}"
+    echo "  Run image:      docker run -it ${FULL_IMAGE}"
+    echo "  Run bash:       docker run -it ${FULL_IMAGE} /bin/bash"
 else
-    echo -e "\n${RED}❌ Error creating image${NC}"
+    echo -e "\n${RED}Error creating image${NC}"
     exit 1
 fi

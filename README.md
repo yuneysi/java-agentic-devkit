@@ -58,6 +58,15 @@ cd ~/github/java-agentic-devkit
 ./scripts/create-image.sh
 ```
 
+To build a registry-tagged image directly with Docker, keep the build context as the repository root:
+
+```bash
+cd ~/github/java-agentic-devkit
+docker build -t ghcr.io/yuneysi/java-agentic-devkit:latest -f .devcontainer/Dockerfile .
+```
+
+Do not use `.devcontainer` as the build context. The Dockerfile copies `opencode/` and `templates/`, so the context must include the repository root.
+
 ```yaml
 services:
   devkit:
