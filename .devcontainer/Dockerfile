@@ -154,10 +154,10 @@ RUN curl -fsSL "https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/b
 
 ENV MAVEN_HOME=/opt/maven
 ENV PATH="${MAVEN_HOME}/bin:${PATH}"
-ENV MAVEN_OPTS="-Dmaven.repo.local=/var/tmp/m2/repository"
+ENV MAVEN_OPTS="-Dmaven.repo.local=/home/${USERNAME}/.m2/repository"
 
-RUN mkdir -p /var/tmp/m2/repository \
-    && chown -R ${USERNAME}:${USERNAME} /var/tmp/m2
+RUN mkdir -p /home/${USERNAME}/.m2/repository \
+    && chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.m2
 
 # ---------------------------------------------------------------------
 # Tomcat 9 + Tomcat 11
@@ -394,7 +394,7 @@ RUN printf '%s\n' \
     '# Runtime paths' \
     'export JAVA8_HOME=/opt/java/jdk8' \
     'export JAVA21_HOME=/opt/java/jdk21' \
-    'case "${DEVKIT_JAVA_VERSION:-${DEFAULT_JAVA_VERSION:-java8}}" in' \
+    'case "${DEVKIT_JAVA_TEMPLATE:-${DEFAULT_JAVA_VERSION:-java8}}" in' \
     '    java21)' \
     '        . /usr/local/bin/use-java21 >/dev/null 2>&1 || true' \
     '        ;;' \
@@ -403,7 +403,7 @@ RUN printf '%s\n' \
     '        ;;' \
     'esac' \
     'export MAVEN_HOME=/opt/maven' \
-    'export MAVEN_OPTS="-Dmaven.repo.local=/var/tmp/m2/repository"' \
+    'export MAVEN_OPTS="-Dmaven.repo.local=/home/vscode/.m2/repository"' \
     'export TOMCAT9_HOME=/opt/tomcat/tomcat9' \
     'export TOMCAT11_HOME=/opt/tomcat/tomcat11' \
     'export ACTIVEMQ_HOME=/opt/activemq' \
@@ -447,7 +447,7 @@ RUN printf '%s\n' \
     'set -euo pipefail' \
     '' \
     'PROJECT_DIR="${DEVKIT_PROJECT_DIR:-}"' \
-    'JAVA_VERSION="${DEVKIT_JAVA_VERSION:-${DEFAULT_JAVA_VERSION:-java8}}"' \
+    'JAVA_VERSION="${DEVKIT_JAVA_TEMPLATE:-${DEFAULT_JAVA_VERSION:-java8}}"' \
     '' \
     'if [[ -z "${PROJECT_DIR}" ]]; then' \
     '    PROJECT_DIR=/workspace' \
@@ -464,7 +464,7 @@ RUN printf '%s\n' \
     '        . /usr/local/bin/use-java8 >/dev/null 2>&1 || true' \
     '        ;;' \
     '    *)' \
-    '        echo "Unsupported DEVKIT_JAVA_VERSION: ${JAVA_VERSION}" >&2' \
+    '        echo "Unsupported DEVKIT_JAVA_TEMPLATE: ${JAVA_VERSION}" >&2' \
     '        exit 1' \
     '        ;;' \
     'esac' \

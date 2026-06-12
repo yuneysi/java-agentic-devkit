@@ -1,18 +1,13 @@
 # java-agentic-devkit
 
-`java-agentic-devkit` is a reusable Docker-based development kit for teams working on Java 8 projects, Java 21 projects, and Java 8 to Java 21 migrations.
+`java-agentic-devkit` is a reusable Docker-based development kit for teams working on Java 8 projects, Java 21 projects, and Java 8 to Java 21 migrations. It provides templates for different work modes, including Java 8 legacy maintenance, modern Java development, and structured migration work.
+
+When the container starts, it automatically copies the files agents need into the mounted target project, including `AGENTS.md`, `.github/copilot-instructions.md`, and the template documentation under `docs/`. The generated `AGENTS.md` points agents to the relevant documentation so migration notes, validation evidence, and day-to-day work can be documented in the target project.
 
 The devkit stays outside the target Java project. Developers build or run the devkit from this repository and mount the target project at `/workspace`.
 
 Java 8 is the default runtime. Use Java 21 only when the target project already runs on Java 21 or when validating a Java 8 to Java 21 migration candidate.
 
-## Recommended Integration
-
-The recommended way to use this devkit is to integrate it into each target Java project with a project-owned `docker-compose.yml`.
-
-This keeps the development entrypoint close to the application code, makes the selected Java mode explicit, and gives the team one shared command for local work, OpenCode sessions, tests, and migration validation.
-
-See [Docker Compose](#docker-compose) for the recommended setup. The devkit can also be started manually from this repository when a target project does not have Compose integration yet; see [Manual Script Workflow](#manual-script-workflow).
 
 ## Repository Structure
 
@@ -47,24 +42,35 @@ java-agentic-devkit/
 └── README.md
 ```
 
+## Recommended Integration
+
+The recommended way to use this devkit is to integrate it into each target Java project with a project-owned `docker-compose.yml`.
+
+This keeps the development entrypoint close to the application code, makes the selected Java mode explicit, and gives the team one shared command for local work, OpenCode sessions, tests, and migration validation.
+
+See [Docker Compose](#docker-compose) for the recommended setup. The devkit can also be started manually from this repository when a target project does not have Compose integration yet; see [Manual Script Workflow](#manual-script-workflow).
+
 ## Docker Compose
 
 Add a `docker-compose.yml` file to the target Java project.
 
 The `Publish DevKit Image` GitHub Actions workflow builds and publishes `ghcr.io/yuneysi/java-agentic-devkit:latest` automatically after changes are pushed to `main`.
 
-The example below starts the target project in `java21-migration` mode.
+The example below starts the target project in `java21-migration` mode. On macOS, keep `platform: linux/amd64` so Docker Desktop runs the published image with the expected Linux AMD64 platform.
 
 ```yaml
 services:
   devkit:
     image: ghcr.io/yuneysi/java-agentic-devkit:latest
+    platform: linux/amd64
     working_dir: /workspace
     environment:
       DEVKIT_PROJECT_DIR: /workspace
-      DEVKIT_JAVA_VERSION: java21-migration
+      DEVKIT_JAVA_TEMPLATE: java21-migration
+      MAVEN_OPTS: -Dmaven.repo.local=/home/vscode/.m2/repository
     volumes:
       - .:/workspace
+      - ${HOME}/.m2:/home/vscode/.m2
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "8080:8080"
@@ -78,7 +84,18 @@ services:
 
 If the Compose file lives in a subdirectory such as `.devcontainer/`, use `..:/workspace` instead of `.:/workspace`.
 
-Use one of these values for `DEVKIT_JAVA_VERSION` in the Compose `environment` block:
+On Windows, when running Compose from PowerShell or Command Prompt, use the `USERPROFILE` environment variable through Compose interpolation instead of `${HOME}`:
+
+```yaml
+    volumes:
+      - .:/workspace
+      - ${USERPROFILE}/.m2:/home/vscode/.m2
+      - /var/run/docker.sock:/var/run/docker.sock
+```
+
+When running from Git Bash or WSL, `${HOME}/.m2:/home/vscode/.m2` usually works as shown in the main example.
+
+Use one of these values for `DEVKIT_JAVA_TEMPLATE` in the Compose `environment` block:
 
 | Value | Use when |
 |-------|----------|
@@ -197,8 +214,8 @@ Use these variables from the target project's `docker-compose.yml`, from the man
 | Variable | Default | Purpose |
 |----------|---------|---------|
 | `DEVKIT_PROJECT_DIR` | `/workspace` | Mounted target project path inside the container. OpenCode instructions are rewritten to read `${DEVKIT_PROJECT_DIR}/AGENTS.md`. |
-| `DEVKIT_JAVA_VERSION` | `java8` | Selects the runtime and template. Supported values: `java8`, `java21`, `java21-migration`. |
-| `DEFAULT_JAVA_VERSION` | `java8` | Container fallback when `DEVKIT_JAVA_VERSION` is not set. |
+| `DEVKIT_JAVA_TEMPLATE` | `java8` | Selects the runtime and template. Supported values: `java8`, `java21`, `java21-migration`. |
+| `DEFAULT_JAVA_VERSION` | `java8` | Container fallback when `DEVKIT_JAVA_TEMPLATE` is not set. |
 
 ### AI Providers
 
@@ -231,7 +248,7 @@ These are set inside the container by the Docker image or shell startup.
 | `JAVA_HOME` | `/opt/java/jdk8` | Active Java runtime path. Updated by `use-java8` and `use-java21`. |
 | `PATH` | Includes Java, Maven, and ActiveMQ bins | Command lookup path assembled by the image. |
 | `MAVEN_HOME` | `/opt/maven` | Maven installation path. |
-| `MAVEN_OPTS` | `-Dmaven.repo.local=/var/tmp/m2/repository` | Maven JVM options and local repository location. |
+| `MAVEN_OPTS` | `-Dmaven.repo.local=/home/vscode/.m2/repository` | Maven JVM options and local repository location. Mount host `~/.m2` to `/home/vscode/.m2` in Compose. |
 | `TOMCAT9_HOME` | `/opt/tomcat/tomcat9` | Tomcat 9 installation path. |
 | `TOMCAT11_HOME` | `/opt/tomcat/tomcat11` | Tomcat 11 installation path. |
 | `CATALINA_HOME` | `/opt/tomcat/tomcat9` | Default Tomcat home. Helper scripts override it for Tomcat 9 or 11. |

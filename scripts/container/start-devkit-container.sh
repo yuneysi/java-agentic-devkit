@@ -72,6 +72,8 @@ fi
 
 MOUNT_PATH="$(cd "${MOUNT_PATH}" && pwd)"
 CONTAINER_MOUNT="/workspace"
+HOST_M2_DIR="${HOME}/.m2"
+mkdir -p "${HOST_M2_DIR}"
 
 printf '%b\n' "${GREEN}Mounting: ${MOUNT_PATH}${NC}"
 printf '%b\n\n' "${GREEN}Container path: ${CONTAINER_MOUNT}${NC}"
@@ -101,9 +103,11 @@ printf '%b\n' "${BLUE}==========================================================
 printf '%b\n\n' "${YELLOW}Starting container...${NC}"
 
 docker run -it --rm \
-    -e "DEVKIT_JAVA_VERSION=${JAVA_VERSION}" \
+    -e "DEVKIT_JAVA_TEMPLATE=${JAVA_VERSION}" \
     -e "DEVKIT_PROJECT_DIR=${CONTAINER_MOUNT}" \
+    -e "MAVEN_OPTS=-Dmaven.repo.local=/home/vscode/.m2/repository" \
     -v "${MOUNT_PATH}:${CONTAINER_MOUNT}" \
+    -v "${HOST_M2_DIR}:/home/vscode/.m2" \
     -v /var/run/docker.sock:/var/run/docker.sock \
     "${FULL_IMAGE}" \
     /bin/bash -c "
