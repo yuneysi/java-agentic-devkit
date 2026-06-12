@@ -2,6 +2,10 @@
 
 `java-agentic-devkit` is a reusable Docker-based development kit for teams working on Java 8 projects, Java 21 projects, and Java 8 to Java 21 migrations. It provides templates for different work modes, including Java 8 legacy maintenance, modern Java development, and structured migration work.
 
+Created and maintained by Yuneysi Gerat Gil.
+
+License: MIT. See [LICENSE](LICENSE).
+
 When the container starts, it automatically copies the files agents need into the mounted target project, including `AGENTS.md`, `.github/copilot-instructions.md`, and the template documentation under `docs/`. The generated `AGENTS.md` points agents to the relevant documentation so migration notes, validation evidence, and day-to-day work can be documented in the target project.
 
 The devkit stays outside the target Java project. Developers build or run the devkit from this repository and mount the target project at `/workspace`.
@@ -39,6 +43,7 @@ java-agentic-devkit/
 │       ├── .github/copilot-instructions.md
 │       └── docs/java21-migration-best-practices.md
 ├── AGENTS.md
+├── LICENSE
 └── README.md
 ```
 
@@ -135,6 +140,32 @@ For IntelliJ IDEA, keep `docker-compose.yml` in the target project root and star
 docker compose pull
 docker compose run --rm devkit
 ```
+
+If Docker reports an image layer error while pulling, such as `failed to register layer` or `input/output error`, treat it as a local Docker Desktop storage/cache problem first. Remove the partial image and pull again:
+
+```bash
+docker image rm ghcr.io/yuneysi/java-agentic-devkit:0.1
+docker compose pull
+```
+
+If the same error repeats, restart Docker Desktop and retry. If it still fails, check Docker Desktop disk usage and free space, then prune unused Docker data:
+
+```bash
+docker system df
+docker builder prune
+docker image prune
+```
+
+Use `docker system prune` only when you are comfortable removing unused containers, networks, images, and build cache from the local machine.
+
+If Compose reports `no such service`, list the services defined in the target project's Compose file and run the exact service name:
+
+```bash
+docker compose config --services
+docker compose run --rm devkit
+```
+
+For the recommended Compose file in this README, the service name is `devkit`. If the target project uses `devkit-arus` or another service name, the `docker-compose.yml` must define that exact service under `services:`.
 
 Inside the container, run project commands from `/workspace`, such as `mvn clean verify` or `opencode`.
 

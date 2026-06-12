@@ -36,6 +36,7 @@ The root may contain:
 
 - `README.md`
 - `AGENTS.md`
+- `LICENSE`
 
 Do not create a root-level `docs/` directory.
 

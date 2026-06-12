@@ -3,6 +3,12 @@
 
 FROM ubuntu:24.04
 
+LABEL org.opencontainers.image.title="java-agentic-devkit" \
+      org.opencontainers.image.description="Docker-based Java development kit for Java 8, Java 21, and Java 8 to Java 21 migrations." \
+      org.opencontainers.image.authors="Yuneysi Gerat Gil" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.source="https://github.com/yuneysi/java-agentic-devkit"
+
 ARG USERNAME=vscode
 ARG USER_UID=1000
 ARG USER_GID=${USER_UID}
