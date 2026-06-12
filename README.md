@@ -51,14 +51,9 @@ java-agentic-devkit/
 
 Add a `docker-compose.yml` file to the target Java project.
 
-To build a registry-tagged image directly with Docker, keep the build context as the repository root:
+The `Publish DevKit Image` GitHub Actions workflow builds and publishes `ghcr.io/yuneysi/java-agentic-devkit:latest` automatically after changes are pushed to `main`.
 
-```bash
-cd ~/github/java-agentic-devkit
-docker build -t ghcr.io/yuneysi/java-agentic-devkit:latest -f .devcontainer/Dockerfile .
-```
-
-Do not use `.devcontainer` as the build context. The Dockerfile copies `opencode/` and `templates/`, so the context must include the repository root.
+The example below starts the target project in `java21-migration` mode.
 
 ```yaml
 services:
@@ -67,13 +62,15 @@ services:
     working_dir: /workspace
     environment:
       DEVKIT_PROJECT_DIR: /workspace
-      DEVKIT_JAVA_VERSION: ${DEVKIT_JAVA_VERSION:-java8}
+      DEVKIT_JAVA_VERSION: java21-migration
     volumes:
       - .:/workspace
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "8080:8080"
       - "5005:5005"
+      - "61616:61616"
+      - "8161:8161"
     stdin_open: true
     tty: true
     command: /bin/bash
@@ -81,28 +78,39 @@ services:
 
 If the Compose file lives in a subdirectory such as `.devcontainer/`, use `..:/workspace` instead of `.:/workspace`.
 
-For a project that always uses Java 21, set `DEVKIT_JAVA_VERSION: java21` directly in that project's Compose file or create a project `.env` file with `DEVKIT_JAVA_VERSION=java21`. A shell-only assignment applies only to that command or terminal session.
+Use one of these values for `DEVKIT_JAVA_VERSION` in the Compose `environment` block:
 
-Start a Java 8 project:
+| Value | Use when |
+|-------|----------|
+| `java8` | The project runs on Java 8. |
+| `java21` | The project already runs on Java 21. |
+| `java21-migration` | The project is migrating from Java 8 to Java 21 and needs the Java 8 baseline first. |
 
-```bash
-cd /path/to/java/project
-DEVKIT_JAVA_VERSION=java8 docker compose run --rm devkit
+### VS Code
+
+If the target project uses VS Code Dev Containers, add `.devcontainer/devcontainer.json`:
+
+```json
+{
+  "name": "Java Agentic DevKit",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "devkit",
+  "workspaceFolder": "/workspace"
+}
 ```
 
-Start a Java 21 project:
+Then run `Dev Containers: Reopen in Container` from VS Code.
+
+### IntelliJ IDEA
+
+For IntelliJ IDEA, keep `docker-compose.yml` in the target project root and start the devkit from IntelliJ's terminal or any host terminal:
 
 ```bash
-cd /path/to/java/project
-DEVKIT_JAVA_VERSION=java21 docker compose run --rm devkit
+docker compose pull
+docker compose run --rm devkit
 ```
 
-Start a Java 8 to Java 21 migration:
-
-```bash
-cd /path/to/java/project
-DEVKIT_JAVA_VERSION=java21-migration docker compose run --rm devkit
-```
+Inside the container, run project commands from `/workspace`, such as `mvn clean verify` or `opencode`.
 
 The `java21-migration` mode starts with Java 8 so the team can capture the Java 8 behavioral baseline before validating the Java 21 candidate.
 
