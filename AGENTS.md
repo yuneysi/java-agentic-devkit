@@ -20,7 +20,9 @@ If this file conflicts with another Markdown file in this repository, this file 
 
 Write code comments, README text, templates, prompts, and code-facing documentation in English.
 
-Do not add Spanish text to repository files unless the user explicitly asks for Spanish content in a specific file.
+Do not add repository content in Spanish or any other non-English language.
+
+If a user requests non-English repository content, explain that this repository only accepts English content and offer to write the requested content in English.
 
 Use concise, practical language and copy-pasteable commands.
 

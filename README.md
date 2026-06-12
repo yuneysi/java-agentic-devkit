@@ -319,6 +319,23 @@ Each template is self-contained and owns its target-project agent instructions, 
 | `templates/java21/` | The target project already runs on Java 21. | `AGENTS.md`, `.github/copilot-instructions.md`, `docs/java21-best-practices.md` |
 | `templates/java21-migration/` | The target project is migrating from Java 8 to Java 21. | `AGENTS.md`, `.github/copilot-instructions.md`, `docs/java21-migration-best-practices.md` |
 
+### `templates/java21-migration/`
+
+This template installs three pieces into the Java project being migrated:
+
+1. `AGENTS.md` contains the main instructions for OpenCode, oh-my-opencode, and agents. It defines the migration rules, work order, change limits, and validation discipline.
+2. `docs/java21-migration-best-practices.md` is the human guide and also acts as the migration tracker. It documents the Java 8 baseline, Java 21 candidate results, dependency changes, risks, and validation evidence.
+3. OpenCode skills support that guide and should be used in this recommended order:
+
+| Order | Skill | Use when |
+|-------|-------|----------|
+| 1 | `migration-test-planner` | Plan characterization, regression, baseline, and candidate validation tests. |
+| 2 | `java8-baseline-capturer` | Capture the Java 8 baseline under `docs/migration-results/java8-baseline/` and update the tracker. |
+| 3 | `java21-first-migration-step-planner` | Inspect the project and plan the first small Java 21 migration step. |
+| 4 | `java21-small-change-implementer` | Apply one small, focused migration change with validation and tracker updates. |
+| 5 | `java21-candidate-validator` | Validate Java 21 results under `docs/migration-results/java21-candidate/` and compare them with the Java 8 baseline. |
+| 6 | `migration-auditor` | Review the migration branch, classify risks, and confirm evidence before closing the work. |
+
 Generated target project structure:
 
 ```text
@@ -352,3 +369,130 @@ git commit -m "chore: add agent instructions for Java 21 migration"
 ```
 
 The migration best-practices file also acts as the migration tracker for baseline results, candidate validation, dependency changes, risk classification, and final acceptance.
+
+## Local AI Minimum Setup
+
+This section is the minimum practical setup for teams using OpenCode, oh-my-openagent, and Ollama with Java 8, Java 21, and Java 8 to Java 21 migration projects.
+
+### Required Tools
+
+Install these tools on the host machine:
+
+| Tool | Required for |
+|------|--------------|
+| Docker Desktop | Running the devkit container on Windows or macOS. |
+| Ollama Desktop | Running local models for OpenCode. |
+| VS Code Dev Containers or IntelliJ IDEA | Opening or driving the target project workflow. |
+
+Inside the devkit container, OpenCode and oh-my-openagent are already installed. The container also installs OpenCode skills from `opencode/skills/` and configures OpenCode from `opencode/opencode.json`.
+
+### Ollama Models
+
+Pull only the models that fit the workstation. Larger models can be better for legacy analysis, but they are slower and need more memory.
+
+| Host RAM | Recommended local models | Best use |
+|----------|--------------------------|----------|
+| 16 GB | `qwen2.5-coder:7b`, `qwen2.5:7b` | Daily Java 8 or Java 21 edits, Maven help, small JSP/JavaScript changes, focused test fixes. |
+| 32 GB | `qwen2.5-coder:7b`, `qwen2.5:7b`, optionally `llama3.1:8b` | Daily implementation work plus broader explanations, reviews, and migration planning on medium projects. |
+| 64 GB | `qwen2.5-coder:32b`, `deepseek-r1:32b`, `deepseek-coder:33b`, plus the 7B models | Legacy monolith analysis, Java 8 to Java 21 migration planning, large JPA/Maven/Oracle/JMS work, multi-file reviews. |
+
+Recommended pulls:
+
+```bash
+ollama pull qwen2.5-coder:7b
+ollama pull qwen2.5:7b
+ollama pull llama3.1:8b
+ollama pull qwen2.5-coder:32b
+ollama pull deepseek-r1:32b
+ollama pull deepseek-coder:33b
+```
+
+For 16 GB machines, start with only the 7B models. For 32 GB machines, avoid 32B or 33B models unless the machine is mostly idle and has enough free memory. For 64 GB machines, use 32B or 33B models for planning, auditing, and large legacy analysis, then switch to a smaller model for quick edits.
+
+### Model Recommendations By Work Type
+
+| Work type | First choice | Larger workstation choice | Notes |
+|-----------|--------------|----------------------------|-------|
+| Java 8 maintenance | `qwen2.5-coder:7b` | `qwen2.5-coder:32b` | Good for Java 8-compatible edits, tests, and Maven work. |
+| Java 21 maintenance | `qwen2.5-coder:7b` | `qwen2.5-coder:32b` | Use for modern Java syntax, refactoring, and test repair. |
+| Java 8 to Java 21 migration | `qwen2.5-coder:7b` | `deepseek-r1:32b` for planning, `qwen2.5-coder:32b` for implementation | Keep migration work small and validate each step. |
+| Legacy monolith analysis | `qwen2.5:7b` | `deepseek-r1:32b` | Use the reasoning model for architecture, risk, and dependency analysis. |
+| JPA and Hibernate | `qwen2.5-coder:7b` | `qwen2.5-coder:32b` | Ask for characterization tests before changing persistence behavior. |
+| Maven and build plugins | `qwen2.5-coder:7b` | `qwen2.5-coder:32b` | Keep dependency changes isolated and documented. |
+| Oracle SQL and JDBC | `qwen2.5-coder:7b` | `deepseek-coder:33b` | Validate SQL behavior, transaction boundaries, and generated keys. |
+| JSP and servlet code | `qwen2.5-coder:7b` | `qwen2.5-coder:32b` | Preserve tag library, servlet, encoding, and rendering behavior. |
+| JavaScript inside legacy apps | `qwen2.5-coder:7b` | `qwen2.5-coder:32b` | Prefer focused browser-visible changes and small validation steps. |
+| JMS and messaging | `qwen2.5-coder:7b` | `deepseek-coder:33b` | Validate acknowledgement, retry, redelivery, transaction, and listener behavior. |
+
+### OpenCode Configuration
+
+The bundled OpenCode configuration is copied to the container at startup:
+
+```text
+/home/vscode/.config/opencode/opencode.json
+```
+
+The devkit configures:
+
+- `instructions`: points OpenCode at the target project's `AGENTS.md`.
+- `plugin`: enables `oh-my-openagent` and `opencode-codebase-index`.
+- `provider.ollama`: points to `http://host.docker.internal:11434/v1` for Ollama Desktop on Windows and macOS.
+- `model`: defaults to `ollama/qwen2.5:7b`.
+- `permission`: uses `ask`, so tool actions require confirmation.
+- `mcp`: enables Context7, GitHub, and Playwright MCP servers.
+
+Start OpenCode from inside the devkit container:
+
+```bash
+opencode
+```
+
+If Ollama is running on the host and the model exists, OpenCode can use it through the configured Ollama provider.
+
+### Agents And Skills
+
+The target project's `AGENTS.md` is the main instruction file for OpenCode, oh-my-openagent, and agentic workflows. For Java 21 migration work, use the `templates/java21-migration/` template and follow this order:
+
+| Order | Agent or skill | Purpose |
+|-------|----------------|---------|
+| 1 | `AGENTS.md` | Read the project rules, migration constraints, and validation expectations. |
+| 2 | `migration-test-planner` | Plan baseline, regression, and candidate validation tests. |
+| 3 | `java8-baseline-capturer` | Capture the Java 8 baseline before Java 21 changes. |
+| 4 | `java21-first-migration-step-planner` | Plan the first small migration step. |
+| 5 | `java21-small-change-implementer` | Implement one small migration change and update the tracker. |
+| 6 | `java21-candidate-validator` | Validate the Java 21 candidate and compare it with the baseline. |
+| 7 | `migration-auditor` | Review the final migration branch and risk evidence. |
+
+Use specialized characterization skills when the affected area needs extra protection:
+
+| Skill | Use for |
+|-------|---------|
+| `jpa-characterization-test-writer` | JPA, Hibernate, lazy loading, flush, and transaction behavior. |
+| `jms-characterization-test-writer` | JMS acknowledgement, retry, redelivery, listener, and transaction behavior. |
+| `soap-contract-test-writer` | SOAP/XML namespaces, payloads, ordering, and contract behavior. |
+
+### Orchestrator Setup
+
+In this devkit, the orchestrator is the top-level OpenCode session running with oh-my-openagent, the target project's `AGENTS.md`, the installed skills, and the configured model provider.
+
+Configure it through these files:
+
+| File | Purpose |
+|------|---------|
+| `opencode/opencode.json` | Default OpenCode provider, model, MCP, permissions, plugins, and instruction path. |
+| `opencode/tui.json` | Enables the oh-my-openagent TUI plugin. |
+| `templates/java21-migration/AGENTS.md` | Target-project orchestration rules for migration work. |
+| `opencode/skills/*.md` | Reusable task-specific agent instructions. |
+
+Recommended orchestrator defaults:
+
+| Setting | Recommended value | Reason |
+|---------|-------------------|--------|
+| Default model on 16 GB | `ollama/qwen2.5-coder:7b` | Fast enough for daily code work. |
+| Default model on 32 GB | `ollama/qwen2.5-coder:7b` | Stable for long sessions while IDEs and Docker are running. |
+| Planning model on 64 GB | `ollama/deepseek-r1:32b` | Better for migration planning and legacy risk analysis. |
+| Implementation model on 64 GB | `ollama/qwen2.5-coder:32b` | Better for larger Java implementation tasks. |
+| Permission mode | `ask` | Keeps file edits, shell commands, and tool use reviewable. |
+| Instructions file | `{file:/workspace/AGENTS.md}` | Keeps orchestration tied to the mounted target project. |
+
+To change the default model, edit the `model` field in `opencode/opencode.json` before rebuilding the devkit image, or edit `/home/vscode/.config/opencode/opencode.json` inside a running container for a local experiment.
