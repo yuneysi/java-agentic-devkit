@@ -79,15 +79,15 @@ printf '%b\n\n' "${GREEN}Container path: ${CONTAINER_MOUNT}${NC}"
 printf '%b\n' "${YELLOW}Setting Java mode: ${JAVA_VERSION}${NC}"
 case "${JAVA_VERSION}" in
     java8)
-        JAVA_SETUP="use-java8"
+        JAVA_SETUP=". /usr/local/bin/use-java8"
         printf '%b\n\n' "${GREEN}Using Java 8${NC}"
         ;;
     java21)
-        JAVA_SETUP="use-java21"
+        JAVA_SETUP=". /usr/local/bin/use-java21"
         printf '%b\n\n' "${GREEN}Using Java 21${NC}"
         ;;
     java21-migration)
-        JAVA_SETUP="use-java8"
+        JAVA_SETUP=". /usr/local/bin/use-java8"
         printf '%b\n\n' "${GREEN}Using Java 8 for the Java 21 migration baseline${NC}"
         ;;
     *)

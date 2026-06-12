@@ -394,7 +394,14 @@ RUN printf '%s\n' \
     '# Runtime paths' \
     'export JAVA8_HOME=/opt/java/jdk8' \
     'export JAVA21_HOME=/opt/java/jdk21' \
-    'export JAVA_HOME=/opt/java/jdk8' \
+    'case "${DEVKIT_JAVA_VERSION:-${DEFAULT_JAVA_VERSION:-java8}}" in' \
+    '    java21)' \
+    '        . /usr/local/bin/use-java21 >/dev/null 2>&1 || true' \
+    '        ;;' \
+    '    java8|java21-migration|*)' \
+    '        . /usr/local/bin/use-java8 >/dev/null 2>&1 || true' \
+    '        ;;' \
+    'esac' \
     'export MAVEN_HOME=/opt/maven' \
     'export MAVEN_OPTS="-Dmaven.repo.local=/var/tmp/m2/repository"' \
     'export TOMCAT9_HOME=/opt/tomcat/tomcat9' \

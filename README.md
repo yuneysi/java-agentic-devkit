@@ -81,6 +81,8 @@ services:
 
 If the Compose file lives in a subdirectory such as `.devcontainer/`, use `..:/workspace` instead of `.:/workspace`.
 
+For a project that always uses Java 21, set `DEVKIT_JAVA_VERSION: java21` directly in that project's Compose file or create a project `.env` file with `DEVKIT_JAVA_VERSION=java21`. A shell-only assignment applies only to that command or terminal session.
+
 Start a Java 8 project:
 
 ```bash
