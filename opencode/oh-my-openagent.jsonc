@@ -1,0 +1,52 @@
+{
+  "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/oh-my-opencode.schema.json",
+  "agents": {
+    "sisyphus": {
+      "model": "github-copilot/gpt-5.5",
+      "variant": "high",
+      "ultrawork": {
+        "model": "github-copilot/gpt-5.5",
+        "variant": "high"
+      }
+    },
+    "hephaestus": {
+      "model": "github-copilot/gpt-5.5",
+      "variant": "medium"
+    },
+    "oracle": {
+      "model": "github-copilot/gpt-5.5",
+      "variant": "high"
+    },
+    "prometheus": {
+      "model": "github-copilot/gpt-5.5",
+      "variant": "high"
+    },
+    "momus": {
+      "model": "github-copilot/gpt-5.5",
+      "variant": "xhigh"
+    },
+    "explore": {
+      "model": "github-copilot/gpt-5.4-mini"
+    }
+  },
+  "categories": {
+    "ultrabrain": {
+      "model": "github-copilot/gpt-5.5",
+      "variant": "xhigh"
+    },
+    "deep": {
+      "model": "github-copilot/gpt-5.5",
+      "variant": "medium"
+    },
+    "quick": {
+      "model": "github-copilot/gpt-5.4-mini"
+    },
+    "unspecified-high": {
+      "model": "github-copilot/gpt-5.5",
+      "variant": "high"
+    },
+    "unspecified-low": {
+      "model": "github-copilot/gpt-5.4-mini"
+    }
+  }
+}

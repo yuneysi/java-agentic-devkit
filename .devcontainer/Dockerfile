@@ -432,6 +432,7 @@ RUN java -version \
 # External OpenCode config
 # ---------------------------------------------------------------------
 COPY --chown=${USERNAME}:${USERNAME} opencode/opencode.json /home/${USERNAME}/.config/opencode/opencode.json
+COPY --chown=${USERNAME}:${USERNAME} opencode/oh-my-openagent.jsonc /home/${USERNAME}/.config/opencode/oh-my-openagent.jsonc
 COPY --chown=${USERNAME}:${USERNAME} opencode/tui.json /home/${USERNAME}/.config/opencode/tui.json
 COPY --chown=${USERNAME}:${USERNAME} opencode/skills/ /home/${USERNAME}/.config/opencode/skills/
 

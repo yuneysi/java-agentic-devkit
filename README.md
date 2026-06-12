@@ -258,7 +258,7 @@ These are build arguments, not runtime environment variables. Override them only
 
 ## OpenCode Configuration
 
-`opencode/opencode.json` is copied into the container as the default OpenCode configuration.
+`opencode/opencode.json` and `opencode/oh-my-openagent.jsonc` are copied into the container as the default OpenCode and oh-my-openagent configuration.
 
 It configures:
 
@@ -266,9 +266,11 @@ It configures:
 - `plugin`: enables `oh-my-openagent` and `opencode-codebase-index`.
 - `lsp`: enables language server support.
 - `mcp`: configures local MCP servers for Context7, GitHub, and Playwright.
-- `model`: uses `ollama/qwen2.5:7b` as the default model.
+- `model`: uses `github-copilot/gpt-5.3-codex` as the default OpenCode model.
 - `permission`: uses `ask`, so tool actions require confirmation.
 - `provider`: configures local Ollama models and OpenAI models.
+
+`opencode/oh-my-openagent.jsonc` sets the main oh-my-openagent agents and orchestration categories to GitHub Copilot GPT models by default. The bundled defaults use `github-copilot/gpt-5.5` for Sisyphus, Hephaestus, Oracle, Prometheus, deep work, and ultrabrain work, with faster Copilot models for quick exploration.
 
 `opencode/tui.json` enables the `oh-my-openagent/tui` plugin for OpenCode's TUI setup.
 
@@ -276,7 +278,7 @@ The GitHub MCP server receives `GITHUB_TOKEN` as `GITHUB_PERSONAL_ACCESS_TOKEN`.
 
 OpenAI models use `OPENAI_API_KEY`.
 
-For GitHub Copilot, select the Copilot provider in OpenCode or oh-my-opencode. When the login flow prints a public URL and device code, open the public URL in your browser and enter the code shown in the terminal.
+For GitHub Copilot, authenticate the Copilot provider in OpenCode. When the login flow prints a public URL and device code, open the public URL in your browser and enter the code shown in the terminal.
 
 For Ollama, make sure Ollama is running on the host machine. Use `ollama` as the API key when a client asks for one. The bundled OpenCode config uses:
 
@@ -372,7 +374,7 @@ The migration best-practices file also acts as the migration tracker for baselin
 
 ## Local AI Minimum Setup
 
-This section is the minimum practical setup for teams using OpenCode, oh-my-openagent, and Ollama with Java 8, Java 21, and Java 8 to Java 21 migration projects.
+This section is the minimum practical setup for teams using OpenCode, oh-my-openagent, GitHub Copilot, and optional Ollama fallback models with Java 8, Java 21, and Java 8 to Java 21 migration projects.
 
 ### Required Tools
 
@@ -381,12 +383,25 @@ Install these tools on the host machine:
 | Tool | Required for |
 |------|--------------|
 | Docker Desktop | Running the devkit container on Windows or macOS. |
-| Ollama Desktop | Running local models for OpenCode. |
+| GitHub Copilot subscription | Default hosted model access for OpenCode and oh-my-openagent. |
+| Ollama Desktop | Optional local fallback models for OpenCode. |
 | VS Code Dev Containers or IntelliJ IDEA | Opening or driving the target project workflow. |
 
-Inside the devkit container, OpenCode and oh-my-openagent are already installed. The container also installs OpenCode skills from `opencode/skills/` and configures OpenCode from `opencode/opencode.json`.
+Inside the devkit container, OpenCode and oh-my-openagent are already installed. The container also installs OpenCode skills from `opencode/skills/` and configures OpenCode from `opencode/opencode.json` plus `opencode/oh-my-openagent.jsonc`.
 
-### Ollama Models
+### Default Copilot Models
+
+The devkit defaults to GitHub Copilot because it is the common corporate subscription for this team. OpenCode starts with `github-copilot/gpt-5.3-codex`, and oh-my-openagent maps its main orchestrator and deep-work agents to Copilot GPT models.
+
+Before first use, authenticate Copilot from inside the container:
+
+```bash
+opencode auth login
+```
+
+Select the GitHub Copilot provider, then complete the browser device-code flow.
+
+### Optional Ollama Models
 
 Pull only the models that fit the workstation. Larger models can be better for legacy analysis, but they are slower and need more memory.
 
@@ -436,10 +451,11 @@ The devkit configures:
 
 - `instructions`: points OpenCode at the target project's `AGENTS.md`.
 - `plugin`: enables `oh-my-openagent` and `opencode-codebase-index`.
-- `provider.ollama`: points to `http://host.docker.internal:11434/v1` for Ollama Desktop on Windows and macOS.
-- `model`: defaults to `ollama/qwen2.5:7b`.
+- `provider.ollama`: points to `http://host.docker.internal:11434/v1` for optional Ollama Desktop fallback models on Windows and macOS.
+- `model`: defaults to `github-copilot/gpt-5.3-codex`.
 - `permission`: uses `ask`, so tool actions require confirmation.
 - `mcp`: enables Context7, GitHub, and Playwright MCP servers.
+- `oh-my-openagent`: maps main agents and deep-work categories to GitHub Copilot GPT models.
 
 Start OpenCode from inside the devkit container:
 
@@ -447,7 +463,7 @@ Start OpenCode from inside the devkit container:
 opencode
 ```
 
-If Ollama is running on the host and the model exists, OpenCode can use it through the configured Ollama provider.
+If Ollama is running on the host and the model exists, OpenCode can also use it through the configured Ollama provider.
 
 ### Agents And Skills
 
@@ -480,6 +496,7 @@ Configure it through these files:
 | File | Purpose |
 |------|---------|
 | `opencode/opencode.json` | Default OpenCode provider, model, MCP, permissions, plugins, and instruction path. |
+| `opencode/oh-my-openagent.jsonc` | Default oh-my-openagent agent and category model mapping. |
 | `opencode/tui.json` | Enables the oh-my-openagent TUI plugin. |
 | `templates/java21-migration/AGENTS.md` | Target-project orchestration rules for migration work. |
 | `opencode/skills/*.md` | Reusable task-specific agent instructions. |
@@ -488,11 +505,14 @@ Recommended orchestrator defaults:
 
 | Setting | Recommended value | Reason |
 |---------|-------------------|--------|
-| Default model on 16 GB | `ollama/qwen2.5-coder:7b` | Fast enough for daily code work. |
-| Default model on 32 GB | `ollama/qwen2.5-coder:7b` | Stable for long sessions while IDEs and Docker are running. |
-| Planning model on 64 GB | `ollama/deepseek-r1:32b` | Better for migration planning and legacy risk analysis. |
-| Implementation model on 64 GB | `ollama/qwen2.5-coder:32b` | Better for larger Java implementation tasks. |
+| Default OpenCode model | `github-copilot/gpt-5.3-codex` | Uses the team's corporate Copilot subscription with a Codex model by default. |
+| Main oh-my-openagent orchestrator | `github-copilot/gpt-5.5` | Keeps orchestration on Copilot GPT by default. |
+| Deep-work agent | `github-copilot/gpt-5.5` | Matches Hephaestus and deep categories to a GPT-native coding model. |
+| Quick exploration | `github-copilot/gpt-5.4-mini` | Fast code search and repository scanning. |
+| Local fallback on 16 GB or 32 GB | `ollama/qwen2.5-coder:7b` | Optional local fallback for daily code work. |
+| Local planning fallback on 64 GB | `ollama/deepseek-r1:32b` | Optional local fallback for migration planning and legacy risk analysis. |
+| Local implementation fallback on 64 GB | `ollama/qwen2.5-coder:32b` | Optional local fallback for larger Java implementation tasks. |
 | Permission mode | `ask` | Keeps file edits, shell commands, and tool use reviewable. |
 | Instructions file | `{file:/workspace/AGENTS.md}` | Keeps orchestration tied to the mounted target project. |
 
-To change the default model, edit the `model` field in `opencode/opencode.json` before rebuilding the devkit image, or edit `/home/vscode/.config/opencode/opencode.json` inside a running container for a local experiment.
+To change the default OpenCode model, edit the `model` field in `opencode/opencode.json` before rebuilding the devkit image, or edit `/home/vscode/.config/opencode/opencode.json` inside a running container for a local experiment. To change oh-my-openagent orchestration models, edit `opencode/oh-my-openagent.jsonc` before rebuilding, or edit `/home/vscode/.config/opencode/oh-my-openagent.jsonc` inside a running container.

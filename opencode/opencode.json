@@ -45,7 +45,7 @@
       ]
     }
   },
-  "model": "ollama/qwen2.5:7b",
+  "model": "github-copilot/gpt-5.3-codex",
   "permission": "ask",
   "provider": {
     "ollama": {
