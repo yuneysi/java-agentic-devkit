@@ -1,18 +1,6 @@
-# Java 8 to Java 21 Migration Best Practices
+# Java 8 To Java 21 Migration Human Checklist
 
-## Purpose
-
-This document defines the standard human workflow for migrating Java projects from Java 8 to Java 21 using `java-agentic-devkit`.
-
-Use it as both the migration best-practices reference and the migration tracker for the target project.
-
-Every migration must start from the standardized containerized environment provided by `java-agentic-devkit` so the team uses the same Java versions, Maven setup, and shell helpers.
-
-Do not start the migration directly from an ad-hoc local environment.
-
-For the recommended Compose workflow and the manual script workflow, use the root `README.md` in `java-agentic-devkit`.
-
----
+Use this checklist to track human review of a Java 8 to Java 21 migration.
 
 ## Project
 
@@ -22,16 +10,10 @@ Project name:
 <project-name>
 ```
 
-Source branch:
+Working branch:
 
 ```text
-feature/migrate_to_java21
-```
-
-Target branch:
-
-```text
-branch/java21
+<branch-name>
 ```
 
 Migration environment:
@@ -40,284 +22,101 @@ Migration environment:
 java-agentic-devkit
 ```
 
----
-
 ## Migration Goal
 
-Migrate the project from Java 8 to Java 21 while preserving Java 8 behavior.
+- [ ] Java 8 behavior is treated as the behavioral source of truth.
+- [ ] Java 21 behavior preserves Java 8 behavior unless a change was explicitly approved.
+- [ ] The migration is tracked on one working branch.
+- [ ] Migration work is split into small, reviewable commits.
 
-Java 8 is the behavioral source of truth.
+## Human Prompts For OpenCode
 
-Java 21 must preserve Java 8 behavior unless a change is explicitly requested and approved.
+Use short prompts to select the migration phase. `AGENTS.md` and the selected skill provide the detailed rules, so the prompt does not need to repeat them.
 
----
+- [ ] Initial inspection prompt was used.
 
-## Migration Workflow
-
-Use this sequence after the migration template has been copied into this project.
-
-### 1. Commit the Migration Template Files
-
-Before making migration changes, commit the template files as a baseline migration setup commit:
-
-```bash
-git add AGENTS.md .github/copilot-instructions.md docs/java21-migration-best-practices.md
-git commit -m "chore: add agent instructions for Java 21 migration"
+```text
+Read AGENTS.md and inspect this project for migration readiness.
+Do not edit files yet.
+Tell me the current baseline status, likely validation commands, highest-risk areas, and the first skill I should use.
 ```
 
-### 2. Capture the Java 8 Baseline
+- [ ] Java 8 baseline prompt was used.
 
-Start the project in Java 8 mode using the workflow from the root `README.md`.
-
-Inside the container, capture the baseline with the real validation command:
-
-```bash
-mkdir -p docs/migration-results/java8-baseline
-mvn clean verify 2>&1 | tee docs/migration-results/java8-baseline/mvn-clean-verify.log
+```text
+Use the java8-baseline-capturer skill.
 ```
 
-Measure Java 8 test coverage as part of the baseline. Use the project's existing coverage command when available, for example:
+- [ ] First migration step prompt was used.
 
-```bash
-mvn test jacoco:report 2>&1 | tee docs/migration-results/java8-baseline/mvn-test-jacoco.log
+```text
+Use the java21-first-migration-step-planner skill.
 ```
 
-If Java 8 coverage is below 90%, create focused characterization or regression tests until coverage reaches at least 90% before making Java 21 migration changes.
+- [ ] Small migration change prompt was used.
 
-If the project has integration tests or required Maven profiles, run that command and store its output:
-
-```bash
-mvn clean verify -Pintegration-tests 2>&1 | tee docs/migration-results/java8-baseline/mvn-clean-verify-integration.log
+```text
+Use the java21-small-change-implementer skill.
+Apply the next planned small migration step.
 ```
 
-Record the baseline result in the Java 8 Baseline section below. This baseline is the behavioral source of truth for the migration.
+- [ ] Java 21 validation prompt was used.
 
-### 3. Plan the First Migration Step
-
-Inspect the project before editing production code.
-
-Record risks in the Migration Risk Register.
-
-Plan small commits. Each planned change must include:
-
-- affected files
-- why the change is required for Java 21
-- how Java 8 behavior will be preserved
-- the validation command
-- the expected commit boundary
-
-Do not migrate the whole project at once.
-
-### 4. Implement One Small Change at a Time
-
-For each migration step:
-
-1. Make the smallest safe change.
-2. Run the narrowest useful validation command.
-3. Update this tracker with what changed, what was validated, and any remaining risk.
-4. Commit only after review.
-
-If Java 8 or Java 21 coverage is below 90%, add or repair focused tests before treating the step as complete.
-
-### 5. Validate With Java 21
-
-When there is a small migration change to validate, restart the project in Java 21 mode using the workflow from the root `README.md`.
-
-Inside the Java 21 container, start with the smallest useful validation:
-
-```bash
-mkdir -p docs/migration-results/java21-candidate
-mvn clean compile 2>&1 | tee docs/migration-results/java21-candidate/mvn-clean-compile.log
+```text
+Use the java21-candidate-validator skill.
 ```
 
-Then increase validation gradually:
+- [ ] Migration review prompt was used before final acceptance.
 
-```bash
-mvn test 2>&1 | tee docs/migration-results/java21-candidate/mvn-test.log
-mvn verify 2>&1 | tee docs/migration-results/java21-candidate/mvn-verify.log
+```text
+Use the migration-auditor skill.
+Review the current diff.
+Do not modify files.
 ```
-
-Measure Java 21 test coverage with the project's coverage command, for example:
-
-```bash
-mvn test jacoco:report 2>&1 | tee docs/migration-results/java21-candidate/mvn-test-jacoco.log
-```
-
-If Java 21 coverage is below 90%, add or repair tests before considering candidate validation complete.
-
-Compare Java 8 and Java 21 results:
-
-```bash
-diff -ru docs/migration-results/java8-baseline docs/migration-results/java21-candidate | tee docs/migration-results/java8-vs-java21.diff || true
-```
-
-Review the comparison before committing migration changes.
-
-### 6. Commit Only Reviewed Migration Steps
-
-Before each migration commit, review the current diff against the Java 8 baseline.
-
-Commit only when the change is small, reviewed, validated, and recorded in this tracker.
 
 ## Java 8 Baseline
 
-Use this section to record the current Java 8 behavior before Java 21 changes.
+- [ ] Java 8 version was recorded.
+- [ ] Maven version was recorded.
+- [ ] Java 8 baseline command was run.
+- [ ] Java 8 baseline output was saved under `docs/migration-results/java8-baseline/`.
+- [ ] Java 8 coverage command was run or marked as not available.
+- [ ] Java 8 coverage is at least 90%, or gaps are documented.
+- [ ] Known Java 8 failures are documented.
+- [ ] Important runtime, SOAP, JMS, JDBC, JSP, or deployment observations are documented.
 
-### Baseline Date
-
-```text
-<YYYY-MM-DD>
-```
-
-### Java Version
-
-```text
-<output of java -version>
-```
-
-### Maven Version
+Baseline notes:
 
 ```text
-<output of mvn -version or ./mvnw -version>
+<baseline notes>
 ```
-
-### Baseline Commands
-
-```bash
-mvn clean test
-mvn clean verify
-mvn test jacoco:report
-```
-
-or:
-
-```bash
-./mvnw clean test
-./mvnw clean verify
-./mvnw test jacoco:report
-```
-
-### Java 8 Coverage
-
-```text
-Coverage percentage: <percent>
-Coverage command: <command>
-Coverage report path: <path>
-Status: Passed >= 90% | Failed < 90% | Not measured
-```
-
-If coverage is below 90%, record the missing areas and create characterization or regression tests before starting Java 21 production changes.
-
-### Baseline Result
-
-```text
-Passed | Failed | Partially passed | Not run
-```
-
-### Known Java 8 Failures
-
-```text
-<List existing failures before migration>
-```
-
-### Baseline Notes
-
-```text
-<Important runtime, test, SOAP, JMS, JDBC, JSP, or deployment observations>
-```
-
----
 
 ## Java 21 Candidate
 
-Use this section to record Java 21 validation results.
+- [ ] Java 21 version was recorded.
+- [ ] Maven version was recorded.
+- [ ] Java 21 compile command was run.
+- [ ] Java 21 test command was run.
+- [ ] Java 21 verify command was run when applicable.
+- [ ] Java 21 candidate output was saved under `docs/migration-results/java21-candidate/`.
+- [ ] Java 21 coverage command was run or marked as not available.
+- [ ] Java 21 coverage is at least 90%, or gaps are documented.
+- [ ] Java 8 and Java 21 results were compared.
+- [ ] Meaningful differences are classified and tracked.
 
-### Java Version
-
-```text
-<output of java -version>
-```
-
-### Maven Version
-
-```text
-<output of mvn -version or ./mvnw -version>
-```
-
-### First Java 21 Compile
-
-```bash
-mvn clean compile
-```
-
-or:
-
-```bash
-./mvnw clean compile
-```
-
-### First Java 21 Test Run
-
-```bash
-mvn test
-```
-
-or:
-
-```bash
-./mvnw test
-```
-
-### First Java 21 Verify Run
-
-```bash
-mvn verify
-```
-
-or:
-
-```bash
-./mvnw verify
-```
-
-### Java 21 Coverage
-
-```bash
-mvn test jacoco:report
-```
-
-or:
-
-```bash
-./mvnw test jacoco:report
-```
+Candidate notes:
 
 ```text
-Coverage percentage: <percent>
-Coverage command: <command>
-Coverage report path: <path>
-Status: Passed >= 90% | Failed < 90% | Not measured
+<candidate notes>
 ```
-
-If coverage is below 90%, add or repair tests before considering Java 21 candidate validation complete.
-
-### Java 21 Result
-
-```text
-Passed | Failed | Partially passed | Not run
-```
-
----
 
 ## Migration Risk Register
 
-Use this table to track every risk found during the migration.
-
 | ID | Area | Risk Classification | Description | Evidence | Status | Owner |
 |----|------|---------------------|-------------|----------|--------|-------|
-| R-001 | Build | dependency risk | TBD | TBD | Open | TBD |
+| R-001 | TBD | TBD | TBD | TBD | Open | TBD |
 
-Allowed classifications:
+Risk classifications:
 
 - safe migration
 - behavioral risk
@@ -325,6 +124,7 @@ Allowed classifications:
 - JSP/runtime risk
 - JMS risk
 - JDBC risk
+- JPA/Hibernate risk
 - configuration risk
 - cache risk
 - test gap
@@ -332,219 +132,81 @@ Allowed classifications:
 - dependency risk
 - security risk
 
----
-
 ## Dependency Changes
-
-Track each dependency or plugin change separately.
 
 | ID | Dependency / Plugin | Old Version | New Version | Reason | Risk | Validation |
 |----|---------------------|-------------|-------------|--------|------|------------|
 | D-001 | TBD | TBD | TBD | TBD | TBD | TBD |
 
-Rules:
-
-- Do not upgrade all dependencies at once.
-- Group dependency changes by reason.
-- Explain why each change is required for Java 21.
-- Validate after each focused dependency change.
-
----
+- [ ] Each dependency or plugin change has a migration reason.
+- [ ] Dependency changes are grouped by reason.
+- [ ] Dependency changes are validated separately when possible.
+- [ ] Runtime behavior risk is recorded.
 
 ## Build Configuration Changes
-
-Track changes to:
-
-- `pom.xml`
-- parent POMs
-- Maven profiles
-- Maven Wrapper
-- compiler plugin
-- surefire plugin
-- failsafe plugin
-- dependency management
-- annotation processors
-- generated sources
-- CI build commands
 
 | ID | File | Change | Reason | Validation |
 |----|------|--------|--------|------------|
 | B-001 | TBD | TBD | TBD | TBD |
 
----
+- [ ] `pom.xml` changes are recorded.
+- [ ] Parent POM changes are recorded.
+- [ ] Maven profile changes are recorded.
+- [ ] Maven Wrapper changes are recorded.
+- [ ] Compiler, surefire, failsafe, dependency management, annotation processor, generated source, and CI build changes are recorded when touched.
 
-## SOAP/XML Compatibility
+## Compatibility Checklist
 
-Inspect and document:
+- [ ] SOAP/XML WSDL, XSD, namespaces, prefixes, element order, `SOAPAction`, null/empty tags, dates, numbers, and faults were reviewed when touched.
+- [ ] JAXB, JAX-WS, SAAJ, generated classes, marshalling, and unmarshalling were reviewed when touched.
+- [ ] JSP, servlet, tag libraries, JSTL, custom tags, expression language, encoding, content type, sessions, request attributes, and form parameters were reviewed when touched.
+- [ ] JMS destinations, connection factories, serialization, selectors, acknowledgements, transactions, redelivery, dead-letter behavior, listener concurrency, headers, correlation IDs, reply-to destinations, and timeouts were reviewed when touched.
+- [ ] JDBC drivers, connection pools, autocommit, isolation, timeouts, schema, SQL dialect, stored procedures, generated keys, date/time mappings, number mappings, and transaction boundaries were reviewed when touched.
+- [ ] JPA/Hibernate mappings, lazy loading, flush behavior, transaction scope, and query behavior were reviewed when touched.
+- [ ] Date, time, timezone, locale, charset, `String.getBytes()`, `new String(byte[])`, `DecimalFormat`, and `BigDecimal` behavior were reviewed when touched.
+- [ ] Cache behavior was reviewed when touched.
+- [ ] Security-sensitive behavior was reviewed when touched.
 
-- WSDL
-- XSD
-- namespaces
-- XML prefixes
-- SOAPAction
-- encoding
-- XML element names
-- XML element order
-- null tags vs empty tags
-- omitted optional elements
-- date/time formatting
-- BigDecimal formatting
-- fault responses
-- JAXB annotations
-- generated classes
-- marshalling behavior
-- unmarshalling behavior
+Compatibility notes:
 
-| ID | Contract / Class | Java 8 Behavior | Java 21 Behavior | Difference | Risk | Status |
-|----|------------------|-----------------|------------------|------------|------|--------|
-| S-001 | TBD | TBD | TBD | TBD | TBD | Open |
-
----
-
-## JSP / Runtime Compatibility
-
-Inspect and document:
-
-- Tomcat 9 behavior
-- Tomcat 11 behavior
-- JSP compilation
-- tag libraries
-- JSTL versions
-- custom tags
-- scriptlets
-- expression language behavior
-- servlet container differences
-- encoding
-- response content type
-- session handling
-- request attributes
-- form parameter handling
-
-| ID | Area | Java 8 / Tomcat 9 Behavior | Java 21 / Tomcat 11 Behavior | Difference | Risk | Status |
-|----|------|-----------------------------|-------------------------------|------------|------|--------|
-| J-001 | TBD | TBD | TBD | TBD | TBD | Open |
-
----
-
-## JMS Compatibility
-
-Inspect and document:
-
-- destination names
-- connection factory configuration
-- serialization
-- message selectors
-- acknowledgement mode
-- transactions
-- redelivery behavior
-- dead-letter behavior
-- listener concurrency
-- message headers
-- correlation IDs
-- reply-to destinations
-- timeout behavior
-
-| ID | Area | Java 8 Behavior | Java 21 Behavior | Difference | Risk | Status |
-|----|------|-----------------|------------------|------------|------|--------|
-| M-001 | TBD | TBD | TBD | TBD | TBD | Open |
-
----
-
-## JDBC / Database Compatibility
-
-Inspect and document:
-
-- JDBC driver behavior
-- connection pool settings
-- autocommit
-- isolation level
-- timeout
-- schema
-- SQL dialect differences
-- stored procedure calls
-- generated keys
-- date/time database mappings
-- BigDecimal mappings
-- transaction boundaries
-
-| ID | Area | Java 8 Behavior | Java 21 Behavior | Difference | Risk | Status |
-|----|------|-----------------|------------------|------------|------|--------|
-| DB-001 | TBD | TBD | TBD | TBD | TBD | Open |
-
----
-
-## Date, Time, Locale, Charset, and Number Compatibility
-
-Inspect and document:
-
-- `Date`
-- `Calendar`
-- `SimpleDateFormat`
-- `TimeZone`
-- `Locale`
-- `DecimalFormat`
-- `BigDecimal`
-- platform default charset
-- `String.getBytes()`
-- `new String(byte[])`
-
-| ID | Area | Java 8 Behavior | Java 21 Behavior | Difference | Risk | Status |
-|----|------|-----------------|------------------|------------|------|--------|
-| T-001 | TBD | TBD | TBD | TBD | TBD | Open |
-
----
+```text
+<compatibility notes>
+```
 
 ## Characterization Tests
-
-Track tests that capture Java 8 behavior.
-
-Coverage target for both Java 8 baseline and Java 21 candidate validation is at least 90%.
 
 | ID | Test Class | Behavior Captured | Area | Status |
 |----|------------|-------------------|------|--------|
 | CT-001 | TBD | TBD | TBD | Planned |
 
-Priority areas:
-
-- SOAP request payloads
-- SOAP response payloads
-- SOAP faults
-- XML marshalling/unmarshalling
-- JSP rendered output
-- JMS message headers and payloads
-- JDBC query results
-- transaction behavior
-- date/time formatting
-- BigDecimal formatting
-- encoding
-- caching behavior
-
----
+- [ ] SOAP request payloads are covered when relevant.
+- [ ] SOAP response payloads are covered when relevant.
+- [ ] SOAP faults are covered when relevant.
+- [ ] XML marshalling and unmarshalling are covered when relevant.
+- [ ] JSP rendered output is covered when relevant.
+- [ ] JMS message headers and payloads are covered when relevant.
+- [ ] JDBC query results and transaction behavior are covered when relevant.
+- [ ] Date/time, number formatting, encoding, and caching behavior are covered when relevant.
 
 ## Commit Log
 
-Use this table to keep a migration-level record of meaningful commits.
-
 | Commit | Message | Area | Risk | Validation |
 |--------|---------|------|------|------------|
-| TBD | chore: add agent instructions for Java 21 migration | docs | Low | Not run |
-
----
+| TBD | TBD | TBD | TBD | TBD |
 
 ## Final Acceptance Checklist
 
-The migration branch should not be considered ready until:
-
 - [ ] Java 8 baseline behavior is documented.
-- [ ] Java 8 test coverage is at least 90%.
+- [ ] Java 8 test coverage is at least 90%, or uncovered risk is documented and accepted.
 - [ ] Java 21 compile passes.
-- [ ] Java 21 test coverage is at least 90%.
+- [ ] Java 21 test coverage is at least 90%, or uncovered risk is documented and accepted.
 - [ ] Unit tests pass or known failures are documented.
 - [ ] Integration tests pass or known failures are documented.
 - [ ] SOAP/XML compatibility risks are reviewed.
 - [ ] JSP/Tomcat compatibility risks are reviewed.
 - [ ] JMS compatibility risks are reviewed.
 - [ ] JDBC compatibility risks are reviewed.
+- [ ] JPA/Hibernate compatibility risks are reviewed.
 - [ ] Date/time/locale/charset/BigDecimal risks are reviewed.
 - [ ] Dependency upgrades are documented.
 - [ ] Temporary JVM flags are removed or justified.

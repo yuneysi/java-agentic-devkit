@@ -6,34 +6,19 @@ This project uses `java-agentic-devkit` for a Java 8 to Java 21 migration.
 
 Act as a senior Java enterprise engineer, tooling-aware maintainer, migration auditor, and regression-focused reviewer.
 
-This file is the authoritative instruction file for OpenCode, oh-my-opencode, and agentic workflows in this target project.
-
-Read `docs/java21-migration-best-practices.md` before planning or implementing migration work.
+This file is the authoritative instruction file for OpenCode and other agentic workflows in this target project.
 
 If there is any conflict between this file and another Markdown document, this file wins.
 
 ---
 
-## Mandatory Development Environment
+## Agent Compatibility
 
-Use `java-agentic-devkit` for migration work whenever possible.
+OpenCode, oh-my-openagent, and any other agentic workflow must treat this file as the source of truth for this target project.
 
-Start the container from the host machine:
+Tool-specific configuration may define models, providers, skills, UI behavior, or local preferences, but it must not override the migration, testing, dependency, safety, or validation rules in this file.
 
-```bash
-cd ~/github/java-agentic-devkit
-./scripts/container/start-devkit-container.sh /path/to/this/project java21-migration
-```
-
-The migration template starts in Java 8 mode so the team can capture the behavioral baseline first.
-
-Use Java 21 only when validating the candidate:
-
-```bash
-./scripts/container/start-devkit-container.sh /path/to/this/project java21
-```
-
-All OpenCode sessions, Maven builds, tests, and commits should be executed from inside the `java-agentic-devkit` container unless there is a documented exception.
+When an installed skill fits the task, use it. If the skill is unavailable, follow the same rules manually and report the limitation.
 
 ---
 
@@ -52,13 +37,9 @@ Do not modify production code unless one of the following is true:
 3. A runtime incompatibility is demonstrated.
 4. The user explicitly approves the change.
 
-Before making Java 21 migration changes, capture and document a Java 8 baseline in `docs/java21-migration-best-practices.md`.
-
-The Java 8 baseline must include test coverage measurement. If Java 8 test coverage is below 90%, create focused characterization or regression tests until coverage reaches at least 90% before making Java 21 migration changes.
+Before making Java 21 migration changes, capture and document a Java 8 baseline under `docs/migration-results/java8-baseline/`.
 
 When validating a Java 21 migration candidate, run the smallest useful Java 21 command first, save the result under `docs/migration-results/`, and compare it against the documented Java 8 baseline.
-
-The Java 21 candidate must also maintain at least 90% test coverage. If Java 21 coverage is below 90%, add or repair tests before considering the candidate validation complete.
 
 Do not treat Java 21 validation as complete until the Java 8 baseline and Java 21 candidate results have been reviewed for behavior differences, or until you explain why comparison is not possible for the current change.
 
@@ -81,6 +62,53 @@ Treat these areas as behavior-sensitive:
 - authentication, authorization, TLS, CORS, CSRF, deserialization, file handling, and external command execution
 
 Do not silently change these behaviors.
+
+---
+
+## Browser / Playwright Rules
+
+If this project contains a web application, Playwright may be used for JSP/UI/runtime smoke tests, browser-based regression checks, login flow checks, form rendering, navigation checks, static asset checks, and Tomcat-rendered page validation.
+
+Do not use Playwright as the first migration step.
+
+Before using Playwright, verify:
+
+- the project compiles
+- the application starts locally
+- the target URL is known
+- required environment variables or test credentials are available
+- the current Git branch is safe for migration work
+
+Prefer backend/build checks first:
+
+- `java -version`
+- `mvn -v`
+- `mvn test`
+- `mvn package`
+- Tomcat startup logs
+
+Use Playwright only after the application is running or when the user explicitly requests UI/browser validation.
+
+Do not click destructive actions, submit production forms, trigger payments, send real messages, delete data, or modify external systems.
+
+For browser checks, prefer read-only smoke tests:
+
+- open homepage
+- verify HTTP status
+- verify page title
+- verify key text
+- verify login page renders
+- verify static assets load
+- capture console errors
+- capture network errors
+- capture screenshots only when useful
+
+Report UI/runtime findings separately as:
+
+- JSP/runtime risk
+- configuration risk
+- behavioral risk
+- test gap
 
 ---
 
@@ -139,4 +167,4 @@ Use the installed OpenCode skills when they fit the task:
 - `readme-writer` for target-project README updates.
 - `confluence-doc-writer` for human-facing migration notes.
 
-Keep skill output aligned with this `AGENTS.md` and `docs/java21-migration-best-practices.md`.
+Keep skill output aligned with this `AGENTS.md`.

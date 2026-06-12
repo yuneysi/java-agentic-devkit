@@ -10,8 +10,9 @@
       }
     },
     "hephaestus": {
-      "model": "github-copilot/gpt-5.5",
-      "variant": "medium"
+      "model": "github-copilot/gpt-5.3-codex",
+      "variant": "medium",
+      "prompt_append": "Act as the execution agent. Implement approved plans in small, reviewable steps. Read AGENTS.md first, preserve existing behavior, run focused validation, and report blockers before broadening scope."
     },
     "oracle": {
       "model": "github-copilot/gpt-5.5",
@@ -19,7 +20,8 @@
     },
     "prometheus": {
       "model": "github-copilot/gpt-5.5",
-      "variant": "high"
+      "variant": "high",
+      "prompt_append": "Act as the planning agent. Inspect before editing, identify risks, produce small migration or implementation steps, and hand off execution-ready plans. Do not treat planning as approval to modify production code."
     },
     "momus": {
       "model": "github-copilot/gpt-5.5",
@@ -29,6 +31,14 @@
       "model": "github-copilot/gpt-5.4-mini"
     }
   },
+  "default_run_agent": "sisyphus",
+  "agent_order": [
+    "sisyphus",
+    "prometheus",
+    "hephaestus",
+    "oracle",
+    "explore"
+  ],
   "categories": {
     "ultrabrain": {
       "model": "github-copilot/gpt-5.5",

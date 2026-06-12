@@ -4,7 +4,7 @@ Use this skill when the user asks to capture the Java 8 baseline for a Java 8 to
 
 ## Goal
 
-Run the Java 8 baseline validation commands, store the raw results under `docs/migration-results/java8-baseline/`, and update `docs/java21-migration-best-practices.md`.
+Run the Java 8 baseline validation commands, store the raw results under `docs/migration-results/java8-baseline/`, and update the human migration checklist when present.
 
 Java 8 is the behavioral source of truth.
 
@@ -16,8 +16,8 @@ Java 8 is the behavioral source of truth.
 - Do not start Java 21 migration changes.
 - Prefer Maven Wrapper when `./mvnw` exists.
 - Store command output under `docs/migration-results/java8-baseline/`.
-- Update only migration tracking documentation unless the user explicitly asks for test changes.
-- If coverage is below 90%, report the gap and recommend characterization or regression tests before production migration changes.
+- Update only migration tracking documentation or checklist notes unless the user explicitly asks for test changes.
+- If coverage is below 90%, report the gap as a blocker for production migration changes and recommend characterization or regression tests.
 
 ## Required Steps
 
@@ -27,7 +27,7 @@ Java 8 is the behavioral source of truth.
 4. Run the baseline test or verify command.
 5. Run the coverage command when available.
 6. Run integration-test profiles when the project requires them.
-7. Update the Java 8 Baseline section in `docs/java21-migration-best-practices.md`.
+7. Update the Java 8 Baseline checklist section when `docs/java21-migration-best-practices.md` exists.
 8. Summarize pass/fail status, coverage status, result files, and blockers.
 
 ## Recommended Commands
@@ -39,7 +39,6 @@ mkdir -p docs/migration-results/java8-baseline
 java -version 2>&1 | tee docs/migration-results/java8-baseline/java-version.log
 ./mvnw -version 2>&1 | tee docs/migration-results/java8-baseline/maven-version.log
 ./mvnw clean verify 2>&1 | tee docs/migration-results/java8-baseline/mvn-clean-verify.log
-./mvnw test jacoco:report 2>&1 | tee docs/migration-results/java8-baseline/mvn-test-jacoco.log
 ```
 
 Otherwise use Maven:
@@ -49,23 +48,27 @@ mkdir -p docs/migration-results/java8-baseline
 java -version 2>&1 | tee docs/migration-results/java8-baseline/java-version.log
 mvn -version 2>&1 | tee docs/migration-results/java8-baseline/maven-version.log
 mvn clean verify 2>&1 | tee docs/migration-results/java8-baseline/mvn-clean-verify.log
+```
+
+Run the project's existing coverage command when available, and save the output under `docs/migration-results/java8-baseline/`.
+
+Common examples:
+
+```bash
+./mvnw test jacoco:report 2>&1 | tee docs/migration-results/java8-baseline/mvn-test-jacoco.log
 mvn test jacoco:report 2>&1 | tee docs/migration-results/java8-baseline/mvn-test-jacoco.log
 ```
 
 If the project has integration tests or required Maven profiles, run the project-specific command and save it under `docs/migration-results/java8-baseline/`.
 
-## Tracker Update
+## Checklist Update
 
-Update these fields in `docs/java21-migration-best-practices.md`:
+If `docs/java21-migration-best-practices.md` exists, update the Java 8 Baseline section as a human checklist:
 
-- Baseline Date
-- Java Version
-- Maven Version
-- Baseline Commands
-- Java 8 Coverage
-- Baseline Result
-- Known Java 8 Failures
-- Baseline Notes
+- mark completed baseline items when evidence exists
+- add concise baseline notes with commands, result files, and failures
+- leave unchecked items that could not be completed
+- do not invent coverage percentages or passing status
 
 Also add entries to Characterization Tests or Migration Risk Register if the baseline exposes missing coverage or behavior-sensitive gaps.
 

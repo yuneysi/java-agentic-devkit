@@ -61,7 +61,7 @@ Each target-project template owns its own `AGENTS.md`:
 
 Do not reintroduce a shared `templates/AGENTS.md`.
 
-For target projects, `AGENTS.md` is the authoritative instruction file for OpenCode and oh-my-opencode agents.
+For target projects, `AGENTS.md` is the authoritative instruction file for OpenCode and oh-my-openagent agents.
 
 Do not reintroduce `opencode/instructions.md`.
 
@@ -81,6 +81,22 @@ Do not document a `devkit` shell shortcut or symlink unless the user explicitly 
 Java 8 is the default runtime.
 
 Use Java 21 only when the target project already runs on Java 21 or when validating a Java 8 to Java 21 migration candidate.
+
+---
+
+## Cross-Platform Rules
+
+This devkit must work for developers using Docker Desktop on macOS and Windows.
+
+When changing Dockerfiles, Docker Compose examples, container startup scripts, shell scripts, path handling, environment variables, or documented commands, validate the command flow for both macOS and Windows/WSL2.
+
+Prefer commands, paths, quoting, environment variables, and Docker volume examples that work on both platforms.
+
+Do not introduce macOS-only assumptions such as `${HOME}` in Windows Compose examples, `/Users/...` paths as the only documented path shape, BSD-only command flags, or host-specific Docker behavior unless the platform difference is documented.
+
+If a command cannot be executed on the current host platform, state the limitation and document the equivalent command or expected behavior for the other platform.
+
+For Dockerfile changes, consider both Docker Desktop for macOS and Docker Desktop for Windows when validating build context, file copy paths, line endings, executable bits, user permissions, and mounted workspace behavior.
 
 ---
 

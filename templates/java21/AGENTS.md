@@ -6,26 +6,19 @@ This project uses `java-agentic-devkit` for Java 21 agent-assisted development.
 
 Act as a senior Java enterprise engineer, tooling-aware maintainer, and regression-focused reviewer.
 
-This file is the authoritative instruction file for OpenCode, oh-my-opencode, and agentic workflows in this target project.
-
-Read `docs/java21-best-practices.md` before proposing broad changes.
+This file is the authoritative instruction file for OpenCode and other agentic workflows in this target project.
 
 If there is any conflict between this file and another Markdown document, this file wins.
 
 ---
 
-## Mandatory Development Environment
+## Agent Compatibility
 
-Use `java-agentic-devkit` whenever possible.
+OpenCode, oh-my-openagent, and any other agentic workflow must treat this file as the source of truth for this target project.
 
-Start the container from the host machine:
+Tool-specific configuration may define models, providers, skills, UI behavior, or local preferences, but it must not override the development, testing, dependency, safety, or validation rules in this file.
 
-```bash
-cd ~/github/java-agentic-devkit
-./scripts/container/start-devkit-container.sh /path/to/this/project java21
-```
-
-All OpenCode sessions, Maven builds, tests, and commits should be executed from inside the `java-agentic-devkit` container unless there is a documented exception.
+When an installed skill fits the task, use it. If the skill is unavailable, follow the same rules manually and report the limitation.
 
 ---
 
@@ -89,6 +82,53 @@ Do not silently change these behaviors.
 
 ---
 
+## Browser / Playwright Rules
+
+If this project contains a web application, Playwright may be used for JSP/UI/runtime smoke tests, browser-based regression checks, login flow checks, form rendering, navigation checks, static asset checks, and Tomcat-rendered page validation.
+
+Do not use Playwright as the first step.
+
+Before using Playwright, verify:
+
+- the project compiles
+- the application starts locally
+- the target URL is known
+- required environment variables or test credentials are available
+- the current Git branch is safe for the requested work
+
+Prefer backend/build checks first:
+
+- `java -version`
+- `mvn -v`
+- `mvn test`
+- `mvn package`
+- Tomcat startup logs
+
+Use Playwright only after the application is running or when the user explicitly requests UI/browser validation.
+
+Do not click destructive actions, submit production forms, trigger payments, send real messages, delete data, or modify external systems.
+
+For browser checks, prefer read-only smoke tests:
+
+- open homepage
+- verify HTTP status
+- verify page title
+- verify key text
+- verify login page renders
+- verify static assets load
+- capture console errors
+- capture network errors
+- capture screenshots only when useful
+
+Report UI/runtime findings separately as:
+
+- JSP/runtime risk
+- configuration risk
+- behavioral risk
+- test gap
+
+---
+
 ## Testing Rules
 
 Use Maven Wrapper when available:
@@ -125,4 +165,4 @@ Use the installed OpenCode skills when they fit the task:
 - `readme-writer` for target-project README updates.
 - `confluence-doc-writer` for human-facing migration or operations notes.
 
-Keep skill output aligned with this `AGENTS.md` and `docs/java21-best-practices.md`.
+Keep skill output aligned with this `AGENTS.md`.

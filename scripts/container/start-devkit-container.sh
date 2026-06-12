@@ -39,7 +39,7 @@ normalize_mount_path() {
 }
 
 MOUNT_PATH="${1:-.}"
-JAVA_VERSION="${2:-java8}"
+JAVA_TEMPLATE="${2:-java8}"
 IMAGE_NAME="java-agentic-devkit"
 TAG="latest"
 FULL_IMAGE="${IMAGE_NAME}:${TAG}"
@@ -78,8 +78,8 @@ mkdir -p "${HOST_M2_DIR}"
 printf '%b\n' "${GREEN}Mounting: ${MOUNT_PATH}${NC}"
 printf '%b\n\n' "${GREEN}Container path: ${CONTAINER_MOUNT}${NC}"
 
-printf '%b\n' "${YELLOW}Setting Java mode: ${JAVA_VERSION}${NC}"
-case "${JAVA_VERSION}" in
+printf '%b\n' "${YELLOW}Setting Java template: ${JAVA_TEMPLATE}${NC}"
+case "${JAVA_TEMPLATE}" in
     java8)
         JAVA_SETUP=". /usr/local/bin/use-java8"
         printf '%b\n\n' "${GREEN}Using Java 8${NC}"
@@ -93,7 +93,7 @@ case "${JAVA_VERSION}" in
         printf '%b\n\n' "${GREEN}Using Java 8 for the Java 21 migration baseline${NC}"
         ;;
     *)
-        printf '%b\n' "${RED}Invalid Java version: ${JAVA_VERSION}${NC}"
+        printf '%b\n' "${RED}Invalid Java template: ${JAVA_TEMPLATE}${NC}"
         printf '%b\n' "${YELLOW}Supported: java8, java21, java21-migration${NC}"
         exit 1
         ;;
@@ -103,7 +103,7 @@ printf '%b\n' "${BLUE}==========================================================
 printf '%b\n\n' "${YELLOW}Starting container...${NC}"
 
 docker run -it --rm \
-    -e "DEVKIT_JAVA_TEMPLATE=${JAVA_VERSION}" \
+    -e "DEVKIT_JAVA_TEMPLATE=${JAVA_TEMPLATE}" \
     -e "DEVKIT_PROJECT_DIR=${CONTAINER_MOUNT}" \
     -e "MAVEN_OPTS=-Dmaven.repo.local=/home/vscode/.m2/repository" \
     -v "${MOUNT_PATH}:${CONTAINER_MOUNT}" \

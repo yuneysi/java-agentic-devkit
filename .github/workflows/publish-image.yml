@@ -16,6 +16,7 @@ concurrency:
 
 env:
   IMAGE_NAME: ghcr.io/yuneysi/java-agentic-devkit
+  IMAGE_MINOR_VERSION: "0.1"
 
 jobs:
   publish:
@@ -36,7 +37,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push latest image
+      - name: Resolve image version
+        id: version
+        run: |
+          echo "minor=${IMAGE_MINOR_VERSION}" >> "${GITHUB_OUTPUT}"
+          echo "patch=${IMAGE_MINOR_VERSION}.${GITHUB_RUN_NUMBER}" >> "${GITHUB_OUTPUT}"
+
+      - name: Build and push versioned image
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -44,6 +51,12 @@ jobs:
           push: true
           tags: |
             ${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.minor }}
+            ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.patch }}
             ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          labels: |
+            org.opencontainers.image.title=java-agentic-devkit
+            org.opencontainers.image.version=${{ steps.version.outputs.patch }}
+            org.opencontainers.image.revision=${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

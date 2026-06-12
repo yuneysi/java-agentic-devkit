@@ -32,6 +32,7 @@ RUN apt-get -o Acquire::Check-Valid-Until=false update && apt-get install -y --n
     less \
     sudo \
     ripgrep \
+    silversearcher-ag \
     fd-find \
     build-essential \
     procps \
@@ -99,7 +100,7 @@ RUN ARCH="$(dpkg --print-architecture)" \
 
 ENV JAVA8_HOME=/opt/java/jdk8
 ENV JAVA21_HOME=/opt/java/jdk21
-ENV DEFAULT_JAVA_VERSION=java8
+ENV DEFAULT_JAVA_TEMPLATE=java8
 ENV JAVA_HOME=/opt/java/jdk8
 ENV PATH="${JAVA_HOME}/bin:${PATH}"
 
@@ -394,7 +395,7 @@ RUN printf '%s\n' \
     '# Runtime paths' \
     'export JAVA8_HOME=/opt/java/jdk8' \
     'export JAVA21_HOME=/opt/java/jdk21' \
-    'case "${DEVKIT_JAVA_TEMPLATE:-${DEFAULT_JAVA_VERSION:-java8}}" in' \
+    'case "${DEVKIT_JAVA_TEMPLATE:-${DEFAULT_JAVA_TEMPLATE:-java8}}" in' \
     '    java21)' \
     '        . /usr/local/bin/use-java21 >/dev/null 2>&1 || true' \
     '        ;;' \
@@ -447,13 +448,13 @@ RUN printf '%s\n' \
     'set -euo pipefail' \
     '' \
     'PROJECT_DIR="${DEVKIT_PROJECT_DIR:-}"' \
-    'JAVA_VERSION="${DEVKIT_JAVA_TEMPLATE:-${DEFAULT_JAVA_VERSION:-java8}}"' \
+    'JAVA_TEMPLATE="${DEVKIT_JAVA_TEMPLATE:-${DEFAULT_JAVA_TEMPLATE:-java8}}"' \
     '' \
     'if [[ -z "${PROJECT_DIR}" ]]; then' \
     '    PROJECT_DIR=/workspace' \
     'fi' \
     '' \
-    'case "${JAVA_VERSION}" in' \
+    'case "${JAVA_TEMPLATE}" in' \
     '    java8)' \
     '        . /usr/local/bin/use-java8 >/dev/null 2>&1 || true' \
     '        ;;' \
@@ -464,12 +465,12 @@ RUN printf '%s\n' \
     '        . /usr/local/bin/use-java8 >/dev/null 2>&1 || true' \
     '        ;;' \
     '    *)' \
-    '        echo "Unsupported DEVKIT_JAVA_TEMPLATE: ${JAVA_VERSION}" >&2' \
+    '        echo "Unsupported DEVKIT_JAVA_TEMPLATE: ${JAVA_TEMPLATE}" >&2' \
     '        exit 1' \
     '        ;;' \
     'esac' \
     '' \
-    'TEMPLATE_DIR="/opt/java-agentic-devkit/templates/${JAVA_VERSION}"' \
+    'TEMPLATE_DIR="/opt/java-agentic-devkit/templates/${JAVA_TEMPLATE}"' \
     'if [[ -d "${PROJECT_DIR}" && -d "${TEMPLATE_DIR}" ]]; then' \
     '    while IFS= read -r -d "" TEMPLATE_FILE; do' \
     '        RELATIVE_PATH="${TEMPLATE_FILE#${TEMPLATE_DIR}/}"' \
@@ -477,7 +478,7 @@ RUN printf '%s\n' \
     '        mkdir -p "$(dirname "${TARGET_FILE}")"' \
     '        if [[ ! -e "${TARGET_FILE}" ]]; then' \
     '            cp "${TEMPLATE_FILE}" "${TARGET_FILE}"' \
-    '            echo "Created ${RELATIVE_PATH} from ${JAVA_VERSION} template"' \
+    '            echo "Created ${RELATIVE_PATH} from ${JAVA_TEMPLATE} template"' \
     '        fi' \
     '    done < <(find "${TEMPLATE_DIR}" -type f ! -path "${TEMPLATE_DIR}/scripts/*" -print0)' \
     'fi' \

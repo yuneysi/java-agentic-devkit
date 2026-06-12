@@ -54,14 +54,23 @@ See [Docker Compose](#docker-compose) for the recommended setup. The devkit can 
 
 Add a `docker-compose.yml` file to the target Java project.
 
-The `Publish DevKit Image` GitHub Actions workflow builds and publishes `ghcr.io/yuneysi/java-agentic-devkit:latest` automatically after changes are pushed to `main`.
+The `Publish DevKit Image` GitHub Actions workflow builds and publishes the image automatically after changes are pushed to `main`.
+
+Published tags:
+
+| Tag | Meaning |
+|-----|---------|
+| `ghcr.io/yuneysi/java-agentic-devkit:0.1` | Current image for the `0.1` line. Recommended for target project Compose files. |
+| `ghcr.io/yuneysi/java-agentic-devkit:0.1.<run-number>` | Immutable incrementing build tag for each workflow run. Use this when a project must pin an exact devkit build. |
+| `ghcr.io/yuneysi/java-agentic-devkit:latest` | Latest published image. |
+| `ghcr.io/yuneysi/java-agentic-devkit:<git-sha>` | Image built from a specific commit SHA. |
 
 The example below starts the target project in `java21-migration` mode. On macOS, keep `platform: linux/amd64` so Docker Desktop runs the published image with the expected Linux AMD64 platform.
 
 ```yaml
 services:
   devkit:
-    image: ghcr.io/yuneysi/java-agentic-devkit:latest
+    image: ghcr.io/yuneysi/java-agentic-devkit:0.1
     platform: linux/amd64
     working_dir: /workspace
     environment:
@@ -177,7 +186,7 @@ The Docker image is built from `.devcontainer/Dockerfile`. It includes:
 - IBM MQ tooling path placeholders
 - Node.js, npm, Bun, TypeScript, and TypeScript language server
 - Python 3
-- `jq`, `ripgrep`, `fd`, `xmlstarlet`, `xmllint`, `xsltproc`, `fzf`, `tmux`, and common shell tools
+- `jq`, `ripgrep`, `ag`, `fd`, `xmlstarlet`, `xmllint`, `xsltproc`, `fzf`, `tmux`, and common shell tools
 - Semgrep, Checkov, Hadolint, Syft, Grype, and SonarScanner
 - OpenCode, oh-my-openagent, `opencode-codebase-index`, and OpenCode skills from `opencode/skills/`
 - MCP tooling for Context7, GitHub, and Playwright
@@ -215,7 +224,7 @@ Use these variables from the target project's `docker-compose.yml`, from the man
 |----------|---------|---------|
 | `DEVKIT_PROJECT_DIR` | `/workspace` | Mounted target project path inside the container. OpenCode instructions are rewritten to read `${DEVKIT_PROJECT_DIR}/AGENTS.md`. |
 | `DEVKIT_JAVA_TEMPLATE` | `java8` | Selects the runtime and template. Supported values: `java8`, `java21`, `java21-migration`. |
-| `DEFAULT_JAVA_VERSION` | `java8` | Container fallback when `DEVKIT_JAVA_TEMPLATE` is not set. |
+| `DEFAULT_JAVA_TEMPLATE` | `java8` | Container fallback when `DEVKIT_JAVA_TEMPLATE` is not set. |
 
 ### AI Providers
 
@@ -284,10 +293,11 @@ It configures:
 - `lsp`: enables language server support.
 - `mcp`: configures local MCP servers for Context7, GitHub, and Playwright.
 - `model`: uses `github-copilot/gpt-5.3-codex` as the default OpenCode model.
+- `agent`: configures `plan` as the read-only planner and `build` as the execution agent.
 - `permission`: uses `ask`, so tool actions require confirmation.
 - `provider`: configures local Ollama models and OpenAI models.
 
-`opencode/oh-my-openagent.jsonc` sets the main oh-my-openagent agents and orchestration categories to GitHub Copilot GPT models by default. The bundled defaults use `github-copilot/gpt-5.5` for Sisyphus, Hephaestus, Oracle, Prometheus, deep work, and ultrabrain work, with faster Copilot models for quick exploration.
+`opencode/oh-my-openagent.jsonc` sets the main oh-my-openagent agents and orchestration categories to GitHub Copilot GPT models by default. The bundled defaults use Prometheus with `github-copilot/gpt-5.5` as the planning agent, Hephaestus with `github-copilot/gpt-5.3-codex` as the execution agent, and faster Copilot models for quick exploration.
 
 `opencode/tui.json` enables the `oh-my-openagent/tui` plugin for OpenCode's TUI setup.
 
@@ -342,7 +352,7 @@ Each template is self-contained and owns its target-project agent instructions, 
 
 This template installs three pieces into the Java project being migrated:
 
-1. `AGENTS.md` contains the main instructions for OpenCode, oh-my-opencode, and agents. It defines the migration rules, work order, change limits, and validation discipline.
+1. `AGENTS.md` contains the main instructions for OpenCode, oh-my-openagent, and agents. It defines the migration rules, work order, change limits, and validation discipline.
 2. `docs/java21-migration-best-practices.md` is the human guide and also acts as the migration tracker. It documents the Java 8 baseline, Java 21 candidate results, dependency changes, risks, and validation evidence.
 3. OpenCode skills support that guide and should be used in this recommended order:
 
@@ -470,9 +480,10 @@ The devkit configures:
 - `plugin`: enables `oh-my-openagent` and `opencode-codebase-index`.
 - `provider.ollama`: points to `http://host.docker.internal:11434/v1` for optional Ollama Desktop fallback models on Windows and macOS.
 - `model`: defaults to `github-copilot/gpt-5.3-codex`.
+- `agent`: configures `plan` as the read-only planner and `build` as the execution agent.
 - `permission`: uses `ask`, so tool actions require confirmation.
 - `mcp`: enables Context7, GitHub, and Playwright MCP servers.
-- `oh-my-openagent`: maps main agents and deep-work categories to GitHub Copilot GPT models.
+- `oh-my-openagent`: maps Prometheus to planning, Hephaestus to execution, and deep-work categories to GitHub Copilot GPT models.
 
 Start OpenCode from inside the devkit container:
 
@@ -513,7 +524,7 @@ Configure it through these files:
 | File | Purpose |
 |------|---------|
 | `opencode/opencode.json` | Default OpenCode provider, model, MCP, permissions, plugins, and instruction path. |
-| `opencode/oh-my-openagent.jsonc` | Default oh-my-openagent agent and category model mapping. |
+| `opencode/oh-my-openagent.jsonc` | Default oh-my-openagent planner, executor, agent order, and category model mapping. |
 | `opencode/tui.json` | Enables the oh-my-openagent TUI plugin. |
 | `templates/java21-migration/AGENTS.md` | Target-project orchestration rules for migration work. |
 | `opencode/skills/*.md` | Reusable task-specific agent instructions. |
@@ -523,8 +534,12 @@ Recommended orchestrator defaults:
 | Setting | Recommended value | Reason |
 |---------|-------------------|--------|
 | Default OpenCode model | `github-copilot/gpt-5.3-codex` | Uses the team's corporate Copilot subscription with a Codex model by default. |
+| OpenCode planner | `plan` with `github-copilot/gpt-5.5` | Read-only project inspection, migration planning, risk analysis, and validation strategy. |
+| OpenCode executor | `build` with `github-copilot/gpt-5.3-codex` | Approved implementation, validation, commits, and operational commands. |
 | Main oh-my-openagent orchestrator | `github-copilot/gpt-5.5` | Keeps orchestration on Copilot GPT by default. |
-| Deep-work agent | `github-copilot/gpt-5.5` | Matches Hephaestus and deep categories to a GPT-native coding model. |
+| oh-my-openagent planner | `prometheus` with `github-copilot/gpt-5.5` | Produces execution-ready plans before implementation. |
+| oh-my-openagent executor | `hephaestus` with `github-copilot/gpt-5.3-codex` | Applies approved plans in small, reviewable steps. |
+| Deep-work agent | `github-copilot/gpt-5.5` | Uses the Pro+ planning model for broad analysis, risk review, and orchestration. |
 | Quick exploration | `github-copilot/gpt-5.4-mini` | Fast code search and repository scanning. |
 | Local fallback on 16 GB or 32 GB | `ollama/qwen2.5-coder:7b` | Optional local fallback for daily code work. |
 | Local planning fallback on 64 GB | `ollama/deepseek-r1:32b` | Optional local fallback for migration planning and legacy risk analysis. |
@@ -532,4 +547,55 @@ Recommended orchestrator defaults:
 | Permission mode | `ask` | Keeps file edits, shell commands, and tool use reviewable. |
 | Instructions file | `{file:/workspace/AGENTS.md}` | Keeps orchestration tied to the mounted target project. |
 
-To change the default OpenCode model, edit the `model` field in `opencode/opencode.json` before rebuilding the devkit image, or edit `/home/vscode/.config/opencode/opencode.json` inside a running container for a local experiment. To change oh-my-openagent orchestration models, edit `opencode/oh-my-openagent.jsonc` before rebuilding, or edit `/home/vscode/.config/opencode/oh-my-openagent.jsonc` inside a running container.
+### Planner And Executor Strategy
+
+The devkit separates planning from execution.
+
+Use `gpt-5.5` for planning-oriented work: project inspection, migration strategy, risk analysis, dependency reasoning, and validation planning.
+
+Use `gpt-5.3-codex` for execution-oriented work: editing files, applying approved small changes, running validation commands, and preparing commits.
+
+This split is intentional. For Java 8 maintenance, Java 21 maintenance, and Java 8 to Java 21 migrations, the planning model should think broadly and identify risk, while the execution model should make conservative, code-focused changes. This is safer than using the largest model for every step.
+
+`oh-my-openagent` is the default orchestrator. It receives the task first, chooses the right specialist when needed, and keeps the workflow aligned with the target project's `AGENTS.md`.
+
+The recommended `oh-my-openagent` order is:
+
+```json
+{
+  "default_run_agent": "sisyphus",
+  "agent_order": [
+    "sisyphus",
+    "prometheus",
+    "hephaestus",
+    "oracle",
+    "explore"
+  ]
+}
+```
+
+Use this order because:
+
+- `sisyphus` is the default orchestrator that receives the task and decides how to route the work.
+- `prometheus` is the planning specialist for migration strategy, risk analysis, and execution-ready plans.
+- `hephaestus` is the execution specialist for applying approved small changes and running focused validation.
+- `oracle` is useful for review, second opinions, and risk checks.
+- `explore` is useful for quick repository scanning and lightweight discovery.
+
+OpenCode `plan` and `build` remain available as manual guardrails. Use `plan` when the work must stay read-only, and use `build` when an approved plan is ready for implementation.
+
+### Changing Models
+
+For persistent devkit defaults, edit the source files in this repository and rebuild the image:
+
+- `opencode/opencode.json` for the default OpenCode model, providers, permissions, MCP servers, and OpenCode `plan` / `build` agents.
+- `opencode/oh-my-openagent.jsonc` for oh-my-openagent orchestration models, agent order, and category defaults.
+
+For a local experiment inside one running container, edit the copied config files instead:
+
+```text
+/home/vscode/.config/opencode/opencode.json
+/home/vscode/.config/opencode/oh-my-openagent.jsonc
+```
+
+Changes under `/home/vscode/.config/opencode/` affect only that container session. They are useful for testing a model or permission change before updating the devkit source files, rebuilding the image, and sharing the new default with the team.
