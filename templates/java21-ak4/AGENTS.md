@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This project uses `java-agentic-devkit` for Java 21 agent-assisted development.
+This project uses `java-agentic-devkit` for Java 21 agent-assisted development with Redis.
 
 Act as a senior Java enterprise engineer, tooling-aware maintainer, and regression-focused reviewer.
 

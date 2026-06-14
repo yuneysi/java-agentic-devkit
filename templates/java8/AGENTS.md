@@ -157,12 +157,15 @@ If tests cannot be run, explain why and identify the command that should be run 
 
 ## OpenCode Skills
 
-Use the installed OpenCode skills when they fit the task:
+Use the installed OpenCode skills from `opencode/skills/java-enterprise/` and `opencode/skills/general/` when they fit the task:
 
+- `code-reviewer` for diff review and risk classification.
+- `confluence-doc-writer` for human-facing documentation and Confluence exports.
 - `jms-characterization-test-writer` for JMS behavior tests.
 - `jpa-characterization-test-writer` for JPA behavior tests.
+- `jpa-performance-advisor` for JPA query and lazy-loading analysis.
 - `soap-contract-test-writer` for SOAP/XML contract tests.
+- `spring-boot-smoke-tester` for basic application smoke tests.
 - `readme-writer` for target-project README updates.
-- `confluence-doc-writer` for human-facing migration or operations notes.
 
 Keep skill output aligned with this `AGENTS.md`.

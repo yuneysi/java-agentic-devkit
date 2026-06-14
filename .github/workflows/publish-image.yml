@@ -40,8 +40,7 @@ jobs:
       - name: Resolve image version
         id: version
         run: |
-          echo "minor=${IMAGE_MINOR_VERSION}" >> "${GITHUB_OUTPUT}"
-          echo "patch=${IMAGE_MINOR_VERSION}.${GITHUB_RUN_NUMBER}" >> "${GITHUB_OUTPUT}"
+          echo "version=${IMAGE_MINOR_VERSION}.${GITHUB_RUN_NUMBER}" >> "${GITHUB_OUTPUT}"
 
       - name: Build and push versioned image
         uses: docker/build-push-action@v6
@@ -51,16 +50,14 @@ jobs:
           push: true
           tags: |
             ${{ env.IMAGE_NAME }}:latest
-            ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.minor }}
-            ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.patch }}
-            ${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
           labels: |
             org.opencontainers.image.title=java-agentic-devkit
             org.opencontainers.image.description=Docker-based Java development kit for Java 8, Java 21, and Java 8 to Java 21 migrations.
             org.opencontainers.image.authors=Yuneysi Gerat Gil
             org.opencontainers.image.licenses=MIT
             org.opencontainers.image.source=https://github.com/yuneysi/java-agentic-devkit
-            org.opencontainers.image.version=${{ steps.version.outputs.patch }}
+            org.opencontainers.image.version=${{ steps.version.outputs.version }}
             org.opencontainers.image.revision=${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

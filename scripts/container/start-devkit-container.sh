@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Start the Java Agentic DevKit container for a target project.
-# Usage: ./scripts/container/start-devkit-container.sh [mount-path] [java8|java21|java21-migration]
+# Usage: ./scripts/container/start-devkit-container.sh [mount-path] [java8|java21|java21-ak4|java21-migration]
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEVKIT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
@@ -88,13 +88,17 @@ case "${JAVA_TEMPLATE}" in
         JAVA_SETUP=". /usr/local/bin/use-java21"
         printf '%b\n\n' "${GREEN}Using Java 21${NC}"
         ;;
+    java21-ak4)
+        JAVA_SETUP=". /usr/local/bin/use-java21"
+        printf '%b\n\n' "${GREEN}Using Java 21 for the Java 21 + Redis template${NC}"
+        ;;
     java21-migration)
         JAVA_SETUP=". /usr/local/bin/use-java8"
         printf '%b\n\n' "${GREEN}Using Java 8 for the Java 21 migration baseline${NC}"
         ;;
     *)
         printf '%b\n' "${RED}Invalid Java template: ${JAVA_TEMPLATE}${NC}"
-        printf '%b\n' "${YELLOW}Supported: java8, java21, java21-migration${NC}"
+        printf '%b\n' "${YELLOW}Supported: java8, java21, java21-ak4, java21-migration${NC}"
         exit 1
         ;;
 esac

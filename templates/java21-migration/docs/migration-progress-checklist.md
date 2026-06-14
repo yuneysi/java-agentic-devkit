@@ -2,6 +2,8 @@
 
 Use this checklist to track human review of a Java 8 to Java 21 migration.
 
+The devkit copies this template into the target project as `docs/migration-progress-checklist.md`.
+
 ## Project
 
 Project name:
@@ -44,32 +46,32 @@ Tell me the current baseline status, likely validation commands, highest-risk ar
 - [ ] Java 8 baseline prompt was used.
 
 ```text
-Use the java8-baseline-capturer skill.
+Use the java8-baseline-capture-phase skill.
 ```
 
-- [ ] First migration step prompt was used.
+- [ ] Migration planning prompt was used.
 
 ```text
-Use the java21-first-migration-step-planner skill.
+Use the java21-migration-planning-phase skill.
 ```
 
 - [ ] Small migration change prompt was used.
 
 ```text
-Use the java21-small-change-implementer skill.
+Use the java21-migration-implementation-phase skill.
 Apply the next planned small migration step.
 ```
 
 - [ ] Java 21 validation prompt was used.
 
 ```text
-Use the java21-candidate-validator skill.
+Use the java21-candidate-validation-phase skill.
 ```
 
 - [ ] Migration review prompt was used before final acceptance.
 
 ```text
-Use the migration-auditor skill.
+Use the java21-migration-audit-phase skill.
 Review the current diff.
 Do not modify files.
 ```

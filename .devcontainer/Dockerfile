@@ -56,6 +56,7 @@ RUN apt-get -o Acquire::Check-Valid-Until=false update && apt-get install -y --n
     libxml2-utils \
     xsltproc \
     dos2unix \
+    redis-server \
     python3 \
     python3-pip \
     && apt-get clean \
@@ -253,6 +254,16 @@ RUN printf '%s\n' \
 RUN chmod +x /usr/local/bin/start-activemq
 
 # ---------------------------------------------------------------------
+# Redis
+# ---------------------------------------------------------------------
+RUN printf '%s\n' \
+    '#!/usr/bin/env bash' \
+    'exec redis-server --save "" --appendonly no --bind 0.0.0.0' \
+    > /usr/local/bin/start-redis
+
+RUN chmod +x /usr/local/bin/start-redis
+
+# ---------------------------------------------------------------------
 # IBM MQ support
 # ---------------------------------------------------------------------
 RUN mkdir -p /opt/mqm \
@@ -355,7 +366,7 @@ RUN curl -fsSL https://opencode.ai/install | bash \
 RUN bunx oh-my-openagent install \
     --no-tui \
     --skip-auth \
-    --claude=no \
+    --claude=yes \
     --openai=yes \
     --gemini=yes \
     --copilot=yes \
@@ -402,7 +413,7 @@ RUN printf '%s\n' \
     'export JAVA8_HOME=/opt/java/jdk8' \
     'export JAVA21_HOME=/opt/java/jdk21' \
     'case "${DEVKIT_JAVA_TEMPLATE:-${DEFAULT_JAVA_TEMPLATE:-java8}}" in' \
-    '    java21)' \
+    '    java21|java21-ak4)' \
     '        . /usr/local/bin/use-java21 >/dev/null 2>&1 || true' \
     '        ;;' \
     '    java8|java21-migration|*)' \
@@ -447,6 +458,7 @@ USER root
 
 COPY templates/java8/ /opt/java-agentic-devkit/templates/java8/
 COPY templates/java21/ /opt/java-agentic-devkit/templates/java21/
+COPY templates/java21-ak4/ /opt/java-agentic-devkit/templates/java21-ak4/
 COPY templates/java21-migration/ /opt/java-agentic-devkit/templates/java21-migration/
 
 RUN printf '%s\n' \
@@ -464,7 +476,7 @@ RUN printf '%s\n' \
     '    java8)' \
     '        . /usr/local/bin/use-java8 >/dev/null 2>&1 || true' \
     '        ;;' \
-    '    java21)' \
+    '    java21|java21-ak4)' \
     '        . /usr/local/bin/use-java21 >/dev/null 2>&1 || true' \
     '        ;;' \
     '    java21-migration)' \
@@ -480,6 +492,12 @@ RUN printf '%s\n' \
     'if [[ -d "${PROJECT_DIR}" && -d "${TEMPLATE_DIR}" ]]; then' \
     '    while IFS= read -r -d "" TEMPLATE_FILE; do' \
     '        RELATIVE_PATH="${TEMPLATE_FILE#${TEMPLATE_DIR}/}"' \
+    '        if [[ "${RELATIVE_PATH}" == "docker-compose.yml" && -e "${PROJECT_DIR}/docker-compose.yml" ]]; then' \
+    '            RELATIVE_PATH="docker-compose-devkit.yml"' \
+    '        fi' \
+    '        if [[ "${JAVA_TEMPLATE}" == "java21-migration" && "${RELATIVE_PATH}" == "docs/migration-progress-checklist-template.md" ]]; then' \
+    '            RELATIVE_PATH="docs/migration-progress-checklist.md"' \
+    '        fi' \
     '        TARGET_FILE="${PROJECT_DIR}/${RELATIVE_PATH}"' \
     '        mkdir -p "$(dirname "${TARGET_FILE}")"' \
     '        if [[ ! -e "${TARGET_FILE}" ]]; then' \
@@ -503,7 +521,7 @@ RUN chmod +x /usr/local/bin/devkit-entrypoint
 
 USER ${USERNAME}
 
-EXPOSE 8080 8009 5005 61616 8161
+EXPOSE 8080 8009 5005 61616 6379 8161
 
 ENTRYPOINT ["devkit-entrypoint"]
 CMD ["bash"]

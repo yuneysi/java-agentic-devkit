@@ -44,11 +44,8 @@ Do not add extra root Markdown files such as `CODING_STANDARDS.md`, migration gu
 
 Put target-project documentation only inside the relevant template:
 
-- `templates/java8/docs/java8-best-practices.md`
-- `templates/java21/docs/java21-best-practices.md`
-- `templates/java21-migration/docs/java21-migration-best-practices.md`
+- `templates/java21-migration/docs/migration-progress-checklist.md`
 
-Keep `templates/README.md` short. Put main devkit usage, Compose examples, environment variables, container contents, OpenCode configuration, and template inventory in the root `README.md`.
 
 ---
 

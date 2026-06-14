@@ -1,0 +1,18 @@
+services:
+  devkit:
+    image: ghcr.io/yuneysi/java-agentic-devkit:latest
+    platform: linux/amd64
+    working_dir: /workspace
+    environment:
+      DEVKIT_PROJECT_DIR: /workspace
+      DEVKIT_JAVA_TEMPLATE: java21-migration
+    volumes:
+      - .:/workspace
+      - ${HOME}/.m2:/home/vscode/.m2
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8080:8080"
+      - "5005:5005"
+    stdin_open: true
+    tty: true
+    command: /bin/bash
