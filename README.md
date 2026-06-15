@@ -93,10 +93,14 @@ Template options:
 
 ## Guides
 
+Each template has its own `AGENTS.md` with template-specific agent rules.
+
 | Guide | Use for |
 |-------|---------|
-| `opencode/README.md` | OpenCode and local AI setup. |
+| `opencode/README.md` | AI stack guide: OpenCode, oh-my-openagent (OMO), and skills. |
 | `opencode/container-and-env.md` | Container contents and environment variables. |
+| `templates/java8/AGENTS.md` | Agent rules for Java 8 target projects. |
+| `templates/java21/AGENTS.md` | Agent rules for Java 21 target projects. |
+| `templates/java21-ak4/AGENTS.md` | Agent rules for Java 21 + Redis target projects. |
+| `templates/java21-migration/AGENTS.md` | Agent rules for Java 8 to Java 21 migration projects. |
 | `templates/java21-migration/README.md` | Java 8 to Java 21 migration setup and workflow. |
-
-See `opencode/README.md` for the human-friendly OpenCode and local AI setup guide.
