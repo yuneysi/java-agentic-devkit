@@ -492,9 +492,6 @@ RUN printf '%s\n' \
     'if [[ -d "${PROJECT_DIR}" && -d "${TEMPLATE_DIR}" ]]; then' \
     '    while IFS= read -r -d "" TEMPLATE_FILE; do' \
     '        RELATIVE_PATH="${TEMPLATE_FILE#${TEMPLATE_DIR}/}"' \
-    '        if [[ "${RELATIVE_PATH}" == "docker-compose.yml" && -e "${PROJECT_DIR}/docker-compose.yml" ]]; then' \
-    '            RELATIVE_PATH="docker-compose-devkit.yml"' \
-    '        fi' \
     '        if [[ "${JAVA_TEMPLATE}" == "java21-migration" && "${RELATIVE_PATH}" == "README.md" ]]; then' \
     '            RELATIVE_PATH="docs/java21-migration-guide.md"' \
     '        fi' \

@@ -6,18 +6,21 @@ services:
     environment:
       DEVKIT_PROJECT_DIR: /workspace
       DEVKIT_JAVA_TEMPLATE: java21-ak4
+      MAVEN_OPTS: -Dmaven.repo.local=/home/vscode/.m2/repository
     volumes:
       - .:/workspace
       - ${HOME}/.m2:/home/vscode/.m2
       - /var/run/docker.sock:/var/run/docker.sock
-    ports:
-      - "8080:8080"
-      - "5005:5005"
     stdin_open: true
     tty: true
     command: /bin/bash
 
   redis:
-    image: redis:7-alpine
+    image: redis:7.0.11-alpine
     ports:
-      - "6379:6379"
+      - 36379:6379
+      - 48001:8001
+    volumes:
+      - ./data:/data
+    mem_limit: 6g
+    mem_reservation: 5g
