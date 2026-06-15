@@ -16,13 +16,16 @@ If there is any conflict between this file and another Markdown document, this f
 
 This project runs entirely inside the **java-agentic-devkit** Docker container. The host only needs Docker (and optionally ollama for local models).
 
-The devkit copies `AGENTS.md` and the migration checklist into the target project root. The checklist is copied as `docs/migration-progress-checklist.md`.
+On first container start, the devkit copies the migration template files into the target project, including `AGENTS.md`, `.github/copilot-instructions.md`, and `docs/migration-progress-checklist.md`. It also copies the Compose file as `docker-compose.yml`, or as `docker-compose-devkit.yml` when `docker-compose.yml` already exists.
 
 **Key paths inside the container**:
 - JDK 21: `/opt/java/jdk21` (default `java` is 1.8 — use `JAVA_HOME=/opt/java/jdk21` explicitly)
 - Maven: `/opt/java/apache-maven-3.9.9`
 - Maven repo: `/home/vscode/.m2/repository` (mounted from host `~/.m2`)
 - Project: `/workspace` (mounted from current directory)
+- OpenCode binary: `/usr/local/bin/opencode`
+- OpenCode config: `/home/vscode/.config/opencode/opencode.json`
+- oh-my-openagent config: `/home/vscode/.config/opencode/oh-my-openagent.jsonc`
 
 ---
 

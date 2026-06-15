@@ -6,7 +6,7 @@ Created and maintained by Yuneysi Gerat Gil.
 
 License: MIT. See [LICENSE](LICENSE).
 
-When the container starts, it automatically copies the files agents need into the mounted target project, including `AGENTS.md`, `.github/copilot-instructions.md`, and the template documentation under `docs/`. The generated `AGENTS.md` points agents to the relevant documentation so migration notes, validation evidence, and day-to-day work can be documented in the target project.
+When the container starts, it automatically copies the files agents need into the mounted target project, including `AGENTS.md`, `.github/copilot-instructions.md`, and the template documentation under `docs/`. The generated `AGENTS.md` points agents to the relevant documentation and skill flow, so agents can choose the right migration skill with short user prompts instead of long, repeated instructions.
 
 The devkit stays outside the target Java project. Developers build or run the devkit from this repository and mount the target project at `/workspace`.
 
@@ -26,7 +26,6 @@ java-agentic-devkit/
 │   ├── oh-my-openagent.jsonc
 │   ├── tui.json
 │   └── skills/
-│       └── README.md
 ├── scripts/
 │   ├── create-image.sh
 │   ├── docker-utils.sh
@@ -52,15 +51,45 @@ java-agentic-devkit/
 └── README.md
 ```
 
-## Recommended Integration
+## How To Start The DevKit In Your Project
 
 The recommended way to use this devkit is to integrate it into each target Java project with a project-owned Compose file.
 
 This keeps the development entrypoint close to the application code, makes the selected Java mode explicit, and gives the team one shared command for local work, tests, and migration validation.
 
-On first container start, the devkit copies the template Compose file as `docker-compose.yml` when missing, or as `docker-compose-devkit.yml` when the project already has `docker-compose.yml`.
+Template READMEs for integration and workflow:
 
-See `templates/java21-migration/README.md` for Docker Compose setup used for Java 8 to Java 21 migration projects.
+- `templates/java21-migration/README.md` for Java 8 to Java 21 migration setup and workflow.
+
+Use one of these two flows.
+
+### 1) Recommended: Project-owned `docker-compose.yml`
+
+Keep `docker-compose.yml` in the root of the target project and start the devkit from there.
+
+This is the recommended flow because it keeps container startup, ports, and team commands inside the target project.
+
+For full setup details, expected environment values, and migration prompts, use:
+
+- `templates/java21-migration/README.md`
+
+### 2) Alternative: Build locally and run with scripts
+
+Clone this repository, build the image locally, and start a mounted target project with the provided scripts:
+
+```bash
+cd ~/github/java-agentic-devkit
+./scripts/create-image.sh
+./scripts/container/start-devkit-container.sh /path/to/java/project
+```
+
+Template options:
+
+```bash
+./scripts/container/start-devkit-container.sh /path/to/java/project java21
+./scripts/container/start-devkit-container.sh /path/to/java/project java21-ak4
+./scripts/container/start-devkit-container.sh /path/to/java/project java21-migration
+```
 
 ## Guides
 
@@ -68,25 +97,6 @@ See `templates/java21-migration/README.md` for Docker Compose setup used for Jav
 |-------|---------|
 | `opencode/README.md` | OpenCode and local AI setup. |
 | `opencode/container-and-env.md` | Container contents and environment variables. |
-| `opencode/skills/README.md` | Human guidance on OpenCode skills. |
 | `templates/java21-migration/README.md` | Java 8 to Java 21 migration setup and workflow. |
-
-**Workflow**:
-1. Host: `docker compose up -d` -> container starts
-2. Host: `docker compose exec devkit bash` -> enter the container
-3. Inside container: all tools available
-4. All build/test commands run inside the container
-
-## Manual Script Workflow
-
-Use the manual script when the target project does not have a `docker-compose.yml` integration yet.
-
-```bash
-cd ~/github/java-agentic-devkit
-./scripts/container/start-devkit-container.sh /path/to/java/project
-./scripts/container/start-devkit-container.sh /path/to/java/project java21
-./scripts/container/start-devkit-container.sh /path/to/java/project java21-ak4
-./scripts/container/start-devkit-container.sh /path/to/java/project java21-migration
-```
 
 See `opencode/README.md` for the human-friendly OpenCode and local AI setup guide.

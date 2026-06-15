@@ -1,72 +1,133 @@
-# OpenCode Guide For Humans
+# OpenCode And oh-my-openagent Guide For Humans
 
-This folder contains the OpenCode configuration that ships with the devkit.
+This file explains how this devkit configures the OpenCode harness stack for human users.
 
-Use this guide when you want to understand or adjust the default OpenCode setup:
+## OpenCode
 
-- `opencode/opencode.json` for the default OpenCode configuration
-- `opencode/oh-my-openagent.jsonc` for planner/executor orchestration
-- `opencode/tui.json` for the TUI plugin
-- `opencode/skills/` for reusable task-specific skills
+OpenCode is the base coding agent runtime used in this devkit.
 
-## What It Does
+- Official site: `https://opencode.ai`
+- Official docs: `https://opencode.ai/docs`
 
-- `instructions` points OpenCode at the mounted project `AGENTS.md`.
-- `plugin` enables `oh-my-openagent` and `opencode-codebase-index`.
-- `mcp` enables Context7, GitHub, and Playwright.
-- `model` defaults to `github-copilot/gpt-5.3-codex`.
-- `agent` keeps planning read-only and execution reviewable.
-- `permission` uses `ask` so tool actions require confirmation.
-- `provider` supports Copilot, OpenAI, and local Ollama models.
+In this repository, OpenCode behavior is mainly controlled by:
 
-## Agent Mapping
+- `opencode/opencode.json`
+- `opencode/tui.json`
 
-| Area | Default |
+## oh-my-openagent
+
+`oh-my-openagent` is the orchestration layer on top of OpenCode (agent roles, routing, and execution flow).
+
+- GitHub: `https://github.com/code-yeongyu/oh-my-openagent`
+- Docs: `https://omo.vibetip.help/docs`
+
+In this repository, harness behavior is controlled by:
+
+- `opencode/oh-my-openagent.jsonc`
+
+## Why This DevKit Uses oh-my-openagent
+
+Using OpenCode with oh-my-openagent is practical for migration and enterprise projects because it gives:
+
+- a default orchestrator (`sisyphus`) for multi-step work
+- stable role separation (planner/executor/reviewer)
+- faster execution from short prompts when `AGENTS.md` and skills are already defined
+- predictable handoff between planning and implementation
+
+Default mapping in this devkit:
+
+| Role | Agent | Model |
+|------|-------|-------|
+| Orchestrator | `sisyphus` | `github-copilot/gpt-5.5` (high) |
+| Planner | `prometheus` | `github-copilot/gpt-5.5` (high) |
+| Executor | `hephaestus` | `github-copilot/gpt-5.3-codex` (medium) |
+| Reviewer | `momus` | `github-copilot/gpt-5.5` (xhigh) |
+| Explorer | `explore` | `github-copilot/gpt-5.4-mini` |
+
+Very short role summary:
+
+- `sisyphus`: main orchestrator that coordinates the work
+- `prometheus`: planning agent that prepares steps before execution
+- `hephaestus`: execution agent that implements changes
+- `momus`: reviewer agent for risk and quality checks
+- `explore`: fast codebase exploration and discovery agent
+
+Important UI note:
+
+- `sisyphus` is the default run agent.
+- After you connect a provider and select another agent in the UI, the active label can switch accordingly (it can look like it moved back to OpenCode/base mode).
+- This is expected behavior. Select `sisyphus` again from the agent picker when you want to return to default orchestration.
+
+Provider labels you may see in the UI:
+
+- `OpenCode Zen`: OpenCode's curated provider of tested coding models (`https://opencode.ai/zen`).
+- `Big Pickle`: a provider/model label shown by the selected provider setup in the UI; it is not an oh-my-openagent role and not a harness mode.
+
+## How This Repository Configures Them In Docker
+
+Both OpenCode and oh-my-openagent are installed and configured in `.devcontainer/Dockerfile`.
+
+Container paths:
+
+| Item | Path in container |
+|------|-------------------|
+| OpenCode binary | `/usr/local/bin/opencode` |
+| OpenCode config | `/home/vscode/.config/opencode/opencode.json` |
+| oh-my-openagent config | `/home/vscode/.config/opencode/oh-my-openagent.jsonc` |
+| TUI config | `/home/vscode/.config/opencode/tui.json` |
+| Skills root | `/home/vscode/.config/opencode/skills/` |
+
+## Skills In This Container
+
+Skill source in this repository:
+
+- `opencode/skills/java21-migration/`
+- `opencode/skills/java-enterprise/`
+- `opencode/skills/general/`
+
+Installed location inside the container:
+
+- `/home/vscode/.config/opencode/skills/`
+
+Skill organization:
+
+| Directory | Purpose |
+|-----------|---------|
+| `java21-migration/` | Baseline, planning, implementation, validation, and audit phases for Java 8 to Java 21 migrations. |
+| `java-enterprise/` | Enterprise behavior checks and test helpers (JMS, JPA, SOAP/XML, Spring Boot). |
+| `general/` | Cross-cutting tasks such as code review and documentation updates. |
+
+How to use skills in this devkit:
+
+- Keep prompts short and explicit, for example: `Use the java8-baseline-capture-phase skill.`
+- Use one focused skill per step when possible.
+- Keep skill output aligned with the target project `AGENTS.md`.
+- Do not duplicate project-wide rules inside prompts.
+
+Java 21 migration phase skills:
+
+| Skill | Use for |
 |------|---------|
-| Orchestrator | `sisyphus` with `github-copilot/gpt-5.5` high |
-| Planner | `prometheus` with `github-copilot/gpt-5.5` high |
-| Executor | `hephaestus` with `github-copilot/gpt-5.3-codex` medium |
-| Reviewer | `momus` with `github-copilot/gpt-5.5` xhigh |
-| Explorer | `explore` with `github-copilot/gpt-5.4-mini` |
+| `java8-baseline-capture-phase` | Capture Java 8 baseline evidence. |
+| `java8-characterization-test-phase` | Add Java 8 characterization tests when coverage is low. |
+| `java21-migration-test-planning-phase` | Plan baseline and candidate validation commands and evidence. |
+| `java21-migration-planning-phase` | Plan the migration sequence and next small step. |
+| `java21-migration-implementation-phase` | Apply one focused migration implementation step. |
+| `java21-candidate-validation-phase` | Validate the Java 21 candidate against baseline behavior. |
+| `java21-migration-audit-phase` | Audit the migration diff and classify risks. |
 
-## MCP Servers
+Enterprise and general skills:
 
-| Server | Use for |
-|--------|---------|
-| GitHub | Branches, PRs, issues, and code search. |
-| Context7 | Library docs and code examples. |
-| Playwright | Browser smoke tests for web apps. |
+- `java-enterprise/jms-characterization-test-writer.md`
+- `java-enterprise/jpa-characterization-test-writer.md`
+- `java-enterprise/jpa-performance-advisor.md`
+- `java-enterprise/soap-contract-test-writer.md`
+- `java-enterprise/spring-boot-smoke-tester.md`
+- `general/code-reviewer.md`
+- `general/confluence-doc-writer.md`
+- `general/readme-writer.md`
 
-## Skills
+## Related Docs In This Repository
 
-| Area | Skill file | Use for |
-|------|------------|---------|
-| Java 21 migration | `opencode/skills/java21-migration/java8-baseline-capture-phase.md` | Phase 2 Java 8 baseline capture. |
-| Java 21 migration | `opencode/skills/java21-migration/java8-characterization-test-phase.md` | Java 8 characterization tests before migration changes. |
-| Java 21 migration | `opencode/skills/java21-migration/java21-migration-test-planning-phase.md` | Baseline and candidate validation planning. |
-| Java 21 migration | `opencode/skills/java21-migration/java21-migration-planning-phase.md` | Java 21 migration sequencing and next-step planning. |
-| Java 21 migration | `opencode/skills/java21-migration/java21-migration-implementation-phase.md` | One focused Java 21 migration implementation step. |
-| Java 21 migration | `opencode/skills/java21-migration/java21-candidate-validation-phase.md` | Java 21 candidate validation against the Java 8 baseline. |
-| Java 21 migration | `opencode/skills/java21-migration/java21-migration-audit-phase.md` | Final migration diff review and risk classification. |
-| Java enterprise | `opencode/skills/java-enterprise/jms-characterization-test-writer.md` | JMS behavior tests. |
-| Java enterprise | `opencode/skills/java-enterprise/jpa-characterization-test-writer.md` | JPA behavior tests. |
-| Java enterprise | `opencode/skills/java-enterprise/jpa-performance-advisor.md` | JPA query and lazy-loading analysis. |
-| Java enterprise | `opencode/skills/java-enterprise/soap-contract-test-writer.md` | SOAP/XML contract tests. |
-| Java enterprise | `opencode/skills/java-enterprise/spring-boot-smoke-tester.md` | Basic Spring Boot smoke tests. |
-| General | `opencode/skills/general/code-reviewer.md` | Diff review and risk classification. |
-| General | `opencode/skills/general/confluence-doc-writer.md` | Human-facing documentation and Confluence exports. |
-| General | `opencode/skills/general/readme-writer.md` | README updates. |
-
-## For Human Setup
-
-If you are configuring a target project:
-
-1. Put `AGENTS.md` in the project root.
-2. Let the devkit copy the relevant Compose file on first container start.
-3. Use the appropriate template folder under `templates/`.
-
-If the target project already has `docker-compose.yml`, the devkit writes the template as `docker-compose-devkit.yml` instead.
-
-For the migration template, the checklist lives at `docs/migration-progress-checklist.md`.
-
-For humans, the container contents and environment variables live in `container-and-env.md`.
+- `templates/java21-migration/README.md` for migration workflow in a target project
+- `opencode/container-and-env.md` for full container tool and environment details

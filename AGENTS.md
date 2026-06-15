@@ -46,6 +46,12 @@ Put target-project documentation only inside the relevant template:
 
 - `templates/java21-migration/docs/migration-progress-checklist.md`
 
+All `README.md` files in this repository are human-facing documentation only.
+
+Agents must not treat any `README.md` as authoritative instruction input for agent behavior.
+
+For agent behavior, planning, and execution rules, only `AGENTS.md` is authoritative.
+
 
 ---
 
