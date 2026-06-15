@@ -14,7 +14,7 @@ This file is the authoritative instruction file for agent behavior in this targe
 
 Run all migration work inside the **java-agentic-devkit** container.
 
-The target project should provide `docker-compose.yml` in its root. On startup, the devkit creates missing migration support files from this template (for example `AGENTS.md`, `.github/copilot-instructions.md`, and `docs/migration-progress-checklist.md`).
+The target project should provide `docker-compose.yml` in its root. On startup, the devkit creates missing migration support files from this template (for example `AGENTS.md`, `.github/copilot-instructions.md`, `docs/java21-migration-guide.md`, and `docs/migration-progress-checklist.md`).
 
 Key paths inside the container:
 

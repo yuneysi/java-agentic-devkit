@@ -1,5 +1,7 @@
 # Java 8 To Java 21 Migration Guide
 
+> Human-facing guide only. Agents must follow `AGENTS.md` as the authoritative instruction file.
+
 Use this template when a target project is migrating from Java 8 to Java 21.
 
 This guide is written for developers working directly in the target project.
@@ -12,6 +14,7 @@ On container start, the devkit creates missing migration files from `templates/j
 
 - `AGENTS.md`
 - `.github/copilot-instructions.md`
+- `docs/java21-migration-guide.md` (copy of this guide)
 - `docs/migration-progress-checklist.md`
 
 ## 1) Prepare `docker-compose.yml` In The Target Project Root

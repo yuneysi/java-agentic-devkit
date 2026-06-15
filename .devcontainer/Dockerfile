@@ -495,6 +495,9 @@ RUN printf '%s\n' \
     '        if [[ "${RELATIVE_PATH}" == "docker-compose.yml" && -e "${PROJECT_DIR}/docker-compose.yml" ]]; then' \
     '            RELATIVE_PATH="docker-compose-devkit.yml"' \
     '        fi' \
+    '        if [[ "${JAVA_TEMPLATE}" == "java21-migration" && "${RELATIVE_PATH}" == "README.md" ]]; then' \
+    '            RELATIVE_PATH="docs/java21-migration-guide.md"' \
+    '        fi' \
     '        if [[ "${JAVA_TEMPLATE}" == "java21-migration" && "${RELATIVE_PATH}" == "docs/migration-progress-checklist-template.md" ]]; then' \
     '            RELATIVE_PATH="docs/migration-progress-checklist.md"' \
     '        fi' \
