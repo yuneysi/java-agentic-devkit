@@ -4,25 +4,15 @@ Use this template when a target project is migrating from Java 8 to Java 21.
 
 This guide is written for developers working directly in the target project.
 
-## Important Update
-
-This README no longer claims that the container auto-copies `docker-compose.yml` into the target project.
-
-You must place `docker-compose.yml` in the target project root before running the container.
-
 ## What The Target Project Must Have
 
-Before first run, the only file you must add manually is:
+Before first run, place `docker-compose.yml` in the target project root.
 
-- `docker-compose.yml`
-
-On container start, the devkit creates missing migration files in the target project, including:
+On container start, the devkit creates missing migration files from `templates/java21-migration/`, including:
 
 - `AGENTS.md`
 - `.github/copilot-instructions.md`
 - `docs/migration-progress-checklist.md`
-
-Those files come from `templates/java21-migration/` and are created only when missing.
 
 ## 1) Prepare `docker-compose.yml` In The Target Project Root
 
@@ -38,6 +28,7 @@ Reference Compose service:
 services:
   devkit:
     image: ghcr.io/yuneysi/java-agentic-devkit:latest
+    platform: linux/amd64
     working_dir: /workspace
     environment:
       DEVKIT_PROJECT_DIR: /workspace
@@ -51,6 +42,10 @@ services:
     tty: true
     command: /bin/bash
 ```
+
+For macOS users, keep `platform: linux/amd64` in the Compose service.
+
+For Windows users, remove `platform: linux/amd64`.
 
 Windows PowerShell or Command Prompt volume mapping:
 
@@ -127,7 +122,7 @@ Use the java21-candidate-validation-phase skill.
 
 Track progress in `docs/migration-progress-checklist.md` during each step.
 
-## 6) Migration Records In Target Project
+## 5) Migration Records In Target Project
 
 Store evidence in:
 
