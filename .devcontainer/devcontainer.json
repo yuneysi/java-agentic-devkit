@@ -1,0 +1,30 @@
+{
+  "name": "Java Agentic DevKit",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+  "remoteUser": "vscode",
+  "containerEnv": {
+    "DEVKIT_PROJECT_DIR": "/workspace",
+    "DEVKIT_JAVA_TEMPLATE": "java8",
+    "DEVKIT_BOOTSTRAP_TEMPLATES": "false",
+    "MAVEN_OPTS": "-Dmaven.repo.local=/home/vscode/.m2/repository"
+  },
+  "mounts": [
+    "source=java-agentic-devkit-m2,target=/home/vscode/.m2,type=volume",
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+  "forwardPorts": [8080, 5005, 61616, 6379, 8161],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "redhat.vscode-xml"
+      ]
+    }
+  },
+  "postCreateCommand": "java -version && mvn -version"
+}
