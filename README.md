@@ -6,7 +6,7 @@ Created and maintained by Yuneysi Gerat Gil.
 
 License: MIT. See [LICENSE](LICENSE).
 
-When the container starts, it automatically copies the files agents need into the mounted target project, including `AGENTS.md`, `.github/copilot-instructions.md`, and the template documentation under `docs/`. The generated `AGENTS.md` points agents to the relevant documentation and skill flow, so agents can choose the right migration skill with short user prompts instead of long, repeated instructions.
+When the container starts, it automatically copies the files agents need into the mounted target project, including `AGENTS.md`, `.github/copilot-instructions.md`, shared project memory under `opencode/memory/`, and the template documentation under `docs/`. The generated `AGENTS.md` points agents to the relevant documentation and skill flow, so agents can choose the right migration skill with short user prompts instead of long, repeated instructions.
 
 This bootstrap behavior is controlled by `DEVKIT_BOOTSTRAP_TEMPLATES`. The default is `true`, which copies missing files from the selected template into the mounted project. Set `DEVKIT_BOOTSTRAP_TEMPLATES=false` only when you want to use the image without modifying the mounted workspace, such as when developing this devkit repository itself inside a VS Code Dev Container.
 
@@ -61,7 +61,7 @@ Template READMEs for integration and workflow:
 
 - `templates/java21-migration/README.md` for Java 8 to Java 21 migration setup and workflow.
 
-Use one of these two flows.
+Use one of these flows.
 
 ### 1) Recommended: Project-owned `docker-compose.yml`
 
@@ -94,6 +94,58 @@ Template options:
 ```bash
 ./scripts/container/start-devkit-container.sh /path/to/java/project java21
 ./scripts/container/start-devkit-container.sh /path/to/java/project java21-migration
+```
+
+### 3) Alternative: Project-owned `.devcontainer/devcontainer.json` (no Compose)
+
+If you prefer VS Code Dev Containers without `docker-compose.yml`, create `.devcontainer/devcontainer.json` in the target project root.
+
+Linux and macOS example:
+
+```json
+{
+	"name": "Java Agentic DevKit - Java 8",
+	"image": "ghcr.io/yuneysi/java-agentic-devkit:latest",
+	"remoteUser": "vscode",
+	"workspaceFolder": "/workspace",
+	"overrideCommand": false,
+	"containerEnv": {
+		"DEVKIT_PROJECT_DIR": "/workspace",
+		"DEVKIT_JAVA_TEMPLATE": "java8",
+		"DEVKIT_BOOTSTRAP_TEMPLATES": "true",
+		"MAVEN_OPTS": "-Dmaven.repo.local=/home/vscode/.m2/repository"
+	},
+	"forwardPorts": [8080, 5005],
+	"mounts": [
+		"source=${localEnv:HOME}/.m2,target=/home/vscode/.m2,type=bind",
+		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+	],
+	"postStartCommand": "bash -lc 'use-java8 && java -version && mvn -v'"
+}
+```
+
+Windows example using `USERPROFILE`:
+
+```json
+{
+	"name": "Java Agentic DevKit - Java 8",
+	"image": "ghcr.io/yuneysi/java-agentic-devkit:latest",
+	"remoteUser": "vscode",
+	"workspaceFolder": "/workspace",
+	"overrideCommand": false,
+	"containerEnv": {
+		"DEVKIT_PROJECT_DIR": "/workspace",
+		"DEVKIT_JAVA_TEMPLATE": "java8",
+		"DEVKIT_BOOTSTRAP_TEMPLATES": "true",
+		"MAVEN_OPTS": "-Dmaven.repo.local=/home/vscode/.m2/repository"
+	},
+	"forwardPorts": [8080, 5005],
+	"mounts": [
+		"source=${localEnv:USERPROFILE}/.m2,target=/home/vscode/.m2,type=bind",
+		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+	],
+	"postStartCommand": "bash -lc 'use-java8 && java -version && mvn -v'"
+}
 ```
 
 ## Guides

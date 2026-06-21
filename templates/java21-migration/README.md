@@ -8,7 +8,10 @@ This guide is written for developers working directly in the target project.
 
 ## What The Target Project Must Have
 
-Before first run, place `docker-compose.yml` in the target project root.
+Before first run, place one startup config in the target project root:
+
+- `docker-compose.yml` (recommended for team-shared startup)
+- `.devcontainer/devcontainer.json` (VS Code Dev Containers without Compose)
 
 On container start, the devkit creates missing migration files from `templates/java21-migration/`, including:
 
@@ -16,8 +19,15 @@ On container start, the devkit creates missing migration files from `templates/j
 - `.github/copilot-instructions.md`
 - `docs/java21-migration-guide.md` (copy of this guide)
 - `docs/migration-progress-checklist.md`
+- `opencode/memory/architecture.md`
+- `opencode/memory/decisions.md`
+- `opencode/memory/status.md`
 
-## 1) Prepare `docker-compose.yml` In The Target Project Root
+## 1) Prepare Startup Configuration In The Target Project Root
+
+Choose one option.
+
+### Option A: `docker-compose.yml` (recommended)
 
 Use the template Compose file from this repository and keep the service name as `devkit`.
 
@@ -59,7 +69,61 @@ Windows PowerShell or Command Prompt volume mapping:
       - /var/run/docker.sock:/var/run/docker.sock
 ```
 
-## 2) Start The Container (Recommended Flow)
+### Option B: `.devcontainer/devcontainer.json` (no Compose)
+
+If you prefer VS Code Dev Containers directly, create this file in the target project root.
+
+Linux and macOS example:
+
+```json
+{
+  "name": "Java Agentic DevKit - Java 8 To Java 21 Migration",
+  "image": "ghcr.io/yuneysi/java-agentic-devkit:latest",
+  "remoteUser": "vscode",
+  "workspaceFolder": "/workspace",
+  "overrideCommand": false,
+  "containerEnv": {
+    "DEVKIT_PROJECT_DIR": "/workspace",
+    "DEVKIT_JAVA_TEMPLATE": "java21-migration",
+    "DEVKIT_BOOTSTRAP_TEMPLATES": "true",
+    "MAVEN_OPTS": "-Dmaven.repo.local=/home/vscode/.m2/repository"
+  },
+  "forwardPorts": [8080, 5005],
+  "mounts": [
+    "source=${localEnv:HOME}/.m2,target=/home/vscode/.m2,type=bind",
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+  "postStartCommand": "bash -lc 'use-java8 && java -version && mvn -v'"
+}
+```
+
+Windows example using `USERPROFILE`:
+
+```json
+{
+  "name": "Java Agentic DevKit - Java 8 To Java 21 Migration",
+  "image": "ghcr.io/yuneysi/java-agentic-devkit:latest",
+  "remoteUser": "vscode",
+  "workspaceFolder": "/workspace",
+  "overrideCommand": false,
+  "containerEnv": {
+    "DEVKIT_PROJECT_DIR": "/workspace",
+    "DEVKIT_JAVA_TEMPLATE": "java21-migration",
+    "DEVKIT_BOOTSTRAP_TEMPLATES": "true",
+    "MAVEN_OPTS": "-Dmaven.repo.local=/home/vscode/.m2/repository"
+  },
+  "forwardPorts": [8080, 5005],
+  "mounts": [
+    "source=${localEnv:USERPROFILE}/.m2,target=/home/vscode/.m2,type=bind",
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+  "postStartCommand": "bash -lc 'use-java8 && java -version && mvn -v'"
+}
+```
+
+## 2) Start The Container
+
+For `docker-compose.yml`:
 
 Run from the target project root:
 
@@ -69,6 +133,10 @@ docker compose run --rm devkit
 ```
 
 This matches the tested migration workflow: pull image, start disposable devkit shell, run all migration work inside the container.
+
+For `.devcontainer/devcontainer.json`:
+
+Open the target project in VS Code and run `Dev Containers: Reopen in Container`.
 
 ## 3) Start OpenCode Inside The Container
 

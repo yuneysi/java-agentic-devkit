@@ -67,6 +67,15 @@ Provider labels you may see in the UI:
 
 Both OpenCode and oh-my-openagent are installed and configured in `.devcontainer/Dockerfile`.
 
+In target projects, the devkit supports both startup modes:
+
+- project-owned `docker-compose.yml`
+- project-owned `.devcontainer/devcontainer.json`
+
+In both modes, mount the target project at `/workspace` so OpenCode reads and indexes the active workspace automatically.
+
+For Windows host Maven cache mounts, use `USERPROFILE` in place of `HOME`.
+
 Container paths:
 
 | Item | Path in container |
@@ -126,6 +135,15 @@ Enterprise and general skills:
 - `general/code-reviewer.md`
 - `general/confluence-doc-writer.md`
 - `general/readme-writer.md`
+- `general/project-architecture-memory-writer.md`
+
+The `project-architecture-memory-writer` skill updates shared project memory in:
+
+- `opencode/memory/architecture.md`
+- `opencode/memory/decisions.md`
+- `opencode/memory/status.md`
+
+This memory-first flow reduces repeated codebase scans and token usage for recurring project context questions.
 
 ## Related Docs In This Repository
 

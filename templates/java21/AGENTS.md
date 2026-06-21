@@ -155,6 +155,22 @@ If tests cannot be run, explain why and identify the command that should be run 
 
 ---
 
+## Shared Project Memory (Token Saving)
+
+Use `opencode/memory/` as the first source for recurring project context before running wide codebase scans.
+
+Memory files:
+
+- `opencode/memory/architecture.md`
+- `opencode/memory/decisions.md`
+- `opencode/memory/status.md`
+
+Update these files when architecture, technical decisions, migration/build strategy, or project status changes.
+
+When the user asks what is happening in the project, prefer answering from these files and refresh only the missing facts.
+
+---
+
 ## OpenCode Skills
 
 Use the installed OpenCode skills from `opencode/skills/java-enterprise/` and `opencode/skills/general/` when they fit the task:
@@ -167,5 +183,6 @@ Use the installed OpenCode skills from `opencode/skills/java-enterprise/` and `o
 - `soap-contract-test-writer` for SOAP/XML contract tests.
 - `spring-boot-smoke-tester` for basic application smoke tests.
 - `readme-writer` for target-project README updates.
+- `project-architecture-memory-writer` to capture architecture, decisions, and status in `opencode/memory/`.
 
 Keep skill output aligned with this `AGENTS.md`.
