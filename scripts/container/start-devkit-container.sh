@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Start the Java Agentic DevKit container for a target project.
-# Usage: ./scripts/container/start-devkit-container.sh [mount-path] [java8|java21|java21-ak4|java21-migration]
+# Usage: ./scripts/container/start-devkit-container.sh [mount-path] [java8|java21|java21-migration]
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEVKIT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
@@ -40,6 +40,7 @@ normalize_mount_path() {
 
 MOUNT_PATH="${1:-.}"
 JAVA_TEMPLATE="${2:-java8}"
+BOOTSTRAP_TEMPLATES="${DEVKIT_BOOTSTRAP_TEMPLATES:-false}"
 IMAGE_NAME="java-agentic-devkit"
 TAG="latest"
 FULL_IMAGE="${IMAGE_NAME}:${TAG}"
@@ -88,20 +89,18 @@ case "${JAVA_TEMPLATE}" in
         JAVA_SETUP=". /usr/local/bin/use-java21"
         printf '%b\n\n' "${GREEN}Using Java 21${NC}"
         ;;
-    java21-ak4)
-        JAVA_SETUP=". /usr/local/bin/use-java21"
-        printf '%b\n\n' "${GREEN}Using Java 21 for the Java 21 + Redis template${NC}"
-        ;;
     java21-migration)
         JAVA_SETUP=". /usr/local/bin/use-java8"
         printf '%b\n\n' "${GREEN}Using Java 8 for the Java 21 migration baseline${NC}"
         ;;
     *)
         printf '%b\n' "${RED}Invalid Java template: ${JAVA_TEMPLATE}${NC}"
-        printf '%b\n' "${YELLOW}Supported: java8, java21, java21-ak4, java21-migration${NC}"
+        printf '%b\n' "${YELLOW}Supported: java8, java21, java21-migration${NC}"
         exit 1
         ;;
 esac
+
+printf '%b\n\n' "${GREEN}Template bootstrap: ${BOOTSTRAP_TEMPLATES}${NC}"
 
 printf '%b\n' "${BLUE}===========================================================${NC}"
 printf '%b\n\n' "${YELLOW}Starting container...${NC}"
@@ -109,6 +108,7 @@ printf '%b\n\n' "${YELLOW}Starting container...${NC}"
 docker run -it --rm \
     -e "DEVKIT_JAVA_TEMPLATE=${JAVA_TEMPLATE}" \
     -e "DEVKIT_PROJECT_DIR=${CONTAINER_MOUNT}" \
+    -e "DEVKIT_BOOTSTRAP_TEMPLATES=${BOOTSTRAP_TEMPLATES}" \
     -e "MAVEN_OPTS=-Dmaven.repo.local=/home/vscode/.m2/repository" \
     -v "${MOUNT_PATH}:${CONTAINER_MOUNT}" \
     -v "${HOST_M2_DIR}:/home/vscode/.m2" \

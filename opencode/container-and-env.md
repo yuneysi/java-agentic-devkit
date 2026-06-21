@@ -50,7 +50,7 @@ Use these variables from the target project's `docker-compose.yml`, from the man
 | Variable | Default | Purpose |
 |----------|---------|---------|
 | `DEVKIT_PROJECT_DIR` | `/workspace` | Mounted target project path inside the container. OpenCode instructions are rewritten to read `${DEVKIT_PROJECT_DIR}/AGENTS.md`. |
-| `DEVKIT_JAVA_TEMPLATE` | `java8` | Selects the runtime and template. Supported values: `java8`, `java21`, `java21-ak4`, `java21-migration`. |
+| `DEVKIT_JAVA_TEMPLATE` | `java8` | Selects the runtime and template. Supported values: `java8`, `java21`, `java21-migration`. |
 | `DEFAULT_JAVA_TEMPLATE` | `java8` | Container fallback when `DEVKIT_JAVA_TEMPLATE` is not set. |
 
 ### AI Providers

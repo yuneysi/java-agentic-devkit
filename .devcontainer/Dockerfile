@@ -413,7 +413,7 @@ RUN printf '%s\n' \
     'export JAVA8_HOME=/opt/java/jdk8' \
     'export JAVA21_HOME=/opt/java/jdk21' \
     'case "${DEVKIT_JAVA_TEMPLATE:-${DEFAULT_JAVA_TEMPLATE:-java8}}" in' \
-    '    java21|java21-ak4)' \
+    '    java21)' \
     '        . /usr/local/bin/use-java21 >/dev/null 2>&1 || true' \
     '        ;;' \
     '    java8|java21-migration|*)' \
@@ -458,7 +458,6 @@ USER root
 
 COPY templates/java8/ /opt/java-agentic-devkit/templates/java8/
 COPY templates/java21/ /opt/java-agentic-devkit/templates/java21/
-COPY templates/java21-ak4/ /opt/java-agentic-devkit/templates/java21-ak4/
 COPY templates/java21-migration/ /opt/java-agentic-devkit/templates/java21-migration/
 
 RUN printf '%s\n' \
@@ -467,6 +466,7 @@ RUN printf '%s\n' \
     '' \
     'PROJECT_DIR="${DEVKIT_PROJECT_DIR:-}"' \
     'JAVA_TEMPLATE="${DEVKIT_JAVA_TEMPLATE:-${DEFAULT_JAVA_TEMPLATE:-java8}}"' \
+    'BOOTSTRAP_TEMPLATES="${DEVKIT_BOOTSTRAP_TEMPLATES:-true}"' \
     '' \
     'if [[ -z "${PROJECT_DIR}" ]]; then' \
     '    PROJECT_DIR=/workspace' \
@@ -476,7 +476,7 @@ RUN printf '%s\n' \
     '    java8)' \
     '        . /usr/local/bin/use-java8 >/dev/null 2>&1 || true' \
     '        ;;' \
-    '    java21|java21-ak4)' \
+    '    java21)' \
     '        . /usr/local/bin/use-java21 >/dev/null 2>&1 || true' \
     '        ;;' \
     '    java21-migration)' \
@@ -489,7 +489,7 @@ RUN printf '%s\n' \
     'esac' \
     '' \
     'TEMPLATE_DIR="/opt/java-agentic-devkit/templates/${JAVA_TEMPLATE}"' \
-    'if [[ -d "${PROJECT_DIR}" && -d "${TEMPLATE_DIR}" ]]; then' \
+    'if [[ "${BOOTSTRAP_TEMPLATES}" != "false" && -d "${PROJECT_DIR}" && -d "${TEMPLATE_DIR}" ]]; then' \
     '    while IFS= read -r -d "" TEMPLATE_FILE; do' \
     '        RELATIVE_PATH="${TEMPLATE_FILE#${TEMPLATE_DIR}/}"' \
     '        if [[ "${JAVA_TEMPLATE}" == "java21-migration" && "${RELATIVE_PATH}" == "README.md" ]]; then' \
