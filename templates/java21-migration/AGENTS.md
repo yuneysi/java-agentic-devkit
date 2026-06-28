@@ -1,31 +1,30 @@
-# AGENTS.md — Java 21 + Migration (Template)
+# AGENTS.md — Migration Template (Version-Agnostic Rules)
 
 ## Purpose
 
-This project is in **Java 8 to Java 21 migration mode**.
+This file defines the baseline operating rules for agents working in a target project bootstrapped from `templates/java21-migration/`.
 
-Act as a senior Java enterprise engineer, migration auditor, and regression-focused reviewer. Prioritize behavior preservation, Jakarta EE correctness, and practical progress.
+It is intentionally version-agnostic. Any Java 8 to Java 21 migration strategy, phased workflow, and version-specific guardrails live in `skills/java21-migration/SKILL.md`.
 
-This file is the authoritative instruction file for agent behavior in this target project. If this file conflicts with another Markdown file, this file wins.
+If this file conflicts with another Markdown file in the target project, this file wins.
 
 ---
 
-## Development Environment (Container)
+## Development Environment
 
-Run all migration work inside the **java-agentic-devkit** container.
+Run all project work inside the `java-agentic-devkit` container.
 
 The target project should provide one startup configuration in its root:
 
 - `docker-compose.yml`, or
 - `.devcontainer/devcontainer.json`
 
-On startup, the devkit creates missing migration support files from this template (for example `AGENTS.md`, `.github/copilot-instructions.md`, `docs/migration-progress-checklist.md`, and `opencode/memory/*`).
+On startup, the devkit can create missing support files from this template, including `AGENTS.md`, `.github/copilot-instructions.md`, `docs/migration-progress-checklist.md`, and `opencode/memory/*`.
 
 Key paths inside the container:
 
-- JDK 21: `/opt/java/jdk21` (default `java` is 1.8)
 - Maven: `/opt/java/apache-maven-3.9.9`
-- Maven repo: `/home/vscode/.m2/repository`
+- Maven repository: `/home/vscode/.m2/repository`
 - Project mount: `/workspace`
 - OpenCode binary: `/usr/local/bin/opencode`
 - OpenCode config: `/home/vscode/.config/opencode/opencode.json`
@@ -35,65 +34,53 @@ Key paths inside the container:
 
 ## Agent Compatibility
 
-Treat this file as the source of truth for migration behavior.
+OpenCode, oh-my-openagent, and any other agentic workflow must treat this file as authoritative.
 
-Tool configuration can define model/provider/UI preferences, but it must not override migration safety, testing, dependency, or validation rules in this file.
+Tool configuration may define models, providers, UI behavior, and local preferences, but must not override the safety, testing, dependency, or validation rules in this file.
 
-Use installed skills when they fit. If a skill is unavailable, follow the same rules manually and report the limitation.
-
----
-
-## Core Migration Guardrails (Non-Negotiable)
-
-- **Java 8 behavior is the source of truth.** Java 21 output must preserve Java 8 behavior unless the user explicitly approves a change.
-- **Do not modernize first.** Change production code only when required by:
-  1. Java 21/Jakarta compilation errors,
-  2. failing regression or characterization tests,
-  3. runtime incompatibility, or
-  4. explicit user approval.
-- **Do not break passing behavior.** If behavior changes, update and justify tests first.
-- **Use focused, buildable commits.** One concern per commit; each commit compiles.
-- **Validate after each change** with the narrowest command that proves the change (compile -> test -> verify).
+When an installed skill fits the task, use it. If a skill is unavailable, apply equivalent manual steps and report the limitation.
 
 ---
 
-## Namespace Rules (Jakarta Migration)
+## Change Discipline (Non-Negotiable)
 
-- Hand-written application code must use `jakarta.*` for Jakarta EE APIs.
-- Keep JDK namespaces that remain `javax.*` (for example `javax.sql.*`, `javax.net.ssl.*`, `javax.xml.datatype.*`, `javax.xml.transform.*`, `javax.xml.namespace.*`, `javax.xml.xpath.*`).
-- Generated code can stay split:
-  - OpenAPI-generated code should use Jakarta annotations.
-  - JAXB/WSDL-generated code may still use `javax.xml.bind.*` depending on generator/plugin versions.
-- Do not force Jakarta rewrites on generated sources.
-- If production code uses generated JAXB types (`JAXBElement`, `ObjectFactory`, etc.), match the generated namespace.
-
----
-
-## High-Risk Enterprise Areas
-
-Treat these as behavior-sensitive and avoid silent changes:
-
-- SOAP/XML contracts: namespaces, element order, `SOAPAction`, payload formatting
-- REST/JSON contracts and error body formats
-- JSP/Servlet/container behavior
-- JMS ack/retry/redelivery/concurrency/transactions
-- JDBC transactions/isolation/generated keys
-- JPA lazy loading/flush/transaction scope
-- Spring profiles/config/property binding
-- Timezone/locale/charset/date-time/`BigDecimal` behavior
-- Security-sensitive code paths (auth, authz, TLS, CORS, CSRF, file handling, external command execution)
+- Keep changes small, focused, and reviewable.
+- Preserve existing behavior unless the user explicitly approves a behavior change.
+- Do not combine unrelated concerns in one change.
+- Avoid broad refactors, formatting-only churn, and opportunistic dependency updates.
+- Before changing production code, prefer one of:
+  1. a failing test that demonstrates the issue,
+  2. a characterization test that captures current behavior, or
+  3. a concise explanation of why the change is safe without a test.
 
 ---
 
-## Dependency And Build Change Rules
+## Enterprise Risk Areas
+
+Treat the following as behavior-sensitive and verify explicitly:
+
+- REST/JSON contracts and error payload shape
+- SOAP/XML namespaces, element order, and payload formatting
+- JMS acknowledgement, retries, redelivery, and transactions
+- JDBC transaction boundaries, isolation, and generated keys
+- JPA lazy loading, flush behavior, and transaction scope
+- Spring profiles/configuration and bean lifecycle
+- timezone, locale, charset, date/time, and `BigDecimal` behavior
+- authentication, authorization, TLS, CORS, CSRF, file handling, and external command execution
+
+Do not silently change behavior in these areas.
+
+---
+
+## Dependency And Build Rules
 
 Do not upgrade dependencies casually.
 
-For each dependency/plugin change, record:
+For each dependency or plugin change, record:
 
 - current version
 - new version
-- migration reason
+- reason for change
 - runtime/security/behavior risk
 - validation command
 
@@ -109,39 +96,30 @@ Use Maven Wrapper when available:
 ./mvnw clean verify
 ```
 
-Use targeted commands when possible:
+Use targeted commands first when practical:
 
 ```bash
 ./mvnw clean test -pl <module> -Dtest=SpecificTest
 ./mvnw clean verify -pl <module>
 ```
 
-For Java 21 candidate validation, use JDK 21 explicitly when needed:
-
-```bash
-JAVA_HOME=/opt/java/jdk21 ./mvnw clean verify
-```
-
-Evidence locations:
-
-- Java 8 baseline: `docs/migration-results/java8-baseline/`
-- Java 21 candidate: `docs/migration-results/java21-candidate/`
-
-Spring Boot 3 note: 4xx/5xx responses often use RFC 7807 Problem Details JSON. Tests that expected empty bodies may need migration-aware assertions.
+If tests cannot be run, explain why and state the exact command that should be executed later.
 
 ---
 
 ## Browser / Playwright Safety
 
-Use Playwright only after compile/startup prerequisites are verified.
+Use Playwright only after compile and startup prerequisites are verified.
 
-Never trigger destructive actions (payments, external sends, data deletion, production writes).
+Never perform destructive actions (payments, external sends, data deletion, production writes).
+
+Prefer read-only checks unless the user explicitly requests deeper browser validation.
 
 ---
 
-## Shared Project Memory (Token Saving)
+## Shared Project Memory
 
-Use `opencode/memory/` as the first source for recurring project context before running wide codebase scans.
+Use `opencode/memory/` as the first source for recurring context before running wide codebase scans.
 
 Memory files:
 
@@ -149,49 +127,12 @@ Memory files:
 - `opencode/memory/decisions.md`
 - `opencode/memory/status.md`
 
-Update these files when architecture, technical decisions, migration strategy, validation status, or risk status changes.
-
-When the user asks what is happening in the migration, prefer answering from these files and refresh only the missing facts.
+Update these files when architecture, technical decisions, delivery status, or risk status changes.
 
 ---
 
-## Code Review Priorities
+## Skills
 
-When reviewing migration changes:
+Use `skills/java21-migration/SKILL.md` for Java 8 to Java 21 migration execution.
 
-1. Check regressions and runtime risks before style.
-2. Verify Jakarta namespace correctness in hand-written code.
-3. Verify API/contract compatibility (REST, SOAP/XML, JMS, JPA).
-4. Verify SB3 error response expectations.
-5. Reject untested behavior changes.
-
----
-
-## OpenCode Skills
-
-Primary migration skills:
-
-- `java8-baseline-capture-phase`
-- `java8-characterization-test-phase`
-- `java21-migration-test-planning-phase`
-- `java21-migration-planning-phase`
-- `java21-migration-implementation-phase`
-- `java21-candidate-validation-phase`
-- `java21-migration-audit-phase`
-
-Additional enterprise/general skills:
-
-- `jms-characterization-test-writer`
-- `jpa-characterization-test-writer`
-- `soap-contract-test-writer`
-- `readme-writer`
-- `confluence-doc-writer`
-- `project-architecture-memory-writer`
-
-Keep skill output aligned with this `AGENTS.md`.
-
----
-
-## Java 21 Usage Guidance
-
-The codebase targets Java 21, but do not refactor working code just to introduce newer syntax. Prefer modern features only when they improve readability or safety without behavior risk.
+Keep all version-specific guidance in skills, not in this file.

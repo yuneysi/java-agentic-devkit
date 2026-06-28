@@ -17,11 +17,14 @@ On container start, the devkit creates missing migration files from `templates/j
 
 - `AGENTS.md`
 - `.github/copilot-instructions.md`
-- `docs/java21-migration-guide.md` (copy of this guide)
 - `docs/migration-progress-checklist.md`
 - `opencode/memory/architecture.md`
 - `opencode/memory/decisions.md`
 - `opencode/memory/status.md`
+
+Migration-specific skill content is kept in:
+
+- `skills/java21-migration/SKILL.md`
 
 ## 1) Prepare Startup Configuration In The Target Project Root
 
@@ -156,39 +159,43 @@ That guide covers:
 
 ## 4) Prompt Flow That Works Well
 
-Use short prompts. `AGENTS.md` contains the detailed rules.
+Use short prompts. `AGENTS.md` contains version-agnostic operating rules, and `skills/java21-migration/SKILL.md` contains migration-specific workflow guidance.
 
 Recommended sequence:
 
-1. Baseline capture:
+1. Readiness and baseline:
 
 ```text
-Use the java8-baseline-capture-phase skill.
+Use the java21-migration skill.
+Build readiness scoring and capture Java 8 baseline evidence.
 ```
 
-2. Characterization tests after baseline (when suggested):
+2. Plan first migration slice:
 
 ```text
-Use the java8-characterization-test-phase skill.
+Use the java21-migration skill.
+Define the first reversible migration slice with risk buckets and gate criteria.
 ```
 
-3. Migration planning:
+3. Execute staged hop:
 
 ```text
-Use the java21-migration-planning-phase skill.
+Use the java21-migration skill.
+Execute Hop A (8 -> 11) with compile, test, contract, runtime, and evidence gates.
 ```
 
-4. Small implementation step:
+4. Continue hop-by-hop:
 
 ```text
-Use the java21-migration-implementation-phase skill.
-Apply the next planned small migration step.
+Use the java21-migration skill.
+Execute the next planned migration slice and update migration memory.
 ```
 
-5. Candidate validation:
+5. Candidate validation and audit summary:
 
 ```text
-Use the java21-candidate-validation-phase skill.
+Use the java21-migration skill.
+Produce Java 21 candidate validation evidence and sign-off summary.
 ```
 
 Track progress in `docs/migration-progress-checklist.md` during each step.
@@ -206,5 +213,6 @@ Use the checklist as the human sign-off tracker:
 
 ## Reference
 
-- Migration rules and skill behavior: `AGENTS.md`
+- Version-agnostic operating rules: `AGENTS.md`
+- Migration workflow skill: `skills/java21-migration/SKILL.md`
 - Human tracker and prompt checklist: `docs/migration-progress-checklist.md`
