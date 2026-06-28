@@ -54,6 +54,24 @@ java-agentic-devkit/
 
 ## How To Start The DevKit In Your Project
 
+### Quick Start
+
+1. Ensure Docker Desktop is running.
+2. In your target project root, use a project-owned `docker-compose.yml` with `DEVKIT_JAVA_TEMPLATE` set to `java8`, `java21`, or `java21-migration`.
+3. Start the devkit shell:
+
+```bash
+docker compose pull
+docker compose run --rm devkit
+```
+
+4. Inside the container, verify runtime and tooling:
+
+```bash
+java -version
+mvn -v
+```
+
 The recommended way to use this devkit is to integrate it into each target Java project with a project-owned Compose file.
 
 This keeps the development entrypoint close to the application code, makes the selected Java mode explicit, and gives the team one shared command for local work, tests, and migration validation.
@@ -96,6 +114,14 @@ Template options:
 ./scripts/container/start-devkit-container.sh /path/to/java/project java21
 ./scripts/container/start-devkit-container.sh /path/to/java/project java21-migration
 ```
+
+## Memory-First Context (Token Saving)
+
+This devkit uses shared memory files under `opencode/memory/`: `architecture.md`, `decisions.md`, and `status.md`.
+
+Agents read these concise files first, so they avoid repeating wide codebase scans for recurring context. This reduces token usage and usually improves response speed for follow-up questions.
+
+Keep these files updated whenever architecture, decisions, or project status changes.
 
 ### 3) Alternative: Project-owned `.devcontainer/devcontainer.json` (no Compose)
 
