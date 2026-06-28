@@ -159,6 +159,8 @@ If tests cannot be run, explain why and identify the command that should be run 
 
 Use `opencode/memory/` as the first source for recurring project context before running wide codebase scans.
 
+Treat `opencode/memory/` as the canonical shared memory namespace for humans and all agent runtimes in this project (not OpenCode-only).
+
 Memory files:
 
 - `opencode/memory/architecture.md`
