@@ -22,6 +22,20 @@ Create and maintain shared project memory files under `opencode/memory/` so huma
 - Add paths/commands used as evidence when useful.
 - If data is missing, write `unknown` and include a follow-up question in the output.
 
+## Planner Integration Contract
+
+- The planner is a router for memory handling.
+- Planner responsibility is limited to detecting whether required memory files are missing.
+- Content validation, initialization, and updates are owned by this skill.
+
+If planner detects any missing file in:
+
+- `opencode/memory/architecture.md`
+- `opencode/memory/decisions.md`
+- `opencode/memory/status.md`
+
+then this skill must create/initialize missing files first, then continue normal memory update flow.
+
 ## Minimum Update Triggers
 
 Update memory files when any of these happen:

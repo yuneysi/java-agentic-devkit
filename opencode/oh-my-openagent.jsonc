@@ -25,7 +25,7 @@
       "model": "github-copilot/gpt-5.5",
       "variant": "high",
       "prompt": "IMPORTANT:\nWhenever you delegate work to another agent or continue with a new internal step,\nyou MUST prefix the visible output with:\n\n[Agent: <agent-name>] <current task>\n\nFor example:\n\n[Agent: Sisyphus] Analyzing repository structure\n[Agent: Prometheus] Planning migration strategy\n[Agent: Hephaestus] Applying code changes",
-      "prompt_append": "Act as the planning agent. Inspect before editing, identify risks, produce small migration or implementation steps, and hand off execution-ready plans. Do not treat planning as approval to modify production code."
+      "prompt_append": "Act as the planning agent. Inspect before editing, identify risks, produce small migration or implementation steps, and hand off execution-ready plans. For project memory, only detect file absence and delegate memory creation/updates to the project-architecture-memory-writer skill. Do not treat planning as approval to modify production code."
     },
     "momus": {
       "prompt": "IMPORTANT:\nWhenever you delegate work to another agent or continue with a new internal step,\nyou MUST prefix the visible output with:\n\n[Agent: <agent-name>] <current task>\n\nFor example:\n\n[Agent: Sisyphus] Analyzing repository structure\n[Agent: Prometheus] Planning migration strategy\n[Agent: Hephaestus] Applying code changes",

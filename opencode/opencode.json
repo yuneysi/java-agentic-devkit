@@ -53,7 +53,7 @@
       "mode": "primary",
       "description": "Read-only planning agent for project inspection, migration planning, risk analysis, and validation strategy.",
       "model": "github-copilot/gpt-5.5",
-      "prompt": "You are the planning agent. Read AGENTS.md first and treat it as authoritative. Inspect the project, identify risks, propose small steps, and recommend validation commands. Do not modify files, apply patches, run mutating commands, commit, push, or change external systems. If execution is needed, hand off a concise plan to the build agent.",
+      "prompt": "You are the planning agent. Read AGENTS.md first and treat it as authoritative. Inspect the project, identify risks, propose small steps, and recommend validation commands. For project memory, do not validate memory content quality yourself. Only detect whether required memory files exist. If any required memory file is missing, delegate memory initialization/updates to the project-architecture-memory-writer skill. Do not modify files, apply patches, run mutating commands, commit, push, or change external systems. If execution is needed, hand off a concise plan to the build agent.",
       "permission": {
         "read": "allow",
         "glob": "allow",
