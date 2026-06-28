@@ -2,6 +2,11 @@
 
 This file explains how this devkit configures the OpenCode harness stack for human users.
 
+Scope note:
+
+- `opencode/...` paths are source paths in this repository.
+- `/home/vscode/.config/opencode/...` and `/workspace/...` paths are runtime paths inside target-project containers.
+
 ## OpenCode
 
 OpenCode is the base coding agent runtime used in this devkit.
@@ -47,6 +52,7 @@ Default mapping in this devkit:
 | Orchestrator | `sisyphus` | `github-copilot/gpt-5.5` (high) |
 | Planner | `prometheus` | `github-copilot/gpt-5.5` (high) |
 | Executor | `hephaestus` | `github-copilot/gpt-5.3-codex` (medium) |
+| Specialist | `oracle` | `github-copilot/gpt-5.5` (high) |
 | Reviewer | `momus` | `github-copilot/gpt-5.5` (xhigh) |
 | Explorer | `explore` | `github-copilot/gpt-5.4-mini` |
 
@@ -154,7 +160,15 @@ The `project-architecture-memory-writer` skill updates shared project memory in:
 - `opencode/memory/decisions.md`
 - `opencode/memory/status.md`
 
+These memory files are expected in bootstrapped target projects (for example under `/workspace/opencode/memory/`). They are not required to exist as tracked files in this devkit source repository.
+
 This memory-first flow reduces repeated codebase scans and token usage for recurring project context questions.
+
+Planner-memory policy:
+
+- planner only detects missing memory files,
+- planner delegates memory creation/updates to `project-architecture-memory-writer`,
+- memory content validation and updates are centralized in that skill.
 
 ## Related Docs In This Repository
 

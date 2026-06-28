@@ -2,6 +2,10 @@
 
 This folder contains an organized Java 8 to Java 21 migration skill system for projects bootstrapped from `templates/java21-migration/`.
 
+All paths in this document are relative to the bootstrapped target project root.
+
+Startup prerequisites and container setup are documented in `templates/java21-migration/README.md`.
+
 ## Structure
 
 - `SKILL.md`: top-level orchestrator for migration phase flow.

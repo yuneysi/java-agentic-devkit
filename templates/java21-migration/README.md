@@ -26,6 +26,8 @@ Migration-specific skill content is kept in:
 
 - `skills/java21-migration/SKILL.md`
 
+If these files do not appear in the target project after container start, verify `DEVKIT_BOOTSTRAP_TEMPLATES=true` and that `DEVKIT_JAVA_TEMPLATE=java21-migration`.
+
 ## 1) Prepare Startup Configuration In The Target Project Root
 
 Choose one option.
@@ -149,13 +151,12 @@ From `/workspace` inside the container:
 opencode
 ```
 
-For OpenCode and oh-my-openagent behavior details, use `opencode/README.md`.
+Quick runtime notes for target projects:
 
-That guide covers:
-
-- default `sisyphus` orchestration and how to switch back to it
-- why the UI can change after selecting another agent
-- config and binary paths inside the container
+- default orchestrator is `sisyphus`
+- if the UI agent label changes after provider selection, switch back to `sisyphus` in the agent picker
+- OpenCode binary path in container: `/usr/local/bin/opencode`
+- OpenCode config path in container: `/home/vscode/.config/opencode/opencode.json`
 
 ## 4) Prompt Flow That Works Well
 
@@ -177,11 +178,11 @@ Use the java21-migration skill.
 Define the first reversible migration slice with risk buckets and gate criteria.
 ```
 
-3. Execute staged hop:
+3. Execute next approved slice:
 
 ```text
 Use the java21-migration skill.
-Execute Hop A (8 -> 11) with compile, test, contract, runtime, and evidence gates.
+Execute the next approved migration slice with compile, test, contract, runtime, and evidence gates.
 ```
 
 4. Continue hop-by-hop:
@@ -216,3 +217,12 @@ Use the checklist as the human sign-off tracker:
 - Version-agnostic operating rules: `AGENTS.md`
 - Migration workflow skill: `skills/java21-migration/SKILL.md`
 - Human tracker and prompt checklist: `docs/migration-progress-checklist.md`
+
+## Troubleshooting
+
+- `AGENTS.md` or checklist files missing:
+  - confirm `DEVKIT_BOOTSTRAP_TEMPLATES=true`
+  - confirm `DEVKIT_JAVA_TEMPLATE=java21-migration`
+- memory files missing under `opencode/memory/`:
+  - restart container with bootstrap enabled
+  - run preflight initialization before planning/implementation
