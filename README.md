@@ -1,10 +1,18 @@
 # java-agentic-devkit
 
-`java-agentic-devkit` is a reusable Docker-based development kit for teams working on Java 8 projects, Java 21 projects, and Java 8 to Java 21 migrations. It provides templates for different work modes, including Java 8 legacy maintenance, modern Java development, and structured migration work.
+`java-agentic-devkit` is focused on helping teams migrate Java 8 projects to Java 21 in a controlled, evidence-driven way.
+
+It provides a reusable Docker-based development environment, migration templates, built-in skills, and a containerized workflow designed for OpenCode + oh-my-openagent orchestration. It is for developers who want to work with agents, use skills, and run OpenCode, oh-my-openagent, and related plugins out of the box without installing those tools locally.
+
+It can also be used for Java 8 legacy maintenance and Java 21 target projects, but the primary workflow is Java 8 to Java 21 migration.
+
+Recommended skill for most users: `java21-migration` under `templates/java21-migration/skills/java21-migration/`. This is the canonical migration skill set used by the templates in this repository.
 
 Created and maintained by Yuneysi Gerat Gil.
 
 License: MIT. See [LICENSE](LICENSE).
+
+Feedback is welcome. If you use this devkit, please open GitHub Issues with bugs, migration pain points, improvement ideas, or comments about what worked well in your Java migration workflow.
 
 When the container starts, it automatically copies the files agents need into the mounted target project, including `AGENTS.md`, `.github/copilot-instructions.md`, shared project memory under `opencode/memory/`, and the template documentation under `docs/`. The generated `AGENTS.md` points agents to the relevant documentation and skill flow, so agents can choose the right migration skill with short user prompts instead of long, repeated instructions.
 
@@ -37,8 +45,13 @@ java-agentic-devkit/
 │       └── start-devkit-container.sh
 ├── templates/
 │   ├── README.md
+│   ├── java8/
+│   │   ├── AGENTS.md
+│   │   ├── docker-compose.yml
+│   │   └── .github/copilot-instructions.md
 │   ├── java21/
 │   │   ├── AGENTS.md
+│   │   ├── docker-compose.yml
 │   │   └── .github/copilot-instructions.md
 │   └── java21-migration/
 │       ├── AGENTS.md
@@ -54,76 +67,43 @@ java-agentic-devkit/
 
 ## How To Start The DevKit In Your Project
 
+For Java 8 to Java 21 migrations, start with:
+
+- `templates/java21-migration/README.md`
+
+It contains the full migration-specific workflow and prompt flow.
+
 ### Quick Start
 
-1. Ensure Docker Desktop is running.
-2. In your target project root, use a project-owned `docker-compose.yml` with `DEVKIT_JAVA_TEMPLATE` set to `java8`, `java21`, or `java21-migration`.
-3. Start the devkit shell:
+Ensure Docker Desktop is running. Then choose one startup flow:
 
-```bash
-docker compose pull
-docker compose run --rm devkit
-```
+1) Recommended: project-owned `docker-compose.yml` in the target project.
 
-4. Inside the container, verify runtime and tooling:
+- Set `DEVKIT_JAVA_TEMPLATE` to `java8`, `java21`, or `java21-migration`.
+- If the target project does not have a compose file yet, copy the template compose for the selected mode (`templates/<mode>/docker-compose.yml`) to the target project root.
+- For migration mode, use `templates/java21-migration/README.md` for full setup and prompt flow.
+
+2) Alternative: project-owned `.devcontainer/devcontainer.json` in the target project.
+
+- Use this when your team works directly with VS Code Dev Containers instead of Compose.
+- Set `DEVKIT_JAVA_TEMPLATE` and `DEVKIT_BOOTSTRAP_TEMPLATES=true` in container environment values.
+- Full example and platform-specific config are below.
+
+3) Alternative: manual start from this devkit repository using scripts.
+
+- Use this when you want to build/run the devkit from this repository instead of adding container config to the target project.
+- Script commands are below.
+
+After startup, verify runtime and tooling inside the container:
 
 ```bash
 java -version
 mvn -v
 ```
 
-The recommended way to use this devkit is to integrate it into each target Java project with a project-owned Compose file.
+The recommended flow is project-owned `docker-compose.yml` because it keeps container startup, ports, and team commands close to the target project.
 
-This keeps the development entrypoint close to the application code, makes the selected Java mode explicit, and gives the team one shared command for local work, tests, and migration validation.
-
-Template READMEs for integration and workflow:
-
-- `templates/java21-migration/README.md` for Java 8 to Java 21 migration setup and workflow.
-
-Use one of these flows.
-
-### 1) Recommended: Project-owned `docker-compose.yml`
-
-Keep `docker-compose.yml` in the root of the target project and start the devkit from there.
-
-This is the recommended flow because it keeps container startup, ports, and team commands inside the target project.
-
-For full setup details, expected environment values, and migration prompts, use:
-
-- `templates/java21-migration/README.md`
-
-### 2) Alternative: Build locally and run with scripts
-
-Clone this repository, build the image locally, and start a mounted target project with the provided scripts:
-
-```bash
-cd ~/github/java-agentic-devkit
-./scripts/create-image.sh
-./scripts/container/start-devkit-container.sh /path/to/java/project
-```
-
-The script sets `DEVKIT_BOOTSTRAP_TEMPLATES=false` by default. To copy missing files from the selected template into the mounted project during startup, run:
-
-```bash
-DEVKIT_BOOTSTRAP_TEMPLATES=true ./scripts/container/start-devkit-container.sh /path/to/java/project java21-migration
-```
-
-Template options:
-
-```bash
-./scripts/container/start-devkit-container.sh /path/to/java/project java21
-./scripts/container/start-devkit-container.sh /path/to/java/project java21-migration
-```
-
-## Memory-First Context (Token Saving)
-
-This devkit uses shared memory files under `opencode/memory/`: `architecture.md`, `decisions.md`, and `status.md`.
-
-Agents read these concise files first, so they avoid repeating wide codebase scans for recurring context. This reduces token usage and usually improves response speed for follow-up questions.
-
-Keep these files updated whenever architecture, decisions, or project status changes.
-
-### 3) Alternative: Project-owned `.devcontainer/devcontainer.json` (no Compose)
+### 2) Alternative: Project-owned `.devcontainer/devcontainer.json` (no Compose)
 
 If you prefer VS Code Dev Containers without `docker-compose.yml`, create `.devcontainer/devcontainer.json` in the target project root.
 
@@ -174,6 +154,37 @@ Windows example using `USERPROFILE`:
 	"postStartCommand": "bash -lc 'use-java8 && java -version && mvn -v'"
 }
 ```
+
+### 3) Alternative: Build locally and run with scripts
+
+Clone this repository, build the image locally, and start a mounted target project with the provided scripts:
+
+```bash
+cd ~/github/java-agentic-devkit
+./scripts/create-image.sh
+./scripts/container/start-devkit-container.sh /path/to/java/project
+```
+
+The script sets `DEVKIT_BOOTSTRAP_TEMPLATES=false` by default. To copy missing files from the selected template into the mounted project during startup, run:
+
+```bash
+DEVKIT_BOOTSTRAP_TEMPLATES=true ./scripts/container/start-devkit-container.sh /path/to/java/project java21-migration
+```
+
+Template options:
+
+```bash
+./scripts/container/start-devkit-container.sh /path/to/java/project java21
+./scripts/container/start-devkit-container.sh /path/to/java/project java21-migration
+```
+
+## Memory-First Context (Token Saving)
+
+This devkit uses shared memory files under `opencode/memory/`: `architecture.md`, `decisions.md`, and `status.md`.
+
+Agents read these concise files first, so they avoid repeating wide codebase scans for recurring context. This reduces token usage and usually improves response speed for follow-up questions.
+
+Keep these files updated whenever architecture, decisions, or project status changes.
 
 ## Guides
 
