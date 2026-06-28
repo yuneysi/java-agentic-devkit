@@ -191,6 +191,22 @@ Template options:
 
 This devkit uses shared memory files under `opencode/memory/`: `architecture.md`, `decisions.md`, and `status.md`.
 
+The files under `templates/*/opencode/memory/` are only seed files. Users should not edit those template files in normal target-project work. After the devkit bootstraps a target project, users should update the target project's own files:
+
+- `opencode/memory/architecture.md`
+- `opencode/memory/decisions.md`
+- `opencode/memory/status.md`
+
+To initialize or refresh them, start OpenCode inside the target project container and use this prompt:
+
+```text
+Use the project-architecture-memory-writer skill.
+Initialize or refresh opencode/memory/architecture.md, opencode/memory/decisions.md, and opencode/memory/status.md for this target project.
+Read AGENTS.md first, inspect only the evidence needed, replace template seed values with verified project facts, keep unknowns explicit, and summarize the files changed.
+```
+
+For Java 8 to Java 21 migrations, run the same prompt before migration planning and after each meaningful migration phase.
+
 Agents read these concise files first, so they avoid repeating wide codebase scans for recurring context. This reduces token usage and usually improves response speed for follow-up questions.
 
 Keep these files updated whenever architecture, decisions, or project status changes.
