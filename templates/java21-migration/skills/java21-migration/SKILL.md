@@ -34,6 +34,21 @@ Always run in this sequence:
 
 Do not skip a phase unless the user explicitly requests it and the risk is documented.
 
+## Preflight gate (mandatory)
+
+Before running any migration phase, verify that these files exist and are initialized:
+
+- `opencode/memory/architecture.md`
+- `opencode/memory/decisions.md`
+- `opencode/memory/status.md`
+
+If any file is missing or empty:
+
+1. stop phase execution,
+2. create or initialize missing memory files,
+3. record initialization status in `docs/migration-progress-checklist.md`,
+4. continue with baseline.
+
 ---
 
 ## Natural prompt behavior
@@ -46,9 +61,11 @@ If the input is a high-level start command (for example `start migration`, `begi
    - implementation
    - validation
    - audit
-2. State the immediate next phase to execute.
-3. Remind that each completed phase must write its status to `docs/migration-progress-checklist.md` using only: `Not started`, `In progress`, `Blocked`, or `Done`.
-4. Point to `skills/java21-migration/phases/INDEX.md` for quick operator guidance.
+2. Check the preflight gate for required memory files.
+3. If preflight is not satisfied, return memory initialization as the immediate next action.
+4. If preflight is satisfied, state the immediate next phase to execute.
+5. Remind that each completed phase must write its status to `docs/migration-progress-checklist.md` using only: `Not started`, `In progress`, `Blocked`, or `Done`.
+6. Point to `skills/java21-migration/phases/INDEX.md` for quick operator guidance.
 
 ---
 

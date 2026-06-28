@@ -121,6 +121,18 @@ Prefer read-only checks unless the user explicitly requests deeper browser valid
 
 Use `opencode/memory/` as the first source for recurring context before running wide codebase scans.
 
+Treat `opencode/memory/` as the canonical shared memory namespace for humans and all agent runtimes in this project (not OpenCode-only).
+
+Memory initialization is a hard precondition for migration execution.
+
+Before planning or implementation starts, these files must exist and contain initial project-specific content:
+
+- `opencode/memory/architecture.md`
+- `opencode/memory/decisions.md`
+- `opencode/memory/status.md`
+
+If any of these files is missing or empty, stop migration execution, create or initialize them first, and then continue.
+
 Memory files:
 
 - `opencode/memory/architecture.md`

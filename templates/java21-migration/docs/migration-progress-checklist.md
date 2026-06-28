@@ -31,6 +31,13 @@ java-agentic-devkit
 - [ ] The migration is tracked on one working branch.
 - [ ] Migration work is split into small, reviewable commits.
 
+## Memory Preflight (Required Before Migration Starts)
+
+- [ ] `opencode/memory/architecture.md` exists and has initial project content.
+- [ ] `opencode/memory/decisions.md` exists and has initial project content.
+- [ ] `opencode/memory/status.md` exists and has initial project content.
+- [ ] Memory preflight completion was recorded before running planning or implementation.
+
 ## Human Prompts For OpenCode
 
 Use short prompts to select the migration phase. `AGENTS.md` and the selected skill provide the detailed rules, so the prompt does not need to repeat them.

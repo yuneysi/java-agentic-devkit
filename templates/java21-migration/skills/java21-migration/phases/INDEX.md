@@ -2,6 +2,8 @@
 
 Use this table to decide which phase skill to run next.
 
+Preflight requirement: initialize `opencode/memory/architecture.md`, `opencode/memory/decisions.md`, and `opencode/memory/status.md` before running migration phases.
+
 | Phase | Use when | Main inputs | Expected outputs | Done when | Recommended prompt |
 |---|---|---|---|---|---|
 | baseline | Migration has not started or baseline is stale | build/test entrypoints, critical flows, test inventory | readiness score, baseline risk map, Java 8 evidence | baseline evidence is reproducible and readiness is documented | `Use the java21-migration skill and run baseline.` Then write status in `docs/migration-progress-checklist.md`. |
