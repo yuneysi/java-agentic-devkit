@@ -14,6 +14,12 @@ In this repository, OpenCode behavior is mainly controlled by:
 - `opencode/opencode.json`
 - `opencode/tui.json`
 
+Default OpenCode plugins enabled in this devkit:
+
+- `oh-my-openagent`
+- `opencode-codebase-index`
+- `@warp-dot-dev/opencode-warp`
+
 ## oh-my-openagent
 
 `oh-my-openagent` is the orchestration layer on top of OpenCode (agent roles, routing, and execution flow).

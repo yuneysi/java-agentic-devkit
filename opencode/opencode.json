@@ -5,7 +5,8 @@
   ],
   "plugin": [
     "oh-my-openagent",
-    "opencode-codebase-index"
+    "opencode-codebase-index",
+    "@warp-dot-dev/opencode-warp"
   ],
   "lsp": true,
   "mcp": {
