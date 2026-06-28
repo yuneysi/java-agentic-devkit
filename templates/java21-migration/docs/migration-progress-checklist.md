@@ -35,6 +35,37 @@ java-agentic-devkit
 
 Use short prompts to select the migration phase. `AGENTS.md` and the selected skill provide the detailed rules, so the prompt does not need to repeat them.
 
+Natural start prompt (recommended):
+
+```text
+Start the Java 21 migration.
+```
+
+Expected behavior:
+
+- the orchestrator returns the ordered phases,
+- the orchestrator identifies the next phase to run now,
+- each completed phase updates its status in this checklist.
+
+## Phase Status Tracker
+
+Each phase run must write status here.
+
+Allowed status values (use exactly one):
+
+- `Not started`
+- `In progress`
+- `Blocked`
+- `Done`
+
+| Phase | Status | Last Updated By | Last Updated At | Notes |
+|---|---|---|---|---|
+| baseline | Not started | TBD | TBD | TBD |
+| planning | Not started | TBD | TBD | TBD |
+| implementation | Not started | TBD | TBD | TBD |
+| validation | Not started | TBD | TBD | TBD |
+| audit | Not started | TBD | TBD | TBD |
+
 - [ ] Initial inspection prompt was used.
 
 ```text
