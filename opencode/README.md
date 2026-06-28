@@ -155,3 +155,18 @@ This memory-first flow reduces repeated codebase scans and token usage for recur
 
 - `templates/java21-migration/README.md` for migration workflow in a target project
 - `opencode/container-and-env.md` for full container tool and environment details
+
+## Privacy-Safe Usage Observability
+
+This devkit follows a privacy-safe default usage model:
+
+- no personal tracking scripts in skills or templates
+- no mandatory telemetry to use skills or container images
+- aggregate-only usage visibility through platform analytics
+
+Recommended visibility sources:
+
+- GitHub repository traffic analytics (aggregate views/clones)
+- GitHub Container Registry image pull counts by tag
+
+If you add custom telemetry in the future, keep it opt-in and document it in `.github/PRIVACY.md`.
