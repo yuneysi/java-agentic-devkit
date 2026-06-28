@@ -32,6 +32,8 @@ Execute one approved migration slice with minimal, behavior-preserving changes.
 - no unrelated cleanups,
 - no untracked behavioral changes.
 
+Keep dependency updates in a separate migration slice from source-code behavior changes when practical.
+
 ## Exit criteria
 
 - slice scope is fully completed,

@@ -7,6 +7,7 @@ This folder contains an organized Java 8 to Java 21 migration skill system for p
 - `SKILL.md`: top-level orchestrator for migration phase flow.
 - `phases/INDEX.md`: quick phase table (when to use, inputs, outputs, done criteria).
 - `phases/baseline/SKILL.md`: baseline and readiness responsibility.
+- `phases/characterization/SKILL.md`: optional regression-lock tests for risky or under-covered behavior.
 - `phases/planning/SKILL.md`: staged migration planning responsibility.
 - `phases/implementation/SKILL.md`: execution of approved migration slices.
 - `phases/validation/SKILL.md`: candidate validation and drift detection.
@@ -37,6 +38,10 @@ Phase-specific prompts:
 
 ```text
 Use the java21-migration skill and run baseline.
+```
+
+```text
+Use the java21-migration skill and run optional characterization for high-risk gaps.
 ```
 
 ```text

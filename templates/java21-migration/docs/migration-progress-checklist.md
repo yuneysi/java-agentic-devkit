@@ -68,6 +68,7 @@ Allowed status values (use exactly one):
 | Phase | Status | Last Updated By | Last Updated At | Notes |
 |---|---|---|---|---|
 | baseline | Not started | TBD | TBD | TBD |
+| characterization (optional) | Not started | TBD | TBD | TBD |
 | planning | Not started | TBD | TBD | TBD |
 | implementation | Not started | TBD | TBD | TBD |
 | validation | Not started | TBD | TBD | TBD |
@@ -84,34 +85,37 @@ Tell me the current baseline status, likely validation commands, highest-risk ar
 - [ ] Java 8 baseline prompt was used.
 
 ```text
-Use the java8-baseline-capture-phase skill.
+Use the java21-migration skill and run baseline.
+```
+
+- [ ] Optional characterization prompt was used when baseline risk/coverage required it.
+
+```text
+Use the java21-migration skill and run optional characterization for high-risk gaps.
 ```
 
 - [ ] Migration planning prompt was used.
 
 ```text
-Use the java21-migration-planning-phase skill.
+Use the java21-migration skill and produce direct Java 8 -> Java 21 planning output.
 ```
 
 - [ ] Small migration change prompt was used.
 
 ```text
-Use the java21-migration-implementation-phase skill.
-Apply the next planned small migration step.
+Use the java21-migration skill and execute the next approved implementation slice.
 ```
 
 - [ ] Java 21 validation prompt was used.
 
 ```text
-Use the java21-candidate-validation-phase skill.
+Use the java21-migration skill and run validation for the Java 21 candidate.
 ```
 
 - [ ] Migration review prompt was used before final acceptance.
 
 ```text
-Use the java21-migration-audit-phase skill.
-Review the current diff.
-Do not modify files.
+Use the java21-migration skill and generate the audit recommendation.
 ```
 
 ## Java 8 Baseline

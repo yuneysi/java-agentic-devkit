@@ -15,6 +15,7 @@ When the developer uses a natural prompt such as `Start the Java 21 migration`, 
 Phase skills are organized by responsibility:
 
 - `phases/baseline/SKILL.md`
+- `phases/characterization/SKILL.md` (optional, when baseline coverage/risk requires it)
 - `phases/planning/SKILL.md`
 - `phases/implementation/SKILL.md`
 - `phases/validation/SKILL.md`
@@ -27,10 +28,11 @@ Phase skills are organized by responsibility:
 Always run in this sequence:
 
 1. baseline
-2. planning
-3. implementation
-4. validation
-5. audit
+2. characterization (optional)
+3. planning
+4. implementation
+5. validation
+6. audit
 
 Do not skip a phase unless the user explicitly requests it and the risk is documented.
 
@@ -57,6 +59,7 @@ If the input is a high-level start command (for example `start migration`, `begi
 
 1. Return the full ordered phase list:
    - baseline
+   - characterization (optional)
    - planning
    - implementation
    - validation
