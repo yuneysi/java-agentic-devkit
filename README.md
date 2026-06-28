@@ -45,7 +45,8 @@ java-agentic-devkit/
 │       ├── README.md
 │       ├── docker-compose.yml
 │       ├── .github/copilot-instructions.md
-│       └── docs/migration-progress-checklist.md
+│       ├── docs/migration-progress-checklist.md
+│       └── skills/java21-migration/
 ├── AGENTS.md
 ├── LICENSE
 └── README.md

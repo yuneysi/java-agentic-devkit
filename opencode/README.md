@@ -96,9 +96,9 @@ Container paths:
 
 Skill source in this repository:
 
-- `opencode/skills/java21-migration/`
 - `opencode/skills/java-enterprise/`
 - `opencode/skills/general/`
+- `templates/java21-migration/skills/java21-migration/`
 
 Installed location inside the container:
 
@@ -114,22 +114,27 @@ Skill organization:
 
 How to use skills in this devkit:
 
-- Keep prompts short and explicit, for example: `Use the java8-baseline-capture-phase skill.`
+- Keep prompts short and explicit, for example: `Use the java21-migration skill and run baseline.`
 - Use one focused skill per step when possible.
 - Keep skill output aligned with the target project `AGENTS.md`.
 - Do not duplicate project-wide rules inside prompts.
 
-Java 21 migration phase skills:
+Java 21 migration phase skills are now template-owned under:
 
-| Skill | Use for |
-|------|---------|
-| `java8-baseline-capture-phase` | Capture Java 8 baseline evidence. |
-| `java8-characterization-test-phase` | Add Java 8 characterization tests when coverage is low. |
-| `java21-migration-test-planning-phase` | Plan baseline and candidate validation commands and evidence. |
-| `java21-migration-planning-phase` | Plan the migration sequence and next small step. |
-| `java21-migration-implementation-phase` | Apply one focused migration implementation step. |
-| `java21-candidate-validation-phase` | Validate the Java 21 candidate against baseline behavior. |
-| `java21-migration-audit-phase` | Audit the migration diff and classify risks. |
+- `templates/java21-migration/skills/java21-migration/`
+
+Use the orchestrator entrypoint:
+
+- `java21-migration/SKILL.md`
+
+Phase responsibilities are documented under:
+
+- `phases/baseline/SKILL.md`
+- `phases/characterization/SKILL.md` (optional)
+- `phases/planning/SKILL.md`
+- `phases/implementation/SKILL.md`
+- `phases/validation/SKILL.md`
+- `phases/audit/SKILL.md`
 
 Enterprise and general skills:
 
