@@ -1,177 +1,170 @@
-# java-agentic-devkit
+# java-agentic-devkit: Java 8 → 21 Migration
 
-`java-agentic-devkit` is focused on helping teams migrate Java 8 projects to Java 21 in a controlled, evidence-driven way.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Publish DevKit Image](https://github.com/yuneysi/java-agentic-devkit/actions/workflows/publish-image.yml/badge.svg)](https://github.com/yuneysi/java-agentic-devkit/actions/workflows/publish-image.yml)
+[![Java 8 to 21](https://img.shields.io/badge/Java-8%20%E2%86%92%2021-orange.svg)](templates/java21-migration/README.md)
 
-It provides a reusable Docker-based development environment, migration templates, built-in skills, and a containerized workflow designed for OpenCode + oh-my-openagent orchestration. It is for developers who want to work with agents, use skills, and run OpenCode, oh-my-openagent, and related plugins out of the box without installing those tools locally.
+[Quick start](#start-in-three-commands) · [Migration evidence](#what-a-migration-produces) · [How it works](#how-the-devkit-works) · [Detailed setup](templates/java21-migration/README.md) · [Contributing](.github/CONTRIBUTING.md)
 
-It can also be used for Java 8 legacy maintenance and Java 21 target projects, but the primary workflow is Java 8 to Java 21 migration.
+**Migrate legacy Java 8 applications to Java 21 with small, reversible changes, evidence gates, and human sign-off.**
 
-Recommended skill for most users: `java21-migration` under `templates/java21-migration/skills/java21-migration/`. This is the canonical migration skill set used by the templates in this repository.
+`java-agentic-devkit` gives Java teams a repeatable migration environment and an AI-assisted workflow that treats the existing Java 8 application as the behavioral baseline. It does not ask an agent to rewrite the project in one large change. It guides the migration through explicit phases:
 
-Created and maintained by Yuneysi Gerat Gil.
+**Baseline → Characterization → Planning → Implementation → Validation → Audit**
 
-License: MIT. See [LICENSE](LICENSE).
+Each implementation slice is reviewed and validated before the next one begins. Java 21 results are compared with captured Java 8 evidence, and unresolved risks remain visible instead of being hidden behind a successful compile.
 
-Feedback is welcome. If you use this devkit, please open GitHub Issues with bugs, migration pain points, improvement ideas, or comments about what worked well in your Java migration workflow.
+This is not a one-click source rewrite. It is a controlled migration workflow for teams that need reviewable changes, reproducible evidence, and an explicit release decision.
 
-When the container starts, it automatically copies the files agents need into the mounted target project, including `AGENTS.md`, `.github/copilot-instructions.md`, shared project memory under `opencode/memory/`, and the template documentation under `docs/`. The generated `AGENTS.md` points agents to the relevant documentation and skill flow, so agents can choose the right migration skill with short user prompts instead of long, repeated instructions.
+## Why Use It?
+
+Compiling on Java 21 does not prove that an application is safe to release. Enterprise Java migrations can change API payloads, XML contracts, persistence behavior, transactions, messaging, security, startup, and operational behavior without producing a compilation error.
+
+This devkit makes those risks part of the workflow.
+
+| Typical migration | With `java-agentic-devkit` |
+|---|---|
+| One large upgrade that is difficult to review | Small migration slices that can be reviewed and reverted independently |
+| “The tests pass” | Java 8 baseline evidence compared with Java 21 candidate evidence |
+| Compatibility risks discovered late | Risk map and test gaps captured from the baseline |
+| Runtime, dependency, and source changes mixed together | Build, dependency, source, and behavior changes isolated when practical |
+| Informal decisions scattered across chats and commits | Architecture, decisions, status, evidence, and human sign-off recorded in the project |
+| Ad hoc upgrade process | Baseline → plan → implementation → validation → audit |
+
+## What You Get
+
+- A Docker-based environment with Java 8, Java 21, Maven, OpenCode, and oh-my-openagent ready to use.
+- A migration orchestrator that selects the next valid phase from project state and evidence.
+- Focused skills for baseline capture, characterization tests, planning, implementation, validation, and audit.
+- Guardrails against broad refactors, opportunistic modernization, and unapproved behavior changes.
+- Explicit build, test, contract, runtime, evidence, and rollback gates.
+- Shared project memory for architecture, decisions, risks, blockers, and next actions.
+- A concise human sign-off tracker for the final `Go`, `Go with conditions`, or `No-go` decision.
+
+The primary use case is Java 8 to Java 21 migration. The devkit also includes templates for Java 8 maintenance and Java 21 development.
+
+### Best Fit
+
+- Maven-based Java applications with behavior that must remain stable.
+- Enterprise systems using REST, SOAP, JMS, JDBC, JPA, Spring, JSP, or external integrations.
+- Teams that need an auditable migration record rather than a single generated patch.
+- Developers who want AI assistance while retaining human control over scope and release decisions.
+
+## Start In Three Commands
+
+Docker Desktop must be running, and the target project must contain the migration [docker-compose.yml](templates/java21-migration/docker-compose.yml).
+
+From the target project root:
+
+```bash
+docker compose pull
+docker compose run --rm devkit
+opencode
+```
+
+The second command opens the devkit shell. Run the third command inside that shell, then use one prompt:
+
+```text
+Start the Java 21 migration.
+```
+
+The workflow first establishes what the Java 8 application does, identifies risks and missing evidence, and then proposes the next safe action. It does not modify production code during baseline capture.
+
+For setup details, Windows and macOS notes, and alternative VS Code Dev Container usage, see the [Java 8 to Java 21 migration guide](templates/java21-migration/README.md).
+
+## Designed For Real Java Migration Risk
+
+The workflow explicitly checks affected areas such as:
+
+- Java EE and Jakarta EE boundaries, including `javax.*` to `jakarta.*` decisions
+- Maven plugins, annotation processors, generated sources, and removed JDK APIs
+- REST/JSON and SOAP/XML contracts
+- JMS delivery, retries, ordering, acknowledgement, and transactions
+- JDBC/JPA mappings, lazy loading, flush behavior, and transaction boundaries
+- Spring configuration, proxying, and bean lifecycle
+- concurrency, thread pools, virtual threads, and blocking calls
+- timezone, locale, charset, date/time, numbers, and `BigDecimal`
+- authentication, authorization, TLS, deserialization, and external commands
+- startup, shutdown, logging, metrics, health checks, and deployment behavior
+
+Only checks relevant to the target project are applied. The goal is evidence, not ceremony.
+
+## What A Migration Produces
+
+| Phase | Reviewable output |
+|---|---|
+| Baseline | Reproducible Java 8 commands, raw build/test output, known failures, risk map, and readiness verdict |
+| Characterization | Focused tests that lock critical behavior not protected by the existing suite |
+| Planning | Ordered migration slices with affected modules, proof commands, stop conditions, and rollback steps |
+| Implementation | One focused compatibility change with its diff and gate evidence |
+| Validation | Java 8 vs. Java 21 comparison across applicable build, test, contract, and runtime behavior |
+| Audit | Traceable residual risks and a human-reviewed `Go`, `Go with conditions`, or `No-go` recommendation |
+
+Raw baseline and candidate outputs stay in the target repository under `docs/migration-results/`. Concise architecture, decision, and status records stay under `opencode/memory/`, making the work reviewable by developers who did not participate in every agent session.
+
+## How The DevKit Works
+
+The target Java project is mounted at `/workspace`; the devkit remains outside it. On startup, migration templates bootstrap the agent rules, workflow, human tracker, and shared memory required by the target project. OpenCode and oh-my-openagent then execute the migration using the project-local rules and evidence.
+
+The canonical workflow is the [Java 21 migration skill](templates/java21-migration/skills/java21-migration/SKILL.md). The [migration agent rules](templates/java21-migration/AGENTS.md) define behavior preservation, change discipline, risk handling, dependency policy, and validation standards.
+
+Created and maintained by Yuneysi Gerat Gil. Licensed under the [MIT License](LICENSE).
+
+If you use the devkit, open a GitHub Issue with the project type, what worked, what failed, and how long the migration took. Real migration feedback drives the roadmap.
 
 ## Repository Structure
+
+<details>
+<summary>View the repository tree</summary>
 
 ```text
 java-agentic-devkit/
 ├── .devcontainer/
+│   ├── devcontainer.json
 │   └── Dockerfile
-├── opencode/
-│   ├── README.md
-│   ├── container-and-env.md
-│   ├── opencode.json
-│   ├── oh-my-openagent.jsonc
-│   ├── tui.json
-│   └── skills/
-├── scripts/
-│   ├── create-image.sh
-│   ├── docker-utils.sh
-│   └── container/
-│       └── start-devkit-container.sh
-├── templates/
-│   ├── README.md
-│   ├── java8/
-│   │   ├── AGENTS.md
-│   │   ├── docker-compose.yml
-│   │   └── .github/copilot-instructions.md
-│   ├── java21/
-│   │   ├── AGENTS.md
-│   │   ├── docker-compose.yml
-│   │   └── .github/copilot-instructions.md
-│   └── java21-migration/
-│       ├── AGENTS.md
-│       ├── README.md
-│       ├── docker-compose.yml
-│       ├── .github/copilot-instructions.md
-│       ├── docs/migration-progress-checklist.md
-│       └── skills/java21-migration/
-├── AGENTS.md
-├── LICENSE
-└── README.md
-```
+├── .github/
+│   ├── workflows/
+│   │   └── publish-image.yml
+</details>
 
-## How To Start The DevKit In Your Project
+## Setup Options
 
-This bootstrap behavior is controlled by `DEVKIT_BOOTSTRAP_TEMPLATES`. The default is `true`, which copies missing files from the selected template into the mounted project. Set `DEVKIT_BOOTSTRAP_TEMPLATES=false` only when you want to use the image without modifying the mounted workspace, such as when developing this devkit repository itself inside a VS Code Dev Container.
+| Option | Use when | Start here |
+|---|---|---|
+| Project-owned Docker Compose | Recommended for a shared team workflow | Copy the selected template `docker-compose.yml` into the target project |
+| VS Code Dev Container | The team works directly in VS Code containers | Follow the platform-specific examples in the migration guide |
+| Local helper scripts | Developing or testing the devkit itself | Use `scripts/container/start-devkit-container.sh` |
 
-The local helper script `scripts/container/start-devkit-container.sh` intentionally starts containers with `DEVKIT_BOOTSTRAP_TEMPLATES=false` by default. This keeps ad hoc script runs from writing template files into the mounted workspace. To enable template copying for a script run, set `DEVKIT_BOOTSTRAP_TEMPLATES=true` before running the script.
+Template bootstrapping is controlled by `DEVKIT_BOOTSTRAP_TEMPLATES`. Container-based target-project flows enable it so required files are copied when missing. The local helper script disables it by default to avoid modifying an arbitrary mounted workspace.
 
-The devkit stays outside the target Java project. Developers build or run the devkit from this repository and mount the target project at `/workspace`.
+See the [migration setup guide](templates/java21-migration/README.md) for complete macOS, Windows, Compose, and Dev Container instructions.
 
-Java 8 is the default runtime. Use Java 21 only when the target project already runs on Java 21 or when validating a Java 8 to Java 21 migration candidate.
+## Shared Project Memory
 
-For Java 8 to Java 21 migrations, start with:
+The devkit maintains three concise target-project files:
 
-- `templates/java21-migration/README.md`
+| File | Purpose |
+|---|---|
+| `opencode/memory/architecture.md` | Current system shape, critical flows, integrations, and constraints |
+| `opencode/memory/decisions.md` | Accepted or rejected migration decisions and rationale |
+| `opencode/memory/status.md` | Current phase, evidence, blockers, risks, and next action |
 
-It contains the full migration-specific workflow and prompt flow.
+Bootstrap files are seeds, not verified project facts. The migration workflow initializes them from repository evidence before baseline execution and updates them only when their owned information changes.
 
-### Quick Start
+## Documentation
 
-Ensure Docker Desktop is running. Then choose one startup flow:
+| Guide | Use for |
+|---|---|
+| [Migration setup guide](templates/java21-migration/README.md) | Full Java 8 to Java 21 setup and startup options |
+| [Migration agent rules](templates/java21-migration/AGENTS.md) | Behavior preservation, change discipline, and validation standards |
+| [Migration workflow](templates/java21-migration/skills/java21-migration/SKILL.md) | Phase order, shared gates, evidence, and state transitions |
+| [Human sign-off tracker](templates/java21-migration/docs/migration-progress-checklist.md) | Migration slices, risks, evidence, and release decision |
+| [OpenCode guide](opencode/README.md) | OpenCode, oh-my-openagent, configuration, and installed skills |
+| [Container reference](opencode/container-and-env.md) | Runtime tools, paths, and environment variables |
 
-1) Running in Docker Container.
+## Contributing
 
-1.1) Recommended: project-owned `docker-compose.yml` in the target project.
-
-- Set `DEVKIT_JAVA_TEMPLATE` to `java8`, `java21`, or `java21-migration`.
-- If the target project does not have a compose file yet, copy the template compose for the selected mode (`templates/<mode>/docker-compose.yml`) to the target project root.
-- For migration mode, use `templates/java21-migration/README.md` for full setup and prompt flow.
-
-1.2) Alternative: project-owned `.devcontainer/devcontainer.json` in the target project.
-
-- Use this when your team works directly with VS Code Dev Containers instead of Compose.
-- Set `DEVKIT_JAVA_TEMPLATE` and `DEVKIT_BOOTSTRAP_TEMPLATES=true` in container environment values.
-- Full example and platform-specific config are below.
-
-2) Manual: checkout this devkit repository and run scripts.
-
-- Use this when you want to build/run the devkit from this repository instead of adding container config to the target project.
-- Script commands are below.
-
-After startup, verify runtime and tooling inside the container:
-
-```bash
-java -version
-mvn -v
-```
-
-#### 1) Running in Docker Container
-
-##### 1.1) Recommended: Project-owned `docker-compose.yml`
-
-Keep `docker-compose.yml` in the target project root and start the devkit from there.
-
-This is the recommended flow because it keeps container startup, ports, and team commands close to the target project.
-
-##### 1.2) Alternative: Project-owned `.devcontainer/devcontainer.json` (no Compose)
-
-If you prefer VS Code Dev Containers without `docker-compose.yml`, create `.devcontainer/devcontainer.json` in the target project root.
-
-The following examples are for this `1.2` `.devcontainer/devcontainer.json` flow.
-
-Linux and macOS example:
-
-```json
-{
-	"name": "Java Agentic DevKit - Java 8",
-	"image": "ghcr.io/yuneysi/java-agentic-devkit:latest",
-	"remoteUser": "vscode",
-	"workspaceFolder": "/workspace",
-	"overrideCommand": false,
-	"containerEnv": {
-		"DEVKIT_PROJECT_DIR": "/workspace",
-		"DEVKIT_JAVA_TEMPLATE": "java8",
-		"DEVKIT_BOOTSTRAP_TEMPLATES": "true",
-		"MAVEN_OPTS": "-Dmaven.repo.local=/home/vscode/.m2/repository"
-	},
-	"forwardPorts": [8080, 5005],
-	"mounts": [
-		"source=${localEnv:HOME}/.m2,target=/home/vscode/.m2,type=bind",
-		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
-	],
-	"postStartCommand": "bash -lc 'use-java8 && java -version && mvn -v'"
-}
-```
-
-Windows example using `USERPROFILE`:
-
-```json
-{
-	"name": "Java Agentic DevKit - Java 8",
-	"image": "ghcr.io/yuneysi/java-agentic-devkit:latest",
-	"remoteUser": "vscode",
-	"workspaceFolder": "/workspace",
-	"overrideCommand": false,
-	"containerEnv": {
-		"DEVKIT_PROJECT_DIR": "/workspace",
-		"DEVKIT_JAVA_TEMPLATE": "java8",
-		"DEVKIT_BOOTSTRAP_TEMPLATES": "true",
-		"MAVEN_OPTS": "-Dmaven.repo.local=/home/vscode/.m2/repository"
-	},
-	"forwardPorts": [8080, 5005],
-	"mounts": [
-		"source=${localEnv:USERPROFILE}/.m2,target=/home/vscode/.m2,type=bind",
-		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
-	],
-	"postStartCommand": "bash -lc 'use-java8 && java -version && mvn -v'"
-}
-```
-
-#### 2) Manual: Checkout this devkit repository and run scripts
-
-Clone this repository, build the image locally, and start a mounted target project with the provided scripts:
-
-```bash
-cd ~/github/java-agentic-devkit
-./scripts/create-image.sh
-./scripts/container/start-devkit-container.sh /path/to/java/project
+Issues and pull requests are welcome. Before contributing, read the [contribution guide](.github/CONTRIBUTING.md), [code of conduct](.github/CODE_OF_CONDUCT.md), and [security policy](.github/SECURITY.md).
 ```
 
 The script sets `DEVKIT_BOOTSTRAP_TEMPLATES=false` by default. To copy missing files from the selected template into the mounted project during startup, run:
