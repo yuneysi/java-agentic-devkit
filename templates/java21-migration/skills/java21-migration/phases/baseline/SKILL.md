@@ -1,4 +1,4 @@
-# java21-migration-baseline phase skill
+# Java 8 Baseline Phase
 
 ## Responsibility
 
@@ -15,7 +15,7 @@ Baseline capture is evidence work. Do not change production code, tests, or buil
 
 ## Outputs
 
-- readiness scoring (0-10)
+- readiness verdict: `Ready`, `Ready with risks`, or `Blocked`
 - baseline risk map by area
 - baseline evidence stored under `docs/migration-results/java8-baseline/`
 - initial migration status entry in `opencode/memory/status.md`
@@ -25,11 +25,10 @@ Baseline capture is evidence work. Do not change production code, tests, or buil
 1. Confirm reproducible Java 8 build and test entry commands.
 2. Verify Java runtime is Java 8 for baseline commands.
 3. Run baseline compile and relevant tests.
-4. Identify high-risk areas (contracts, persistence, messaging, security, temporal/locale).
-5. Produce readiness scoring and explain blockers.
+4. Inventory applicable behavior-sensitive areas and the evidence protecting each one.
+5. Produce the readiness verdict and explain risks or blockers.
 6. Store raw command outputs under `docs/migration-results/java8-baseline/`.
-7. Record baseline evidence and decisions.
-8. Update `docs/migration-progress-checklist.md` with baseline phase status.
+7. Record baseline evidence, known failures, environment assumptions, and unresolved test gaps.
 
 ## Recommended checks
 
@@ -40,7 +39,7 @@ Baseline capture is evidence work. Do not change production code, tests, or buil
 ## Exit criteria
 
 - baseline commands are reproducible,
-- high-risk areas are explicitly listed,
-- readiness score is documented,
+- applicable high-risk areas and evidence gaps are explicit,
+- readiness verdict is documented,
 - evidence paths are present and referenced in memory files,
 - baseline outputs are saved in `docs/migration-results/java8-baseline/`.

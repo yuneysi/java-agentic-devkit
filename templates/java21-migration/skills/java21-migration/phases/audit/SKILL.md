@@ -1,4 +1,4 @@
-# java21-migration-audit phase skill
+# Migration Audit Phase
 
 ## Responsibility
 
@@ -20,14 +20,14 @@ Produce migration sign-off quality evidence and a clear go/no-go recommendation.
 ## Mandatory steps
 
 1. Verify baseline, plan, implementation, and validation artifacts are consistent.
-2. Confirm every high-risk area has explicit validation coverage.
-3. Identify unresolved risks and required follow-up.
-4. State go/no-go recommendation and conditions transparently.
-5. Record final status in `opencode/memory/status.md`.
-6. Update `docs/migration-progress-checklist.md` with audit phase status.
+2. Trace every implemented slice to its decision, diff, gates, and evidence.
+3. Confirm every applicable high-risk area has explicit validation coverage or accepted residual risk.
+4. Identify unresolved risks with severity, owner, next action, and due condition.
+5. State exactly one recommendation: `Go`, `Go with conditions`, or `No-go`.
+6. Record final status in `opencode/memory/status.md`.
 
 ## Exit criteria
 
 - audit summary is reproducible from stored evidence,
-- residual risks are explicit,
+- residual risks and release conditions are explicit,
 - recommendation is unambiguous and actionable.

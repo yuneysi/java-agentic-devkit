@@ -205,7 +205,7 @@ Initialize or refresh opencode/memory/architecture.md, opencode/memory/decisions
 Read AGENTS.md first, inspect only the evidence needed, replace template seed values with verified project facts, keep unknowns explicit, and summarize the files changed.
 ```
 
-For Java 8 to Java 21 migrations, run the same prompt before migration planning and after each meaningful migration phase.
+For Java 8 to Java 21 migrations, run this prompt before starting the migration. Refresh memory after a phase only when architecture, decisions, risks, or delivery status changed.
 
 Agents read these concise files first, so they avoid repeating wide codebase scans for recurring context. This reduces token usage and usually improves response speed for follow-up questions.
 

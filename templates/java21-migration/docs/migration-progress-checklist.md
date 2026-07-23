@@ -1,259 +1,87 @@
-# Java 8 To Java 21 Migration Human Checklist
+# Java 8 To Java 21 Migration Sign-Off
 
-Use this checklist to track human review of a Java 8 to Java 21 migration.
-
-The devkit copies this template into the target project as `docs/migration-progress-checklist.md`.
+Use this file for human review and release decisions. Agent rules belong in `AGENTS.md`; migration procedure belongs in `skills/java21-migration/SKILL.md`.
 
 ## Project
 
-Project name:
+| Field | Value |
+|---|---|
+| Project | TBD |
+| Working branch | TBD |
+| Technical owner | TBD |
+| Business owner | TBD |
+| Target release | TBD |
 
-```text
-<project-name>
-```
+## Preconditions
 
-Working branch:
+- [ ] Java 8 behavior is the baseline unless a change is explicitly approved.
+- [ ] Shared memory contains verified project facts, not untouched template seeds.
+- [ ] Build and test entry points are known.
+- [ ] Critical business flows and applicable behavior-sensitive areas are identified.
 
-```text
-<branch-name>
-```
+## Phase Status
 
-Migration environment:
+Allowed values: `Not started`, `In progress`, `Blocked`, `Done`.
 
-```text
-java-agentic-devkit
-```
-
-## Migration Goal
-
-- [ ] Java 8 behavior is treated as the behavioral source of truth.
-- [ ] Java 21 behavior preserves Java 8 behavior unless a change was explicitly approved.
-- [ ] The migration is tracked on one working branch.
-- [ ] Migration work is split into small, reviewable commits.
-
-## Memory Preflight (Required Before Migration Starts)
-
-- [ ] `opencode/memory/architecture.md` exists and has initial project content.
-- [ ] `opencode/memory/decisions.md` exists and has initial project content.
-- [ ] `opencode/memory/status.md` exists and has initial project content.
-- [ ] Memory preflight completion was recorded before running planning or implementation.
-
-## Human Prompts For OpenCode
-
-Use short prompts to select the migration phase. `AGENTS.md` and the selected skill provide the detailed rules, so the prompt does not need to repeat them.
-
-Natural start prompt (recommended):
-
-```text
-Start the Java 21 migration.
-```
-
-Expected behavior:
-
-- the orchestrator returns the ordered phases,
-- the orchestrator identifies the next phase to run now,
-- each completed phase updates its status in this checklist.
-
-## Phase Status Tracker
-
-Each phase run must write status here.
-
-Allowed status values (use exactly one):
-
-- `Not started`
-- `In progress`
-- `Blocked`
-- `Done`
-
-| Phase | Status | Last Updated By | Last Updated At | Notes |
+| Phase | Status | Evidence / Decision | Owner | Updated |
 |---|---|---|---|---|
-| baseline | Not started | TBD | TBD | TBD |
-| characterization (optional) | Not started | TBD | TBD | TBD |
-| planning | Not started | TBD | TBD | TBD |
-| implementation | Not started | TBD | TBD | TBD |
-| validation | Not started | TBD | TBD | TBD |
-| audit | Not started | TBD | TBD | TBD |
+| Baseline | Not started | TBD | TBD | TBD |
+| Characterization, if required | Not started | TBD | TBD | TBD |
+| Planning | Not started | TBD | TBD | TBD |
+| Implementation | Not started | TBD | TBD | TBD |
+| Validation | Not started | TBD | TBD | TBD |
+| Audit | Not started | TBD | TBD | TBD |
 
-- [ ] Initial inspection prompt was used.
+## Migration Slices
 
-```text
-Read AGENTS.md and inspect this project for migration readiness.
-Do not edit files yet.
-Tell me the current baseline status, likely validation commands, highest-risk areas, and the first skill I should use.
-```
+Keep one row per approved slice. A slice is complete only when all applicable gates pass.
 
-- [ ] Java 8 baseline prompt was used.
+| ID | Scope | Primary Risk | Status | Build | Test | Contract | Runtime | Rollback | Evidence |
+|---|---|---|---|---|---|---|---|---|---|
+| S-001 | TBD | TBD | Not started | N/A | N/A | N/A | N/A | TBD | TBD |
 
-```text
-Use the java21-migration skill and run baseline.
-```
+## Dependency And Build Changes
 
-- [ ] Optional characterization prompt was used when baseline risk/coverage required it.
+Record only changed dependencies, plugins, toolchains, frameworks, or temporary JVM flags.
 
-```text
-Use the java21-migration skill and run optional characterization for high-risk gaps.
-```
+| Component | Old | New | Reason | Risk | Validation | Rollback / Removal |
+|---|---|---|---|---|---|---|
+| TBD | TBD | TBD | TBD | TBD | TBD | TBD |
 
-- [ ] Migration planning prompt was used.
+## Risks And Approved Deltas
 
-```text
-Use the java21-migration skill and produce direct Java 8 -> Java 21 planning output.
-```
+| ID | Type | Description | Severity | Evidence / Decision | Owner | Status |
+|---|---|---|---|---|---|---|
+| R-001 | Risk | TBD | TBD | TBD | TBD | Open |
 
-- [ ] Small migration change prompt was used.
+Use `Delta` for an intentional behavior change and `Risk` for unresolved exposure. Do not classify a regression as an approved delta without explicit human approval.
 
-```text
-Use the java21-migration skill and execute the next approved implementation slice.
-```
+## Final Decision
 
-- [ ] Java 21 validation prompt was used.
+- [ ] Java 8 baseline evidence is reproducible.
+- [ ] Every approved slice is implemented and validated.
+- [ ] Every applicable behavior-sensitive area has evidence or accepted residual risk.
+- [ ] Java 21 clean build and required tests pass.
+- [ ] Runtime and contract checks pass where applicable.
+- [ ] Temporary workarounds have an owner and removal condition.
+- [ ] CI/CD and deployment runtime changes are validated.
+- [ ] Residual risks have owners and next actions.
 
-```text
-Use the java21-migration skill and run validation for the Java 21 candidate.
-```
+| Decision | Select One |
+|---|---|
+| Go | [ ] |
+| Go with conditions | [ ] |
+| No-go | [ ] |
 
-- [ ] Migration review prompt was used before final acceptance.
-
-```text
-Use the java21-migration skill and generate the audit recommendation.
-```
-
-## Java 8 Baseline
-
-- [ ] Java 8 version was recorded.
-- [ ] Maven version was recorded.
-- [ ] Java 8 baseline command was run.
-- [ ] Java 8 baseline output was saved under `docs/migration-results/java8-baseline/`.
-- [ ] Java 8 coverage command was run or marked as not available.
-- [ ] Java 8 coverage is at least 90%, or gaps are documented.
-- [ ] Known Java 8 failures are documented.
-- [ ] Important runtime, SOAP, JMS, JDBC, JSP, or deployment observations are documented.
-
-Baseline notes:
+Conditions or blockers:
 
 ```text
-<baseline notes>
+TBD
 ```
 
-## Java 21 Candidate
+Approved by:
 
-- [ ] Java 21 version was recorded.
-- [ ] Maven version was recorded.
-- [ ] Java 21 compile command was run.
-- [ ] Java 21 test command was run.
-- [ ] Java 21 verify command was run when applicable.
-- [ ] Java 21 candidate output was saved under `docs/migration-results/java21-candidate/`.
-- [ ] Java 21 coverage command was run or marked as not available.
-- [ ] Java 21 coverage is at least 90%, or gaps are documented.
-- [ ] Java 8 and Java 21 results were compared.
-- [ ] Meaningful differences are classified and tracked.
-
-Candidate notes:
-
-```text
-<candidate notes>
-```
-
-## Migration Risk Register
-
-| ID | Area | Risk Classification | Description | Evidence | Status | Owner |
-|----|------|---------------------|-------------|----------|--------|-------|
-| R-001 | TBD | TBD | TBD | TBD | Open | TBD |
-
-Risk classifications:
-
-- safe migration
-- behavioral risk
-- SOAP/XML contract risk
-- JSP/runtime risk
-- JMS risk
-- JDBC risk
-- JPA/Hibernate risk
-- configuration risk
-- cache risk
-- test gap
-- build-tool risk
-- dependency risk
-- security risk
-
-## Dependency Changes
-
-| ID | Dependency / Plugin | Old Version | New Version | Reason | Risk | Validation |
-|----|---------------------|-------------|-------------|--------|------|------------|
-| D-001 | TBD | TBD | TBD | TBD | TBD | TBD |
-
-- [ ] Each dependency or plugin change has a migration reason.
-- [ ] Dependency changes are grouped by reason.
-- [ ] Dependency changes are validated separately when possible.
-- [ ] Runtime behavior risk is recorded.
-
-## Build Configuration Changes
-
-| ID | File | Change | Reason | Validation |
-|----|------|--------|--------|------------|
-| B-001 | TBD | TBD | TBD | TBD |
-
-- [ ] `pom.xml` changes are recorded.
-- [ ] Parent POM changes are recorded.
-- [ ] Maven profile changes are recorded.
-- [ ] Maven Wrapper changes are recorded.
-- [ ] Compiler, surefire, failsafe, dependency management, annotation processor, generated source, and CI build changes are recorded when touched.
-
-## Compatibility Checklist
-
-- [ ] SOAP/XML WSDL, XSD, namespaces, prefixes, element order, `SOAPAction`, null/empty tags, dates, numbers, and faults were reviewed when touched.
-- [ ] JAXB, JAX-WS, SAAJ, generated classes, marshalling, and unmarshalling were reviewed when touched.
-- [ ] JSP, servlet, tag libraries, JSTL, custom tags, expression language, encoding, content type, sessions, request attributes, and form parameters were reviewed when touched.
-- [ ] JMS destinations, connection factories, serialization, selectors, acknowledgements, transactions, redelivery, dead-letter behavior, listener concurrency, headers, correlation IDs, reply-to destinations, and timeouts were reviewed when touched.
-- [ ] JDBC drivers, connection pools, autocommit, isolation, timeouts, schema, SQL dialect, stored procedures, generated keys, date/time mappings, number mappings, and transaction boundaries were reviewed when touched.
-- [ ] JPA/Hibernate mappings, lazy loading, flush behavior, transaction scope, and query behavior were reviewed when touched.
-- [ ] Date, time, timezone, locale, charset, `String.getBytes()`, `new String(byte[])`, `DecimalFormat`, and `BigDecimal` behavior were reviewed when touched.
-- [ ] Cache behavior was reviewed when touched.
-- [ ] Security-sensitive behavior was reviewed when touched.
-
-Compatibility notes:
-
-```text
-<compatibility notes>
-```
-
-## Characterization Tests
-
-| ID | Test Class | Behavior Captured | Area | Status |
-|----|------------|-------------------|------|--------|
-| CT-001 | TBD | TBD | TBD | Planned |
-
-- [ ] SOAP request payloads are covered when relevant.
-- [ ] SOAP response payloads are covered when relevant.
-- [ ] SOAP faults are covered when relevant.
-- [ ] XML marshalling and unmarshalling are covered when relevant.
-- [ ] JSP rendered output is covered when relevant.
-- [ ] JMS message headers and payloads are covered when relevant.
-- [ ] JDBC query results and transaction behavior are covered when relevant.
-- [ ] Date/time, number formatting, encoding, and caching behavior are covered when relevant.
-
-## Commit Log
-
-| Commit | Message | Area | Risk | Validation |
-|--------|---------|------|------|------------|
-| TBD | TBD | TBD | TBD | TBD |
-
-## Final Acceptance Checklist
-
-- [ ] Java 8 baseline behavior is documented.
-- [ ] Java 8 test coverage is at least 90%, or uncovered risk is documented and accepted.
-- [ ] Java 21 compile passes.
-- [ ] Java 21 test coverage is at least 90%, or uncovered risk is documented and accepted.
-- [ ] Unit tests pass or known failures are documented.
-- [ ] Integration tests pass or known failures are documented.
-- [ ] SOAP/XML compatibility risks are reviewed.
-- [ ] JSP/Tomcat compatibility risks are reviewed.
-- [ ] JMS compatibility risks are reviewed.
-- [ ] JDBC compatibility risks are reviewed.
-- [ ] JPA/Hibernate compatibility risks are reviewed.
-- [ ] Date/time/locale/charset/BigDecimal risks are reviewed.
-- [ ] Dependency upgrades are documented.
-- [ ] Temporary JVM flags are removed or justified.
-- [ ] CI/CD configuration is updated.
-- [ ] Final validation command is documented.
-- [ ] Final migration audit has approved the final diff.
+| Role | Name | Date |
+|---|---|---|
+| Technical owner | TBD | TBD |
+| Business owner | TBD | TBD |

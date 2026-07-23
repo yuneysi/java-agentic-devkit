@@ -1,15 +1,14 @@
 # java21-migration skill
 
-This folder contains an organized Java 8 to Java 21 migration skill system for projects bootstrapped from `templates/java21-migration/`.
+This folder contains the Java 8 to Java 21 migration workflow for projects bootstrapped from `templates/java21-migration/`.
 
 All paths in this document are relative to the bootstrapped target project root.
 
-Startup prerequisites and container setup are documented in `templates/java21-migration/README.md`.
+`SKILL.md` is the authoritative orchestrator. It defines phase order, shared gates, evidence locations, and status transitions. Each phase skill defines only the procedure and exit criteria for that phase.
 
 ## Structure
 
 - `SKILL.md`: top-level orchestrator for migration phase flow.
-- `phases/INDEX.md`: quick phase table (when to use, inputs, outputs, done criteria).
 - `phases/baseline/SKILL.md`: baseline and readiness responsibility.
 - `phases/characterization/SKILL.md`: optional regression-lock tests for risky or under-covered behavior.
 - `phases/planning/SKILL.md`: staged migration planning responsibility.
@@ -24,42 +23,4 @@ Startup prerequisites and container setup are documented in `templates/java21-mi
 - explicit gate outcomes and evidence,
 - reusable enterprise migration workflow.
 
-## Invocation examples
-
-Natural start prompt (recommended):
-
-```text
-Start the Java 21 migration.
-```
-
-Expected behavior from the orchestrator:
-
-- return the full phase sequence,
-- indicate the next phase to execute now,
-- remind that each phase must write status in `docs/migration-progress-checklist.md`.
-
-Phase-specific prompts:
-
-```text
-Use the java21-migration skill and run baseline.
-```
-
-```text
-Use the java21-migration skill and run optional characterization for high-risk gaps.
-```
-
-```text
-Use the java21-migration skill and produce direct Java 8 -> Java 21 planning output.
-```
-
-```text
-Use the java21-migration skill and execute the next approved implementation slice.
-```
-
-```text
-Use the java21-migration skill and run validation for the Java 21 candidate.
-```
-
-```text
-Use the java21-migration skill and generate the audit recommendation.
-```
+Developers can start the orchestrator with `Start the Java 21 migration.` It determines the next valid phase from project memory and evidence.

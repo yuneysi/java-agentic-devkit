@@ -2,13 +2,14 @@
 
 Use this file as the shared decision log for humans and agents.
 
+Template state: initialization required. Preserve applicable devkit conventions below and add project-specific decisions from verified evidence.
+
 ## Decision Entries
 
 | Date | ID | Decision | Why | Impact | Status |
 |------|----|----------|-----|--------|--------|
-| 2026-06-21 | D-001 | Use `opencode/memory/` as first source for recurring migration context | Reduce repeated scanning and token usage | All agents and contributors | accepted |
-| 2026-06-21 | D-002 | Keep migration memory in architecture, decisions, and status files | Separate system shape, rationale, and progress | Migration workflow and audits | accepted |
-| 2026-06-21 | D-003 | Treat Java 8 behavior as baseline truth and document approved deltas explicitly | Preserve behavior and reduce regression risk | Migration validation and sign-off | accepted |
+| Template | D-001 | Use `opencode/memory/` as first source for recurring migration context | Reduce repeated scanning while retaining source evidence | All agents and contributors | accepted |
+| Template | D-002 | Treat Java 8 behavior as baseline truth and document approved deltas explicitly | Preserve behavior and reduce regression risk | Migration validation and sign-off | accepted |
 
 ## Conventions
 

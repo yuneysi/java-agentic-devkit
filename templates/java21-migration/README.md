@@ -158,48 +158,17 @@ Quick runtime notes for target projects:
 - OpenCode binary path in container: `/usr/local/bin/opencode`
 - OpenCode config path in container: `/home/vscode/.config/opencode/opencode.json`
 
-## 4) Prompt Flow That Works Well
+## 4) Start The Migration
 
-Use short prompts. `AGENTS.md` contains version-agnostic operating rules, and `skills/java21-migration/SKILL.md` contains migration-specific workflow guidance.
+First initialize the target project's shared memory with the `project-architecture-memory-writer` skill. Template seed values must be replaced with verified project facts.
 
-Recommended sequence:
-
-1. Readiness and baseline:
+Then use one short prompt:
 
 ```text
-Use the java21-migration skill.
-Build readiness scoring and capture Java 8 baseline evidence.
+Start the Java 21 migration.
 ```
 
-2. Plan first migration slice:
-
-```text
-Use the java21-migration skill.
-Define the first reversible migration slice with risk buckets and gate criteria.
-```
-
-3. Execute next approved slice:
-
-```text
-Use the java21-migration skill.
-Execute the next approved migration slice with compile, test, contract, runtime, and evidence gates.
-```
-
-4. Continue hop-by-hop:
-
-```text
-Use the java21-migration skill.
-Execute the next planned migration slice and update migration memory.
-```
-
-5. Candidate validation and audit summary:
-
-```text
-Use the java21-migration skill.
-Produce Java 21 candidate validation evidence and sign-off summary.
-```
-
-Track progress in `docs/migration-progress-checklist.md` during each step.
+The migration skill determines the next valid phase from recorded state and evidence. Track human review in `docs/migration-progress-checklist.md`; do not copy phase instructions into the tracker.
 
 ## 5) Migration Records In Target Project
 
@@ -214,9 +183,9 @@ Use the checklist as the human sign-off tracker:
 
 ## Reference
 
-- Version-agnostic operating rules: `AGENTS.md`
+- Project-wide agent rules: `AGENTS.md`
 - Migration workflow skill: `skills/java21-migration/SKILL.md`
-- Human tracker and prompt checklist: `docs/migration-progress-checklist.md`
+- Human sign-off tracker: `docs/migration-progress-checklist.md`
 
 ## Troubleshooting
 

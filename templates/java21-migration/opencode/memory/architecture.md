@@ -1,31 +1,30 @@
 # Project Architecture Snapshot
 
-Last updated: 2026-06-21
-Owner: Team
+Last updated: not initialized
+Owner: unassigned
 
-This is the initial migration seed created by java-agentic-devkit templates.
-Replace generic items with target-project facts during the first migration session.
+Template state: initialization required.
+
+Replace this seed with verified target-project facts before starting the migration. Keep unknowns explicit; do not infer modules or integrations from this template.
 
 ## Migration Context
 
 - Migration mode: Java 8 to Java 21
 - Baseline runtime: Java 8
 - Candidate runtime: Java 21
-- Deployment target: project-specific (Tomcat/Spring Boot/other)
+- Deployment target: unknown
 
 ## System Summary
 
 - Packaging: unknown
 - Main business domains: unknown
-- Most critical compatibility areas: REST/SOAP/JMS/JPA/JSP contracts (to confirm)
+- Most critical compatibility areas: unknown
 
 ## Module Map
 
 | Module | Responsibility | Baseline Risk | Candidate Risk |
 |--------|----------------|---------------|----------------|
-| app-core | Main business logic (to confirm) | medium | medium |
-| app-web | HTTP/API/UI layer (to confirm) | medium | high |
-| app-integration | External adapters (to confirm) | high | high |
+| Unknown | Inspect project build structure | unknown | unknown |
 
 ## Runtime Entry Points
 
@@ -54,6 +53,4 @@ Replace generic items with target-project facts during the first migration sessi
 
 ## Known Risk Areas
 
-- Jakarta namespace mismatch in handwritten code
-- Spring Boot 3 behavior changes (if applicable)
-- Contract drift in REST/SOAP/JMS integrations
+- Unknown until project inspection.

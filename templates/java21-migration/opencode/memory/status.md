@@ -1,28 +1,29 @@
 # Migration Status Snapshot
 
-Last updated: 2026-06-21
-Owner: Team
+Last updated: not initialized
+Owner: unassigned
+
+Template state: initialization required.
 
 ## Current State
 
-- Branch: main (template seed)
+- Branch: unknown
 - Java 8 baseline: pending
 - Java 21 candidate: pending
 - Build/test status: unknown
 
 ## In Progress
 
-- Capture Java 8 baseline evidence and save outputs
-- Build initial module and integration risk map
+- Initialize all shared memory files with verified project facts.
 
 ## Next Steps
 
-1. Run baseline skill, then update checklist and this status file with evidence paths.
-2. Run planning skill and log accepted migration decisions with validation commands.
+1. Run the project architecture memory writer.
+2. Start the migration workflow; baseline is the first phase.
 
 ## Blockers
 
-- None recorded yet.
+- Migration is blocked until template seeds are replaced with project-specific facts.
 
 ## Evidence
 

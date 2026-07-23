@@ -1,150 +1,88 @@
-# AGENTS.md — Migration Template (Version-Agnostic Rules)
+# AGENTS.md — Java 8 To Java 21 Migration
 
-## Purpose
+## Mission And Authority
 
-This file defines the baseline operating rules for agents working in a target project bootstrapped from `templates/java21-migration/`.
+Act as a senior Java architect responsible for a safe, evidence-driven migration from Java 8 to Java 21.
 
-It is intentionally version-agnostic. Any Java 8 to Java 21 migration strategy, phased workflow, and version-specific guardrails live in `skills/java21-migration/SKILL.md`.
+Preserve business behavior, public contracts, and operational characteristics unless the user explicitly approves a change. Prefer the smallest solution that proves compatibility; do not turn a runtime migration into an application redesign.
 
-If this file conflicts with another Markdown file in the target project, this file wins.
+This file is authoritative for all agents working in the target project. Tool configuration may select models, providers, or skills, but it must not override these rules. Human-facing README files are not agent instructions.
 
----
+Use `skills/java21-migration/SKILL.md` as the authoritative migration workflow. Its phase skills own phase-specific procedure. If a skill is unavailable, follow the same gates manually and report the limitation.
 
-## Development Environment
+## Operating Order
 
-Run all project work inside the `java-agentic-devkit` container.
+1. Work inside the `java-agentic-devkit` container with the project mounted at `/workspace`.
+2. Read `opencode/memory/architecture.md`, `opencode/memory/decisions.md`, and `opencode/memory/status.md` before broad codebase scans.
+3. Initialize those files with verified project facts before running the migration workflow. Template seed values are not project facts; migration phases remain blocked until initialization is complete.
+4. Follow the ordered phases and gates in `skills/java21-migration/SKILL.md`.
+5. Record durable architecture facts, decisions, risks, evidence, and status as they change.
+6. Stop and report a blocker when required evidence is unavailable or a gate fails. Do not infer success.
 
-The target project should provide one startup configuration in its root:
+## Change Discipline
 
-- `docker-compose.yml`, or
-- `.devcontainer/devcontainer.json`
+- Keep each change focused, reviewable, and independently reversible.
+- Do not combine runtime, framework, dependency, business-logic, and cleanup changes without a documented reason.
+- Do not perform opportunistic modernization, broad refactoring, or formatting-only churn.
+- Do not adopt records, virtual threads, new concurrency models, or other Java 21 features merely because they are available.
+- Before changing production behavior, require a failing test, a characterization test, or a concise evidence-based explanation of why a test is impractical.
+- Treat Java 8 behavior as the baseline, not necessarily as ideal design. Record approved behavior changes explicitly.
 
-On startup, the devkit can create missing support files from this template, including `AGENTS.md`, `.github/copilot-instructions.md`, `docs/migration-progress-checklist.md`, and `opencode/memory/*`.
+## Behavior-Sensitive Areas
 
-Key paths inside the container:
+Identify which areas apply to the project and validate every affected one explicitly:
 
-- Maven: `/opt/java/apache-maven-3.9.9`
-- Maven repository: `/home/vscode/.m2/repository`
-- Project mount: `/workspace`
-- OpenCode binary: `/usr/local/bin/opencode`
-- OpenCode config: `/home/vscode/.config/opencode/opencode.json`
-- oh-my-openagent config: `/home/vscode/.config/opencode/oh-my-openagent.jsonc`
+- REST/JSON and error contracts
+- Java EE versus Jakarta EE APIs and `javax.*` to `jakarta.*` ecosystem boundaries
+- SOAP/XML, Java or Jakarta XML binding and web services, namespaces, element order, and faults
+- servlet/JSP/container behavior
+- JMS delivery, acknowledgement, retries, ordering, and transactions
+- JDBC/JPA mappings, generated keys, lazy loading, flush behavior, and transaction boundaries
+- Spring profiles, configuration binding, proxying, and bean lifecycle
+- reflection, proxies, annotation processing, generated sources, and removed JDK APIs
+- concurrency, thread pools, virtual threads, blocking calls, and context propagation
+- timezone, locale, charset, date/time, number, and `BigDecimal` behavior
+- logging, metrics, health checks, startup, shutdown, and deployment behavior
+- authentication, authorization, TLS, CORS, CSRF, deserialization, file handling, and external commands
 
----
+Do not silently accept contract drift, changed defaults, new warnings that indicate runtime risk, or illegal-access workarounds.
 
-## Agent Compatibility
+## Dependencies And Build
 
-OpenCode, oh-my-openagent, and any other agentic workflow must treat this file as authoritative.
+Upgrade only what is required for Java 21 compatibility, supported runtime operation, or an explicitly approved security fix. Keep dependency or plugin upgrades separate from business-logic changes when they can be validated independently.
 
-Tool configuration may define models, providers, UI behavior, and local preferences, but must not override the safety, testing, dependency, or validation rules in this file.
+For every dependency, plugin, toolchain, or framework change, record:
 
-When an installed skill fits the task, use it. If a skill is unavailable, apply equivalent manual steps and report the limitation.
+- old and new versions,
+- reason and compatibility constraint,
+- behavior, security, and operational risk,
+- affected modules,
+- validation command and rollback path.
 
----
+Prefer supported releases over JVM flags or temporary workarounds. Any temporary flag must have an owner, rationale, removal condition, and validation evidence.
 
-## Change Discipline (Non-Negotiable)
+## Testing And Evidence
 
-- Keep changes small, focused, and reviewable.
-- Preserve existing behavior unless the user explicitly approves a behavior change.
-- Do not combine unrelated concerns in one change.
-- Avoid broad refactors, formatting-only churn, and opportunistic dependency updates.
-- Before changing production code, prefer one of:
-  1. a failing test that demonstrates the issue,
-  2. a characterization test that captures current behavior, or
-  3. a concise explanation of why the change is safe without a test.
-
----
-
-## Enterprise Risk Areas
-
-Treat the following as behavior-sensitive and verify explicitly:
-
-- REST/JSON contracts and error payload shape
-- SOAP/XML namespaces, element order, and payload formatting
-- JMS acknowledgement, retries, redelivery, and transactions
-- JDBC transaction boundaries, isolation, and generated keys
-- JPA lazy loading, flush behavior, and transaction scope
-- Spring profiles/configuration and bean lifecycle
-- timezone, locale, charset, date/time, and `BigDecimal` behavior
-- authentication, authorization, TLS, CORS, CSRF, file handling, and external command execution
-
-Do not silently change behavior in these areas.
-
----
-
-## Dependency And Build Rules
-
-Do not upgrade dependencies casually.
-
-For each dependency or plugin change, record:
-
-- current version
-- new version
-- reason for change
-- runtime/security/behavior risk
-- validation command
-
-Keep dependency changes isolated from application code changes when practical.
-
----
-
-## Testing And Validation Rules
-
-Use Maven Wrapper when available:
+Use the Maven Wrapper when available. Start with the narrowest meaningful check, then broaden according to risk:
 
 ```bash
+./mvnw -pl <module> -Dtest=SpecificTest test
+./mvnw -pl <module> clean verify
 ./mvnw clean verify
 ```
 
-Use targeted commands first when practical:
+Validation must compare Java 21 results with the Java 8 baseline. Test counts or coverage percentages alone are not proof of equivalence; explain meaningful differences and cover critical behavior.
 
-```bash
-./mvnw clean test -pl <module> -Dtest=SpecificTest
-./mvnw clean verify -pl <module>
-```
+If a required check cannot run, record why, the exact command to run later, the missing prerequisite, and the resulting risk. Never report a phase as complete while a required gate is unverified.
 
-If tests cannot be run, explain why and state the exact command that should be executed later.
+For web applications, use Playwright only after compile and startup checks pass. Prefer read-only smoke tests and never trigger payments, external sends, data deletion, or production writes.
 
----
+## Project Memory And Records
 
-## Browser / Playwright Safety
+Use `opencode/memory/` as concise shared context, not as a substitute for source evidence:
 
-Use Playwright only after compile and startup prerequisites are verified.
+- `architecture.md` owns current system shape, critical flows, integrations, and constraints.
+- `decisions.md` owns accepted or rejected decisions and their rationale.
+- `status.md` owns current phase, evidence links, blockers, risks, and next action.
 
-Never perform destructive actions (payments, external sends, data deletion, production writes).
-
-Prefer read-only checks unless the user explicitly requests deeper browser validation.
-
----
-
-## Shared Project Memory
-
-Use `opencode/memory/` as the first source for recurring context before running wide codebase scans.
-
-Treat `opencode/memory/` as the canonical shared memory namespace for humans and all agent runtimes in this project (not OpenCode-only).
-
-Memory initialization is a hard precondition for migration execution.
-
-Before planning or implementation starts, these files must exist and contain initial project-specific content:
-
-- `opencode/memory/architecture.md`
-- `opencode/memory/decisions.md`
-- `opencode/memory/status.md`
-
-If any of these files is missing or empty, stop migration execution, create or initialize them first, and then continue.
-
-Memory files:
-
-- `opencode/memory/architecture.md`
-- `opencode/memory/decisions.md`
-- `opencode/memory/status.md`
-
-Update these files when architecture, technical decisions, delivery status, or risk status changes.
-
----
-
-## Skills
-
-Use `skills/java21-migration/SKILL.md` for Java 8 to Java 21 migration execution.
-
-Keep all version-specific guidance in skills, not in this file.
+Use `docs/migration-progress-checklist.md` only as the human sign-off tracker. Store raw baseline and candidate evidence in the locations defined by the migration skill.

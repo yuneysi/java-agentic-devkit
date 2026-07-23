@@ -1,4 +1,4 @@
-# java21-migration-implementation phase skill
+# Migration Implementation Phase
 
 ## Responsibility
 
@@ -20,10 +20,11 @@ Execute one approved migration slice with minimal, behavior-preserving changes.
 
 1. Execute only the current approved slice.
 2. Apply minimal changes required for compatibility.
-3. Keep dependency changes isolated from business logic when practical.
-4. Run compile and targeted tests immediately after changes.
-5. Update `opencode/memory/status.md` and `opencode/memory/decisions.md`.
-6. Update `docs/migration-progress-checklist.md` with implementation phase status.
+3. Stop and return to planning if the slice requires unrelated work or its assumptions are false.
+4. Keep dependency or plugin changes isolated from business logic when they can be validated independently.
+5. Run the slice's narrowest proof command after each meaningful change.
+6. Run every applicable planned gate before declaring the slice implemented.
+7. Record scope changes and new decisions; do not rewrite the plan silently.
 
 ## Must not do
 
@@ -32,11 +33,9 @@ Execute one approved migration slice with minimal, behavior-preserving changes.
 - no unrelated cleanups,
 - no untracked behavioral changes.
 
-Keep dependency updates in a separate migration slice from source-code behavior changes when practical.
-
 ## Exit criteria
 
 - slice scope is fully completed,
-- compile and targeted tests pass,
+- all applicable planned gates have evidence,
 - no unresolved blockers remain inside slice scope,
-- evidence and decisions are documented.
+- the diff contains no unrelated modernization or cleanup.

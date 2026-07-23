@@ -1,101 +1,83 @@
-# Java 8 To Java 21 Migration Skill (Orchestrator)
+# Java 8 To Java 21 Migration Skill
 
-## Intent
+## Purpose
 
-This is the top-level migration orchestrator skill for Java 8 to Java 21.
+Orchestrate a behavior-preserving Java 8 to Java 21 migration. Decide the next valid phase from recorded evidence, enforce its entry and exit gates, and report one clear next action.
 
-Use it to decide the next phase, enforce flow order, and keep outputs consistent across all migration responsibilities.
+`AGENTS.md` owns project-wide rules. This file owns migration order and shared gates. Each phase skill owns only its phase procedure.
 
-When the developer uses a natural prompt such as `Start the Java 21 migration`, respond with the phase sequence, the next phase to run now, and the checklist writeback rule.
+## Preflight
 
----
+Before baseline, verify that the following files contain project-specific facts rather than untouched template seeds:
 
-## Sub-skill structure
+- `opencode/memory/architecture.md`
+- `opencode/memory/decisions.md`
+- `opencode/memory/status.md`
 
-Phase skills are organized by responsibility:
+If not, invoke the project architecture memory writer, initialize the files from repository evidence, and then continue with baseline. Do not perform a wide migration scan before this initialization.
+
+## Phase Flow
+
+1. **Baseline** — establish reproducible Java 8 build, test, runtime, and risk evidence.
+2. **Characterization, when needed** — lock critical behavior that baseline evidence does not protect.
+3. **Planning** — define ordered, reversible migration slices and proof commands.
+4. **Implementation** — execute one approved slice.
+5. **Validation** — compare that slice or candidate with the Java 8 baseline on Java 21.
+6. **Audit** — issue the evidence-backed release recommendation after all slices pass validation.
+
+Repeat implementation and validation for each approved slice. Run characterization when critical behavior is uncovered, unreliable, or understood only from production. It may be skipped when baseline evidence already protects all applicable high-risk behavior; record the reason.
+
+Return to an earlier phase when new evidence invalidates one of its gates. Never preserve phase order at the expense of correctness.
+
+## Migration Guardrails
+
+- Target Java 21 directly; use intermediate JDKs only as diagnostic tools, not as undocumented migration targets.
+- Separate JDK/build-tool enablement, dependency or framework upgrades, source compatibility, and behavior changes whenever each can be validated independently.
+- Treat `javax.*` to `jakarta.*` as an ecosystem or framework migration, not an automatic consequence of running on Java 21.
+- Prefer supported dependency and plugin versions over `--add-opens`, illegal-access workarounds, or internal JDK APIs.
+- Do not introduce records, virtual threads, new concurrency models, or unrelated language modernization during compatibility work.
+- Preserve public contracts and operational behavior unless an approved decision documents the intended delta.
+
+## Shared Gates
+
+Apply only gates relevant to the affected slice, but never omit an applicable gate:
+
+| Gate | Proof |
+|---|---|
+| Build | Clean compile/package succeeds on the intended runtime and toolchain. |
+| Test | Targeted tests pass first; affected module and repository tests pass at the required scope. |
+| Contract | Affected REST, SOAP, messaging, persistence, file, or serialization behavior matches baseline or an approved delta. |
+| Runtime | Startup, critical flow, shutdown, and operational checks pass where runtime wiring changed. |
+| Evidence | Commands, runtime versions, outputs, differences, and unresolved risks are recorded. |
+| Rollback | The slice can be reverted without depending on unrelated changes; data/config rollback is defined when applicable. |
+
+A failed or unverified required gate blocks the slice. Do not mark it complete because another gate passed.
+
+## State And Evidence
+
+Use only `Not started`, `In progress`, `Blocked`, or `Done` for phase status in `docs/migration-progress-checklist.md`.
+
+After each phase run:
+
+1. update the human tracker,
+2. update `opencode/memory/status.md`,
+3. update `architecture.md` or `decisions.md` only when their owned facts changed,
+4. report evidence, blockers, and the next valid action.
+
+Store raw evidence under:
+
+- Java 8 baseline: `docs/migration-results/java8-baseline/`
+- Java 21 candidate: `docs/migration-results/java21-candidate/`
+
+Do not duplicate raw logs in memory files.
+
+## Phase Skills
 
 - `phases/baseline/SKILL.md`
-- `phases/characterization/SKILL.md` (optional, when baseline coverage/risk requires it)
+- `phases/characterization/SKILL.md`
 - `phases/planning/SKILL.md`
 - `phases/implementation/SKILL.md`
 - `phases/validation/SKILL.md`
 - `phases/audit/SKILL.md`
 
----
-
-## Execution order
-
-Always run in this sequence:
-
-1. baseline
-2. characterization (optional)
-3. planning
-4. implementation
-5. validation
-6. audit
-
-Do not skip a phase unless the user explicitly requests it and the risk is documented.
-
-## Preflight gate (mandatory)
-
-Before running any migration phase, verify that these files exist and are initialized:
-
-- `opencode/memory/architecture.md`
-- `opencode/memory/decisions.md`
-- `opencode/memory/status.md`
-
-If any file is missing or empty:
-
-1. stop phase execution,
-2. create or initialize missing memory files,
-3. record initialization status in `docs/migration-progress-checklist.md`,
-4. continue with baseline.
-
----
-
-## Natural prompt behavior
-
-If the input is a high-level start command (for example `start migration`, `begin Java 21 migration`, `let's migrate to Java 21`):
-
-1. Return the full ordered phase list:
-   - baseline
-   - characterization (optional)
-   - planning
-   - implementation
-   - validation
-   - audit
-2. Check the preflight gate for required memory files.
-3. If preflight is not satisfied, return memory initialization as the immediate next action.
-4. If preflight is satisfied, state the immediate next phase to execute.
-5. Remind that each completed phase must write its status to `docs/migration-progress-checklist.md` using only: `Not started`, `In progress`, `Blocked`, or `Done`.
-6. Point to `skills/java21-migration/phases/INDEX.md` for quick operator guidance.
-
----
-
-## Cross-phase invariants
-
-- preserve behavior unless explicit approval exists,
-- keep slices small and reversible,
-- require evidence for gate outcomes,
-- keep decisions and status synchronized in `opencode/memory/*`,
-- write phase status updates in `docs/migration-progress-checklist.md` after every phase run using only: `Not started`, `In progress`, `Blocked`, or `Done`.
-
----
-
-## Evidence locations
-
-- `docs/migration-results/java8-baseline/`
-- `docs/migration-results/java21-candidate/`
-- `opencode/memory/architecture.md`
-- `opencode/memory/decisions.md`
-- `opencode/memory/status.md`
-
----
-
-## Suggested prompt starters
-
-- `Use the java21-migration skill and run the baseline phase.`
-- `Use the java21-migration skill and produce the direct Java 8 -> Java 21 planning output.`
-- `Use the java21-migration skill and execute the next implementation slice.`
-- `Use the java21-migration skill and run validation for the Java 21 candidate.`
-- `Use the java21-migration skill and generate the final audit recommendation.`
+For a high-level request such as `Start the Java 21 migration`, inspect recorded state and run or recommend the next valid phase. Do not require the user to know the phase names.
