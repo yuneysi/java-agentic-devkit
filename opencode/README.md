@@ -49,12 +49,12 @@ Default mapping in this devkit:
 
 | Role | Agent | Model |
 |------|-------|-------|
-| Orchestrator | `sisyphus` | `github-copilot/gpt-5.5` (high) |
-| Planner | `prometheus` | `github-copilot/gpt-5.5` (high) |
-| Executor | `hephaestus` | `github-copilot/gpt-5.3-codex` (medium) |
-| Specialist | `oracle` | `github-copilot/gpt-5.5` (high) |
-| Reviewer | `momus` | `github-copilot/gpt-5.5` (xhigh) |
-| Explorer | `explore` | `github-copilot/gpt-5.4-mini` |
+| Orchestrator | `sisyphus` | `github-copilot/gpt-5.6-terra` (high) |
+| Planner | `prometheus` | `github-copilot/gpt-5.6-sol` (high) |
+| Executor | `hephaestus` | `github-copilot/gpt-5.6-terra` (high) |
+| Specialist | `oracle` | `github-copilot/gpt-5.6-sol` (xhigh) |
+| Reviewer | `momus` | `github-copilot/gpt-5.6-sol` (xhigh) |
+| Explorer | `explore` | `github-copilot/gpt-5.6-luna` |
 
 Very short role summary:
 

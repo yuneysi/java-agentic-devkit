@@ -46,13 +46,13 @@
       ]
     }
   },
-  "model": "github-copilot/gpt-5.3-codex",
+  "model": "github-copilot/gpt-5.6-terra",
   "permission": "ask",
   "agent": {
     "plan": {
       "mode": "primary",
       "description": "Read-only planning agent for project inspection, migration planning, risk analysis, and validation strategy.",
-      "model": "github-copilot/gpt-5.5",
+      "model": "github-copilot/gpt-5.6-sol",
       "prompt": "You are the planning agent. Read AGENTS.md first and treat it as authoritative. Inspect the project, identify risks, propose small steps, and recommend validation commands. For project memory, do not validate memory content quality yourself. Only detect whether required memory files exist. If any required memory file is missing, delegate memory initialization/updates to the project-architecture-memory-writer skill. Do not modify files, apply patches, run mutating commands, commit, push, or change external systems. If execution is needed, hand off a concise plan to the build agent.",
       "permission": {
         "read": "allow",
@@ -71,7 +71,7 @@
     "build": {
       "mode": "primary",
       "description": "Execution agent for approved implementation, validation, commits, and operational commands.",
-      "model": "github-copilot/gpt-5.3-codex",
+      "model": "github-copilot/gpt-5.6-terra",
       "prompt": "You are the execution agent. Read AGENTS.md first and treat it as authoritative. Implement the requested change or the approved plan in small, reviewable steps. Prefer existing project patterns, run the narrowest useful validation, report failures clearly, and keep risky operations such as commits, pushes, destructive commands, credentials, production writes, and external side effects explicit and reviewable.",
       "permission": {
         "read": "allow",

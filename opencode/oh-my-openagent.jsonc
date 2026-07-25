@@ -1,40 +1,44 @@
 {
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/oh-my-opencode.schema.json",
+  // Model policy, updated 2026-07-25:
+  // - GPT-5.6 Sol: highest reasoning ceiling for hard planning/review.
+  // - GPT-5.6 Terra: balanced default for everyday agentic coding.
+  // - GPT-5.6 Luna: lightweight option for fast exploration.
   "agents": {
     "sisyphus": {
-      "model": "github-copilot/gpt-5.5",
+      "model": "github-copilot/gpt-5.6-terra",
       "variant": "high",
       "ultrawork": {
-        "model": "github-copilot/gpt-5.5",
-        "variant": "high"
+        "model": "github-copilot/gpt-5.6-sol",
+        "variant": "xhigh"
       },
       "prompt": "IMPORTANT:\nWhenever you delegate work to another agent or continue with a new internal step,\nyou MUST prefix the visible output with:\n\n[Agent: <agent-name>] <current task>\n\nFor example:\n\n[Agent: Sisyphus] Analyzing repository structure\n[Agent: Prometheus] Planning migration strategy\n[Agent: Hephaestus] Applying code changes"
     },
     "hephaestus": {
-      "model": "github-copilot/gpt-5.3-codex",
-      "variant": "medium",
+      "model": "github-copilot/gpt-5.6-terra",
+      "variant": "high",
       "prompt": "IMPORTANT:\nWhenever you delegate work to another agent or continue with a new internal step,\nyou MUST prefix the visible output with:\n\n[Agent: <agent-name>] <current task>\n\nFor example:\n\n[Agent: Sisyphus] Analyzing repository structure\n[Agent: Prometheus] Planning migration strategy\n[Agent: Hephaestus] Applying code changes",
       "prompt_append": "Act as the execution agent. Implement approved plans in small, reviewable steps. Read AGENTS.md first, preserve existing behavior, run focused validation, and report blockers before broadening scope."
     },
     "oracle": {
-      "model": "github-copilot/gpt-5.5",
-      "variant": "high",
+      "model": "github-copilot/gpt-5.6-sol",
+      "variant": "xhigh",
       "prompt": "IMPORTANT:\nWhenever you delegate work to another agent or continue with a new internal step,\nyou MUST prefix the visible output with:\n\n[Agent: <agent-name>] <current task>\n\nFor example:\n\n[Agent: Sisyphus] Analyzing repository structure\n[Agent: Prometheus] Planning migration strategy\n[Agent: Hephaestus] Applying code changes"
     },
     "prometheus": {
-      "model": "github-copilot/gpt-5.5",
+      "model": "github-copilot/gpt-5.6-sol",
       "variant": "high",
       "prompt": "IMPORTANT:\nWhenever you delegate work to another agent or continue with a new internal step,\nyou MUST prefix the visible output with:\n\n[Agent: <agent-name>] <current task>\n\nFor example:\n\n[Agent: Sisyphus] Analyzing repository structure\n[Agent: Prometheus] Planning migration strategy\n[Agent: Hephaestus] Applying code changes",
       "prompt_append": "Act as the planning agent. Inspect before editing, identify risks, produce small migration or implementation steps, and hand off execution-ready plans. For project memory, only detect file absence and delegate memory creation/updates to the project-architecture-memory-writer skill. Do not treat planning as approval to modify production code."
     },
     "momus": {
       "prompt": "IMPORTANT:\nWhenever you delegate work to another agent or continue with a new internal step,\nyou MUST prefix the visible output with:\n\n[Agent: <agent-name>] <current task>\n\nFor example:\n\n[Agent: Sisyphus] Analyzing repository structure\n[Agent: Prometheus] Planning migration strategy\n[Agent: Hephaestus] Applying code changes",
-      "model": "github-copilot/gpt-5.5",
+      "model": "github-copilot/gpt-5.6-sol",
       "variant": "xhigh"
     },
     "explore": {
       "prompt": "IMPORTANT:\nWhenever you delegate work to another agent or continue with a new internal step,\nyou MUST prefix the visible output with:\n\n[Agent: <agent-name>] <current task>\n\nFor example:\n\n[Agent: Sisyphus] Analyzing repository structure\n[Agent: Prometheus] Planning migration strategy\n[Agent: Hephaestus] Applying code changes",
-      "model": "github-copilot/gpt-5.4-mini"
+      "model": "github-copilot/gpt-5.6-luna"
     }
   },
   "default_run_agent": "sisyphus",
@@ -47,22 +51,22 @@
   ],
   "categories": {
     "ultrabrain": {
-      "model": "github-copilot/gpt-5.5",
+      "model": "github-copilot/gpt-5.6-sol",
       "variant": "xhigh"
     },
     "deep": {
-      "model": "github-copilot/gpt-5.5",
-      "variant": "medium"
+      "model": "github-copilot/gpt-5.6-terra",
+      "variant": "high"
     },
     "quick": {
-      "model": "github-copilot/gpt-5.4-mini"
+      "model": "github-copilot/gpt-5.6-luna"
     },
     "unspecified-high": {
-      "model": "github-copilot/gpt-5.5",
+      "model": "github-copilot/gpt-5.6-terra",
       "variant": "high"
     },
     "unspecified-low": {
-      "model": "github-copilot/gpt-5.4-mini"
+      "model": "github-copilot/gpt-5.6-luna"
     }
   }
 }
