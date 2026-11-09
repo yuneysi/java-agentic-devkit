@@ -50,7 +50,15 @@ Include:
 
 ## Known Residual Findings
 
-The bundled headless Chromium for the Playwright MCP server follows the Playwright release that `@playwright/mcp` pins, so it can lag behind the newest Chrome security fixes. Use it only against local applications under test, not against untrusted websites. The `ecdsa` Python package, a transitive dependency of Checkov, has an advisory without an upstream fix; the devkit does not use it for cryptographic operations.
+A Grype scan of the image on 2026-11-09 reported 6 critical and 23 high findings, down from 398 critical and 1,460 high before the hardening release. The remaining findings are:
+
+| Component | Findings | Status |
+|---|---|---|
+| `grype` 0.121.0 and `syft` 1.55.0 binaries (Go stdlib 1.26.8, `brotli`, `go-jose`, `compress`) | 6 critical, 20 high | Fixed in releases published in November 2026. The devkit adopts a release after it has been public for 14 days, so the pins move to the fixed versions on the next update after 2026-11-19. The tools only run when you invoke them. |
+| Guava 33.6.0 in Maven 3.9.16 | 1 high | Fixed in Guava 33.7.2. It ships inside the Maven distribution and is updated with the next Maven release. |
+| `ecdsa` (transitive dependency of Checkov) | 1 high | No upstream fix. The devkit does not use it for cryptographic operations. |
+
+The bundled headless Chromium for the Playwright MCP server follows the Playwright release that `@playwright/mcp` pins, so it can lag behind the newest Chrome security fixes. Use it only against local applications under test, not against untrusted websites.
 
 ## Disclosure
 
