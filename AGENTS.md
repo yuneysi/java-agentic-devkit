@@ -82,6 +82,13 @@ cd ~/github/java-agentic-devkit
 ./scripts/container/start-devkit-container.sh /path/to/java/project
 ```
 
+For the start-from-the-project-folder workflow, use this style:
+
+```bash
+cd /path/to/java/project
+~/github/java-agentic-devkit/scripts/container/start-devkit-container.sh
+```
+
 Do not document a `devkit` shell shortcut or symlink unless the user explicitly asks for that workflow.
 
 Java 8 is the default runtime.

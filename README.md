@@ -72,6 +72,71 @@ The workflow first establishes what the Java 8 application does, identifies risk
 
 For setup details, Windows and macOS notes, and alternative VS Code Dev Container usage, see the [Java 8 to Java 21 migration guide](templates/java21-migration/README.md).
 
+## Start The DevKit From Your Project Folder
+
+Work from your Java project folder and start the devkit from there. The devkit checkout stays in its own folder; the container mounts the folder you are in at `/workspace`.
+
+### One-Time Setup
+
+Clone the devkit and build the image:
+
+```bash
+git clone https://github.com/yuneysi/java-agentic-devkit.git ~/github/java-agentic-devkit
+cd ~/github/java-agentic-devkit
+docker build -t java-agentic-devkit:latest -f .devcontainer/Dockerfile .
+```
+
+Rebuild the image after you pull devkit changes. The start script builds the image only when it does not exist, so it does not update an old image.
+
+### Every Session
+
+```bash
+cd /path/to/java/project
+~/github/java-agentic-devkit/scripts/container/start-devkit-container.sh
+```
+
+Without arguments, the script mounts the current folder and uses the `java8` template. Then, in the container shell:
+
+```bash
+opencode    # or: claude
+```
+
+Options. Pass `.` as the first argument when you set a template:
+
+| Need | Command from the project folder |
+| --- | --- |
+| Java 21 project | `~/github/java-agentic-devkit/scripts/container/start-devkit-container.sh . java21` |
+| Java 8 to Java 21 migration | `~/github/java-agentic-devkit/scripts/container/start-devkit-container.sh . java21-migration` |
+| Application on another port | `DEVKIT_PORTS="8083 5005" ~/github/java-agentic-devkit/scripts/container/start-devkit-container.sh` |
+| No published ports (second container) | `DEVKIT_PORTS="" ~/github/java-agentic-devkit/scripts/container/start-devkit-container.sh` |
+| GitHub MCP server | `export GITHUB_TOKEN=<fine-grained token>` before you start |
+
+The script publishes ports `8080` (application) and `5005` (remote debugging) on `127.0.0.1` by default. On Java 8, start the debug agent with `address=5005`. On Java 9 and later, use `address=*:5005` so that the host can connect. The host `~/.m2` folder is mounted, so your Maven `settings.xml` and repository credentials are available in the container.
+
+### First Session In A Project
+
+Copy the template files that are missing (`AGENTS.md`, `opencode/memory/`, `openspec/config.yaml`, `opencode.json`, `.omo/omo.jsonc`, `docker-compose.yml`, `.github/copilot-instructions.md`). Existing files are never overwritten:
+
+```bash
+cd /path/to/java/project
+DEVKIT_BOOTSTRAP_TEMPLATES=true ~/github/java-agentic-devkit/scripts/container/start-devkit-container.sh
+```
+
+Then set up OpenSpec once, inside the container:
+
+```bash
+openspec init --tools opencode,claude
+```
+
+Review the new files with `git status`. Delete the files your team does not want, and commit the rest.
+
+### Platform Notes
+
+- macOS: use the commands above in Terminal with Docker Desktop running.
+- Windows: run the same commands in a WSL2 terminal (for example Ubuntu) with Docker Desktop WSL integration enabled. Keep the project and the devkit checkout in the WSL file system (`~/...`) for fast file access. Projects under `/mnt/c/...` work, but they are slower. Inside WSL, `~/.m2` is the WSL home folder, not `%USERPROFILE%\.m2`.
+- Git Bash on Windows: the script also accepts Windows paths such as `C:/Git/project` as the first argument.
+- Logins: the container is removed when the session ends (`--rm`), so OpenCode and Claude Code sign-ins do not persist between sessions.
+
 ## Designed For Real Java Migration Risk
 
 The workflow explicitly checks affected areas such as:
@@ -125,6 +190,30 @@ java-agentic-devkit/
 ├── .github/
 │   ├── workflows/
 │   │   └── publish-image.yml
+│   └── PRIVACY.md, SECURITY.md, CONTRIBUTING.md, ...
+├── claude/
+│   └── CLAUDE.md                  # Claude Code instructions copied into the image
+├── opencode/
+│   ├── opencode.json              # OpenCode user config copied into the image
+│   ├── omo.jsonc                  # oh-my-openagent user config
+│   ├── tui.json
+│   ├── community-skills.lock.json # Pinned upstream skills with checksums
+│   └── skills/                    # community/, general/, java-enterprise/
+├── scripts/
+│   ├── container/
+│   │   └── start-devkit-container.sh
+│   ├── install-skills.py          # Installs skills for OpenCode or Claude Code
+│   ├── create-image.sh
+│   └── docker-utils.sh
+├── templates/
+│   ├── java8/                     # AGENTS.md, opencode.json, .omo/, openspec/, memory seeds
+│   ├── java21/
+│   └── java21-migration/          # Adds the java21-migration skill and checklist
+├── AGENTS.md
+├── LICENSE
+└── README.md
+```
+
 </details>
 
 ## Setup Options
@@ -133,9 +222,9 @@ java-agentic-devkit/
 |---|---|---|
 | Project-owned Docker Compose | Recommended for a shared team workflow | Copy the selected template `docker-compose.yml` into the target project |
 | VS Code Dev Container | The team works directly in VS Code containers | Follow the platform-specific examples in the migration guide |
-| Local helper scripts | Developing or testing the devkit itself | Use `scripts/container/start-devkit-container.sh` |
+| Start from the project folder | You work inside your project and keep a local devkit checkout | Follow [Start The DevKit From Your Project Folder](#start-the-devkit-from-your-project-folder) |
 
-Template bootstrapping is controlled by `DEVKIT_BOOTSTRAP_TEMPLATES`. Container-based target-project flows enable it so required files are copied when missing. The local helper script disables it by default to avoid modifying an arbitrary mounted workspace.
+Template bootstrapping is controlled by `DEVKIT_BOOTSTRAP_TEMPLATES`. Container-based target-project flows enable it so required files are copied when missing. The start script disables it by default to avoid modifying an arbitrary mounted workspace.
 
 See the [migration setup guide](templates/java21-migration/README.md) for complete macOS, Windows, Compose, and Dev Container instructions.
 
@@ -165,20 +254,6 @@ Bootstrap files are seeds, not verified project facts. The migration workflow in
 ## Contributing
 
 Issues and pull requests are welcome. Before contributing, read the [contribution guide](.github/CONTRIBUTING.md), [code of conduct](.github/CODE_OF_CONDUCT.md), and [security policy](.github/SECURITY.md).
-```
-
-The script sets `DEVKIT_BOOTSTRAP_TEMPLATES=false` by default. To copy missing files from the selected template into the mounted project during startup, run:
-
-```bash
-DEVKIT_BOOTSTRAP_TEMPLATES=true ./scripts/container/start-devkit-container.sh /path/to/java/project java21-migration
-```
-
-Template options:
-
-```bash
-./scripts/container/start-devkit-container.sh /path/to/java/project java21
-./scripts/container/start-devkit-container.sh /path/to/java/project java21-migration
-```
 
 ## Memory-First Context (Token Saving)
 
