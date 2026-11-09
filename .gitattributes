@@ -1,0 +1,5 @@
+# Keep LF on every platform: skill checksums, shell scripts, and Dockerfiles must match on Windows checkouts.
+* text=auto eol=lf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
