@@ -12,18 +12,14 @@
       "command": [
         "npx",
         "-y",
-        "@upstash/context7-mcp@latest"
+        "@upstash/context7-mcp@4.4.4"
       ]
     },
     "github": {
-      "type": "local",
-      "command": [
-        "npx",
-        "-y",
-        "@modelcontextprotocol/server-github"
-      ],
-      "environment": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "{env:GITHUB_TOKEN}"
+      "type": "remote",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer {env:GITHUB_TOKEN}"
       }
     },
     "playwright": {

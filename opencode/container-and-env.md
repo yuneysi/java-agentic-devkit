@@ -16,7 +16,7 @@ The Docker image is built from `.devcontainer/Dockerfile`. It includes:
 - `jq`, `ripgrep`, `ag`, `fd`, `xmlstarlet`, `xmllint`, `xsltproc`, `fzf`, `tmux`, and common shell tools
 - Semgrep, Checkov, Hadolint, Syft, Grype, and SonarScanner
 - OpenCode, oh-my-openagent, `opencode-codebase-index`, and OpenCode skills from `opencode/skills/`
-- MCP tooling for Context7, GitHub, and Playwright
+- MCP tooling for Context7, GitHub (remote server, needs `GITHUB_TOKEN`), and Playwright (headless Chromium in `/opt/ms-playwright`)
 
 Useful commands inside the container:
 

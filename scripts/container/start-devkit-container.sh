@@ -112,6 +112,7 @@ docker run -it --rm \
     -e "DEVKIT_PROJECT_DIR=${CONTAINER_MOUNT}" \
     -e "DEVKIT_BOOTSTRAP_TEMPLATES=${BOOTSTRAP_TEMPLATES}" \
     -e "MAVEN_OPTS=-Dmaven.repo.local=/home/vscode/.m2/repository" \
+    -e GITHUB_TOKEN \
     -v "${MOUNT_PATH}:${CONTAINER_MOUNT}" \
     -v "${HOST_M2_DIR}:/home/vscode/.m2" \
     -v /var/run/docker.sock:/var/run/docker.sock \

@@ -288,9 +288,16 @@ RUN npm install -g \
     typescript-language-server \
     @biomejs/biome \
     opencode-codebase-index \
-    @modelcontextprotocol/server-github \
     @modelcontextprotocol/server-sequential-thinking \
     @playwright/mcp@0.0.69
+
+# Browser for the Playwright MCP server. The Playwright version must match the
+# one pinned by @playwright/mcp@0.0.69, or the MCP server cannot find the build.
+ENV PLAYWRIGHT_BROWSERS_PATH=/opt/ms-playwright
+RUN npx -y playwright@1.59.0-alpha-1774912654000 install --with-deps chromium \
+    && chmod -R a+rX /opt/ms-playwright \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN curl -fsSL https://bun.sh/install | bash \
     && mv /root/.bun/bin/bun /usr/local/bin/bun \

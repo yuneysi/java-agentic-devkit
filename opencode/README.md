@@ -230,6 +230,16 @@ and verification-before-completion before claiming success. Do not push.
 
 For a routine fix with an agreed scope, skip the interview and ask directly for `git-commit` and `verification-before-completion`. Keep implementation and its tests together; isolate unrelated refactors and upgrades.
 
+### MCP Servers
+
+| Server | Transport | Requirement |
+| --- | --- | --- |
+| `context7` | local `npx`, pinned version | none |
+| `github` | remote `https://api.githubcopilot.com/mcp/` | `GITHUB_TOKEN` environment variable with a fine-grained personal access token |
+| `playwright` | local `npx`, pinned version | headless Chromium installed in `/opt/ms-playwright` during the image build |
+
+The archived `@modelcontextprotocol/server-github` package is no longer used.
+
 ### Rebuild An Existing Container Image
 
 Changing source files does not update a previously built `latest` image. Rebuild before starting a new container:
