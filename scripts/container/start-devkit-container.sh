@@ -140,6 +140,9 @@ docker run -it --rm \
     -e "MAVEN_OPTS=-Dmaven.repo.local=/home/vscode/.m2/repository" \
     -e GITHUB_TOKEN \
     -e OPENAI_API_KEY \
+    -e NEXUS_REPOSITORY_URL \
+    -e NEXUS_REPOSITORY_ID \
+    -e RELEASE_ARTIFACT \
     -v "${MOUNT_PATH}:${CONTAINER_MOUNT}" \
     -v "${HOST_M2_DIR}:/home/vscode/.m2" \
     ${DOCKER_SOCKET_ARGS[@]+"${DOCKER_SOCKET_ARGS[@]}"} \

@@ -15,6 +15,11 @@ services:
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
       # Optional: Codex API-key login. Empty when unset; `codex login --device-auth` also works.
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      # Release version guard (check-release-version): release repository URL, the settings.xml
+      # server id with its credentials, and the deployed groupId:artifactId.
+      NEXUS_REPOSITORY_URL: ${NEXUS_REPOSITORY_URL:-}
+      NEXUS_REPOSITORY_ID: ${NEXUS_REPOSITORY_ID:-}
+      RELEASE_ARTIFACT: ${RELEASE_ARTIFACT:-}
     volumes:
       - .:/workspace
       # HOME on macOS, Linux, and WSL; USERPROFILE on Windows PowerShell and Command Prompt.

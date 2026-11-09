@@ -21,6 +21,7 @@ rules:
     - State the behavior that must not change, in addition to what changes.
     - List the affected modules, contracts (SOAP operations, REST endpoints, JMS destinations, tables), and the rollback approach.
     - Mark any dependency, runtime, or wire-contract change as high risk and name the approver.
+    - For a bug-fix ticket, name the change <ticket-id>-<short-slug>, link the ticket, and describe the wrong and the expected behavior.
   specs:
     - Every requirement needs at least one scenario with WHEN and THEN, and references the evidence as path:line.
     - When a capability has no spec yet, first capture its current behavior as the baseline, then add the delta.

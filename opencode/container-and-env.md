@@ -69,6 +69,9 @@ Use these variables from the target project's `docker-compose.yml`, from the man
 |----------|---------|
 | `OPENAI_API_KEY` | Used by the bundled OpenCode OpenAI provider and by Codex (API-key login). Optional; `codex login --device-auth` also works. |
 | `GITHUB_TOKEN` | Passed to the GitHub MCP server as `GITHUB_PERSONAL_ACCESS_TOKEN`. |
+| `NEXUS_REPOSITORY_URL` | Release repository URL for `check-release-version`. Set it on the host; Compose and the start script pass it through. |
+| `NEXUS_REPOSITORY_ID` | Server id in `~/.m2/settings.xml` that holds the Nexus credentials (default `nexus`). Maven reads the credentials; the script never does. |
+| `RELEASE_ARTIFACT` | `groupId:artifactId` of the deployed artifact for `check-release-version` (default: the root POM). |
 | `GITHUB_PERSONAL_ACCESS_TOKEN` | Internal MCP environment variable populated from `GITHUB_TOKEN` by `opencode/opencode.json`. |
 | `ANTHROPIC_API_KEY` | Optional for Anthropic-compatible tools if enabled by the user. |
 | `OLLAMA_API_BASE` | Optional for local Ollama clients. Use `http://host.docker.internal:11434` on Docker Desktop for Windows/macOS. The bundled OpenCode config points to `http://host.docker.internal:11434/v1` by default. |

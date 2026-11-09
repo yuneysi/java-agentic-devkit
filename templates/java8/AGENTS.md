@@ -181,6 +181,20 @@ Use OpenSpec for any change that alters observable behavior, contracts, or integ
 
 Run `openspec validate --all --strict` before you ask for review. Small fixes without behavior change (typos, formatting, dependency-free refactors with unchanged tests) do not need a change folder.
 
+## Bug-Fix Tickets And Release Versions
+
+Every bug-fix ticket gets its own OpenSpec change:
+
+1. Name the change after the ticket: `<ticket-id>-<short-slug>`, for example `webart-21452-fix-api-key-check`. Link the ticket in `proposal.md`.
+2. If the affected capability has no spec yet, capture its current behavior first (`legacy-spec-baseline`).
+3. Write the fix as a delta spec: a `MODIFIED` requirement, or an `ADDED` scenario that reproduces the bug (WHEN the failing input, THEN the correct result).
+4. Add a failing test for that scenario before the fix; it must pass after the fix.
+5. Archive the change after the fix is validated, so `openspec/specs/` describes the corrected behavior.
+
+Before you set a new version (POM version, release branch, or tag), run `check-release-version <version>`. It checks release branches and tags in Git and the artifact in Nexus (`NEXUS_REPOSITORY_URL`, `NEXUS_REPOSITORY_ID`, `RELEASE_ARTIFACT`). Use the version only when it reports that it is free (exit code 0). If it cannot reach Nexus, stop and ask the user; never assume the version is free. Propose the next version from the latest release branch it reports.
+
+---
+
 ## Project Knowledge (Token Saving)
 
 OpenSpec is the only project knowledge base. There is no `opencode/memory/` folder in this project.

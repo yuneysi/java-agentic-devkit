@@ -155,6 +155,9 @@ RUN printf '%s\n' \
 
 RUN chmod +x /usr/local/bin/use-java8
 
+# Release version guard: checks Git and Nexus before a version is used (see the script header).
+COPY --chmod=755 scripts/container/check-release-version.sh /usr/local/bin/check-release-version
+
 RUN printf '%s\n' \
     '#!/usr/bin/env bash' \
     'export JAVA_HOME=/opt/java/jdk21' \

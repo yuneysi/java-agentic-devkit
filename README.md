@@ -94,6 +94,7 @@ Then, in the container shell, run `claude`, `opencode`, or `codex`. The agents r
 |---|---|
 | Application on another port | `DEVKIT_APP_PORT=8083 docker compose run --rm --service-ports devkit` (PowerShell: `$env:DEVKIT_APP_PORT=8083` first) |
 | GitHub MCP server | Set `GITHUB_TOKEN` on the host before you start |
+| Release version check (`check-release-version <version>`) | Set `NEXUS_REPOSITORY_URL` (release repository), `NEXUS_REPOSITORY_ID` (server id in `settings.xml`), and `RELEASE_ARTIFACT` (`groupId:artifactId`) on the host. Run `git fetch` on the host first: the container has no SSH keys, so it checks the refs from your last fetch |
 | Testcontainers | Uncomment the Docker socket line in `docker-compose.yml` (gives agents control of the host Docker engine) |
 | Use the newest image | `docker compose pull` |
 | Pin a version | Set `DEVKIT_IMAGE=ghcr.io/yuneysi/java-agentic-devkit:<version>`; tags are on the [package page](https://github.com/yuneysi/java-agentic-devkit/pkgs/container/java-agentic-devkit) |
