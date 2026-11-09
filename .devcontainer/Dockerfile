@@ -472,7 +472,8 @@ COPY --chown=${USERNAME}:${USERNAME} opencode/opencode.json /home/${USERNAME}/.c
 COPY --chown=${USERNAME}:${USERNAME} opencode/omo.jsonc /home/${USERNAME}/.omo/omo.jsonc
 COPY --chown=${USERNAME}:${USERNAME} opencode/tui.json /home/${USERNAME}/.config/opencode/tui.json
 COPY --chown=${USERNAME}:${USERNAME} claude/CLAUDE.md /home/${USERNAME}/.claude/CLAUDE.md
-# Claude Code starts in auto mode and never reads secret files (.env, keystores, keys).
+# Claude Code starts in auto mode. Secret-file read denies ship in each project's
+# .claude/settings.json from the templates; the devkit policy is to keep them.
 COPY --chown=${USERNAME}:${USERNAME} claude/settings.json /home/${USERNAME}/.claude/settings.json
 
 # ---------------------------------------------------------------------

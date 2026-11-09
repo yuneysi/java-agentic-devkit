@@ -17,7 +17,7 @@ The Docker image is built from `.devcontainer/Dockerfile`. It includes:
 - Semgrep, Checkov, Hadolint, Syft, Grype, and SonarScanner
 - OpenCode, oh-my-openagent, `opencode-codebase-index`, and the devkit skills
 - OpenSpec CLI (`openspec`) for spec-driven changes with archived history
-- Claude Code, with the same devkit skills in `~/.claude/skills/` and global instructions in `~/.claude/CLAUDE.md`, and auto permission mode with secret-file read denies in `~/.claude/settings.json`
+- Claude Code, with the same devkit skills in `~/.claude/skills/` and global instructions in `~/.claude/CLAUDE.md`, and auto permission mode in `~/.claude/settings.json` (secret-file read denies come from the project `.claude/settings.json`)
 - MCP tooling for Context7, GitHub (remote server, needs `GITHUB_TOKEN`), and Playwright (headless Chromium in `/opt/ms-playwright`)
 
 Useful commands inside the container:

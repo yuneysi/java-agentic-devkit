@@ -159,7 +159,7 @@ If tests cannot be run, explain why and identify the command that should be run 
 
 `openspec/specs/` is the source of truth for the behavior of this project. `openspec/changes/` holds proposed and in-progress changes, and `openspec/changes/archive/` holds applied changes. `openspec/config.yaml` adds project rules to every artifact.
 
-Commands are spelled `/opsx:<name>` in Claude Code and `/opsx-<name>` in OpenCode. `openspec init --tools opencode,claude` generates them in `.claude/` and `.opencode/`; track those generated `commands/` and `skills/` folders in Git, together with the project-level `opencode.json` and `.omo/omo.jsonc`. Never relax their read denies for secret or key files.
+Commands are spelled `/opsx:<name>` in Claude Code and `/opsx-<name>` in OpenCode. `openspec init --tools opencode,claude` generates them in `.claude/` and `.opencode/`; track those generated `commands/` and `skills/` folders in Git, together with the project-level `opencode.json`, `.omo/omo.jsonc`, and `.claude/settings.json`. Never relax their read denies for secret or key files.
 
 Use OpenSpec for any change that alters observable behavior, contracts, or integrations:
 

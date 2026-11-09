@@ -246,7 +246,7 @@ cd /workspace
 claude
 ```
 
-Claude Code starts in auto mode (`permissions.defaultMode: "auto"` in `claude/settings.json`): a classifier approves routine actions and blocks risky ones, so agents work without a prompt for every command. The same file denies reads of `.env` files, `secrets/` folders, keystores, certificates, and private keys. Override the mode for one session with `claude --permission-mode manual`, or set `defaultMode` in the project `.claude/settings.json`.
+Claude Code starts in auto mode (`permissions.defaultMode: "auto"` in `claude/settings.json`): a classifier approves routine actions and blocks risky ones, so agents work without a prompt for every command. Read denies for `.env` files, `secrets/` folders, keystores, certificates, and private keys live in the project `.claude/settings.json`, which the templates provide next to `opencode.json`. The devkit does not accept secrets in agent context: keep these denies in every project. They sit at project level only because Claude Code cannot override a user-level deny, which would leave no way to handle a project-specific exception outside the devkit. Override the mode for one session with `claude --permission-mode manual`, or set `defaultMode` in the project `.claude/settings.json`.
 
 Sign in on the first start. The start script runs the container with `--rm`, so Claude Code and OpenCode credentials are lost when the session ends unless you mount a volume for `/home/vscode/.claude` and `/home/vscode/.local/share/opencode`. Auto-updates are disabled for reproducibility. Rebuild the image to update Claude Code, or pin a version with `--build-arg CLAUDE_CODE_VERSION=X.Y.Z`.
 
