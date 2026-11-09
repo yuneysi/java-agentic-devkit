@@ -99,6 +99,7 @@ Container paths:
 | Skills root | `/home/vscode/.config/opencode/skills/` |
 | Claude Code binary | `/home/vscode/.local/bin/claude` |
 | Claude Code instructions | `/home/vscode/.claude/CLAUDE.md` |
+| Claude Code settings | `/home/vscode/.claude/settings.json` |
 | Claude Code skills root | `/home/vscode/.claude/skills/` |
 
 ## Skills In This Container
@@ -244,6 +245,8 @@ The image also installs Claude Code with the native installer. Claude Code reads
 cd /workspace
 claude
 ```
+
+Claude Code starts in auto mode (`permissions.defaultMode: "auto"` in `claude/settings.json`): a classifier approves routine actions and blocks risky ones, so agents work without a prompt for every command. The same file denies reads of `.env` files, `secrets/` folders, keystores, certificates, and private keys. Override the mode for one session with `claude --permission-mode manual`, or set `defaultMode` in the project `.claude/settings.json`.
 
 Sign in on the first start. The start script runs the container with `--rm`, so Claude Code and OpenCode credentials are lost when the session ends unless you mount a volume for `/home/vscode/.claude` and `/home/vscode/.local/share/opencode`. Auto-updates are disabled for reproducibility. Rebuild the image to update Claude Code, or pin a version with `--build-arg CLAUDE_CODE_VERSION=X.Y.Z`.
 
