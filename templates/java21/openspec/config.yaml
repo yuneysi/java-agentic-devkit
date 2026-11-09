@@ -11,9 +11,9 @@ context: |
   Constraints: Java 21, the namespaces (javax.* or jakarta.*) and Spring and
   Spring Boot versions the project already uses, and unchanged SOAP/REST wire contracts unless a change
   explicitly approves a contract change.
-  Project memory: opencode/memory/architecture.md, decisions.md, and status.md.
-  Specs own behavior; memory owns architecture, decisions, and status. Do not
-  duplicate one in the other; link instead.
+  OpenSpec is the project knowledge base. openspec/specs/ grows one capability at
+  a time, as changes touch it. Each archived change keeps its proposal.md and
+  design.md as the decision record. There is no separate memory folder.
   Write all artifacts in English.
 
 rules:
@@ -24,6 +24,7 @@ rules:
   specs:
     - Every requirement needs at least one scenario with WHEN and THEN, and references the evidence as path:line.
     - When a capability has no spec yet, first capture its current behavior as the baseline, then add the delta.
+    - Grow specs incrementally: specify only the capabilities this change touches. Never bulk-generate specs for the whole codebase.
     - Mark behavior that is inferred and not verified as "(unverified)" and list it as an open question.
     - Never write secrets, API keys, passwords, or personal data into specs, even as examples.
   design:
@@ -44,5 +45,5 @@ operations:
     guidance:
       - Archive only after all tasks are complete and their validation commands passed.
       - Check that the merged specs describe the behavior that was actually implemented.
-      - Use the project-architecture-memory-writer skill to add a row to opencode/memory/decisions.md that links the archive folder, and to update opencode/memory/status.md.
-      - Update opencode/memory/architecture.md only when the change altered modules, runtime wiring, integrations, or packaging.
+      - Keep proposal.md and design.md in the archived change as the decision record; do not copy decisions elsewhere.
+      - Report which capabilities now have specs and which touched areas still have none.

@@ -12,6 +12,14 @@ If there is any conflict between this file and another Markdown document, this f
 
 ---
 
+## Work Mode
+
+This is a **Java 8 maintenance** project (`DEVKIT_JAVA_TEMPLATE=java8`), not a migration. Keep it on Java 8. Do not propose or start Java 21, Jakarta, Spring Boot 3, or Spring Framework 6 migration work, and do not load the `java21-migration` skill, unless the user asks for it explicitly.
+
+At the start of a session, check `openspec/specs/`. If it is empty or missing the capability the user is working on, say so and propose to capture that capability's current behavior with the `legacy-spec-baseline` skill before you change code. Do it only after the user agrees.
+
+---
+
 ## Agent Compatibility
 
 OpenCode, oh-my-openagent, and any other agentic workflow must treat this file as the source of truth for this target project.
@@ -159,7 +167,7 @@ If tests cannot be run, explain why and identify the command that should be run 
 
 `openspec/specs/` is the source of truth for the behavior of this project. `openspec/changes/` holds proposed and in-progress changes, and `openspec/changes/archive/` holds applied changes. `openspec/config.yaml` adds project rules to every artifact.
 
-Commands are spelled `/opsx:<name>` in Claude Code and `/opsx-<name>` in OpenCode. `openspec init --tools opencode,claude` generates them in `.claude/` and `.opencode/`; track those generated `commands/` and `skills/` folders in Git, together with the project-level `opencode.json`, `.omo/omo.jsonc`, and `.claude/settings.json`. Never relax their read denies for secret or key files.
+Commands are spelled `/opsx:<name>` in Claude Code and `/opsx-<name>` in OpenCode. On the first container start with template bootstrap enabled, the devkit runs `openspec init --tools opencode,claude`, which generates them in `.claude/` and `.opencode/` and keeps `openspec/config.yaml`; track those generated `commands/` and `skills/` folders in Git, together with the project-level `opencode.json`, `.omo/omo.jsonc`, and `.claude/settings.json`. Never relax their read denies for secret or key files.
 
 Use OpenSpec for any change that alters observable behavior, contracts, or integrations:
 
@@ -167,25 +175,18 @@ Use OpenSpec for any change that alters observable behavior, contracts, or integ
 2. Propose with `/opsx:propose <change-name>`. This creates `proposal.md`, delta specs, `design.md`, and `tasks.md`. Wait for human approval before implementation.
 3. If a touched capability has no spec yet, run the `legacy-spec-baseline` skill first so the delta is measured against verified current behavior.
 4. Implement with `/opsx:apply`, one verified checkpoint per task.
-5. Archive with `/opsx:archive` only after all tasks are complete and validated. Archiving merges the deltas into `openspec/specs/` and moves the change to `openspec/changes/archive/`. Then update `opencode/memory/` through `project-architecture-memory-writer`.
+5. Archive with `/opsx:archive` only after all tasks are complete and validated. Archiving merges the deltas into `openspec/specs/` and moves the change to `openspec/changes/archive/`.
 
 Run `openspec validate --all --strict` before you ask for review. Small fixes without behavior change (typos, formatting, dependency-free refactors with unchanged tests) do not need a change folder.
 
-## Shared Project Memory (Token Saving)
+## Project Knowledge (Token Saving)
 
-Use `opencode/memory/` as the first source for recurring project context before running wide codebase scans.
+OpenSpec is the only project knowledge base. There is no `opencode/memory/` folder in this project.
 
-Treat `opencode/memory/` as the canonical shared memory namespace for humans and all agent runtimes in this project (not OpenCode-only).
-
-Memory files:
-
-- `opencode/memory/architecture.md`
-- `opencode/memory/decisions.md`
-- `opencode/memory/status.md`
-
-Update these files when architecture, technical decisions, migration/build strategy, or project status changes.
-
-When the user asks what is happening in the project, prefer answering from these files and refresh only the missing facts.
+- Before a broad codebase scan, read the relevant `openspec/specs/<capability>/spec.md` and the related archived changes in `openspec/changes/archive/`.
+- Specs grow one capability at a time: capture a capability's current behavior (`legacy-spec-baseline`) only when a change touches it. Do not bulk-generate specs.
+- Decisions live in each change's `proposal.md` and `design.md`, kept in the archive.
+- When the user asks what the project does or what changed, answer from the specs and the archive, and say which areas have no spec yet.
 
 ---
 
@@ -203,7 +204,6 @@ Use the installed devkit skills (OpenCode: `~/.config/opencode/skills/`, Claude 
 - `readme-writer` for target-project README updates.
 - `legacy-spec-baseline` to capture current behavior as OpenSpec specs before the first change to a capability.
 - `markdown-diagram-writer` for evidence-based Mermaid diagrams (architecture, flows, data models, migration plans) in Markdown.
-- `project-architecture-memory-writer` to capture architecture, decisions, and status in `opencode/memory/`.
 
 Keep skill output aligned with this `AGENTS.md`.
 

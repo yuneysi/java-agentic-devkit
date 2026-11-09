@@ -14,7 +14,7 @@ Write the behavior that the system has today as OpenSpec specs, so that later ch
 ## Preconditions
 
 - `openspec/` exists. If it does not exist, ask the user to run `openspec init --tools opencode,claude` first. Do not run it without approval, because it writes files into the project.
-- Read `AGENTS.md`, `openspec/config.yaml`, and `opencode/memory/architecture.md` before you scan code.
+- Read `AGENTS.md`, `openspec/config.yaml`, and the existing specs in `openspec/specs/` before you scan code. In projects that keep `opencode/memory/` (the java21-migration template), also read `opencode/memory/architecture.md`.
 
 ## Scope One Capability At A Time
 

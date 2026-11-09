@@ -99,6 +99,7 @@ Container paths:
 | Skills root | `/home/vscode/.config/opencode/skills/` |
 | Claude Code binary | `/home/vscode/.local/bin/claude` |
 | Claude Code instructions | `/home/vscode/.claude/CLAUDE.md` |
+| OpenCode global instructions (same content) | `/home/vscode/.config/opencode/AGENTS.md` |
 | Claude Code settings | `/home/vscode/.claude/settings.json` |
 | Claude Code skills root | `/home/vscode/.claude/skills/` |
 
@@ -161,21 +162,7 @@ Enterprise and general skills:
 - `general/legacy-spec-baseline/SKILL.md` (captures current behavior as OpenSpec specs before the first change)
 - `general/project-architecture-memory-writer/SKILL.md`
 
-The `project-architecture-memory-writer` skill updates shared project memory in:
-
-- `opencode/memory/architecture.md`
-- `opencode/memory/decisions.md`
-- `opencode/memory/status.md`
-
-These memory files are expected in bootstrapped target projects (for example under `/workspace/opencode/memory/`). They are not required to exist as tracked files in this devkit source repository.
-
-This memory-first flow reduces repeated codebase scans and token usage for recurring project context questions.
-
-Planner-memory policy:
-
-- planner only detects missing memory files,
-- planner delegates memory creation/updates to `project-architecture-memory-writer`,
-- memory content validation and updates are centralized in that skill.
+The `project-architecture-memory-writer` skill maintains `opencode/memory/architecture.md`, `decisions.md`, and `status.md`. Only the java21-migration template seeds these files, because its phase gates use them. Java 8 and Java 21 projects use OpenSpec as their knowledge base instead.
 
 ## Related Docs In This Repository
 
@@ -241,6 +228,8 @@ For a routine fix with an agreed scope, skip the interview and ask directly for 
 
 The image also installs Claude Code with the native installer. Claude Code reads `~/.claude/CLAUDE.md`, which tells it to treat the project `AGENTS.md` as authoritative, and it discovers the same devkit skills in `~/.claude/skills/`.
 
+The same global instructions are installed for OpenCode as `~/.config/opencode/AGENTS.md`. They set the work mode from `DEVKIT_JAVA_TEMPLATE`: `java8` and `java21` are maintenance modes, so agents do not propose migration work unless asked; only `java21-migration` runs the migration workflow. In every mode, agents check `openspec/specs/` at the start of a session and propose capturing the spec of the capability you work on when it is missing.
+
 ```bash
 cd /workspace
 claude
@@ -282,16 +271,15 @@ The image includes [OpenSpec](https://github.com/Fission-AI/OpenSpec) **1.15.0**
 | `openspec/changes/<change>/` | A proposed change: `proposal.md`, delta specs (`ADDED`/`MODIFIED`/`REMOVED`), `design.md`, `tasks.md` |
 | `openspec/changes/archive/<date>-<change>/` | Applied changes, kept for audit |
 | `openspec/config.yaml` | Devkit template with legacy-Java rules that OpenSpec adds to every artifact and operation |
-| `opencode/memory/` | Architecture, decisions, and status; updated on every archive through `project-architecture-memory-writer` |
 
-Set up a project once, inside the container:
+With template bootstrap enabled, the container entrypoint copies `openspec/config.yaml` and runs `openspec init --tools opencode,claude` once, when the project has no generated OpenSpec commands yet. Without bootstrap, run it yourself inside the container:
 
 ```bash
 cd /workspace
 openspec init --tools opencode,claude
 ```
 
-`openspec init` keeps an existing `openspec/config.yaml`. Copy the template config first with `DEVKIT_BOOTSTRAP_TEMPLATES=true`, or copy `templates/<template>/openspec/config.yaml` by hand. Track `openspec/`, `.opencode/commands/`, `.opencode/skills/`, `.claude/commands/`, and `.claude/skills/` in Git.
+`openspec init` keeps an existing `openspec/config.yaml`. Track `openspec/`, `.opencode/commands/`, `.opencode/skills/`, `.claude/commands/`, and `.claude/skills/` in Git.
 
 Workflow (Claude Code spelling; OpenCode uses `/opsx-propose` and so on):
 
@@ -299,7 +287,7 @@ Workflow (Claude Code spelling; OpenCode uses `/opsx-propose` and so on):
 2. `legacy-spec-baseline` skill: capture current behavior for a capability without a spec.
 3. `/opsx:propose <change>`: create the change folder, then review it.
 4. `/opsx:apply`: implement the tasks in verified checkpoints.
-5. `/opsx:archive`: merge the deltas into `openspec/specs/`, move the change to the archive, and update `opencode/memory/`.
+5. `/opsx:archive`: merge the deltas into `openspec/specs/` and move the change, with its `design.md` decision record, to the archive. Specs grow one capability at a time this way.
 
 Check everything with `openspec validate --all --strict`, and see active work with `openspec list`.
 

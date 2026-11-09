@@ -98,7 +98,7 @@ cd C:\path\to\java\project
 docker run --rm -v "${PWD}:/workspace" -e DEVKIT_JAVA_TEMPLATE=java8 -e DEVKIT_BOOTSTRAP_TEMPLATES=true ghcr.io/yuneysi/java-agentic-devkit:latest true
 ```
 
-This creates the missing files: `docker-compose.yml`, `AGENTS.md`, `opencode.json`, `.omo/omo.jsonc`, `openspec/config.yaml`, `opencode/memory/*.md`, and `.github/copilot-instructions.md`. Review them with `git status` and commit the ones your team wants.
+This creates the missing files: `docker-compose.yml`, `AGENTS.md`, `opencode.json`, `.omo/omo.jsonc`, `openspec/config.yaml`, `.claude/settings.json`, and `.github/copilot-instructions.md`, and runs `openspec init` once. Review them with `git status` and commit the ones your team wants.
 
 ### 2. Every Session
 
@@ -107,7 +107,7 @@ cd /path/to/java/project
 docker compose run --rm --service-ports devkit
 ```
 
-Then, in the container shell, run `opencode` or `claude`. The first time, also run `openspec init --tools opencode,claude` there.
+Then, in the container shell, run `opencode` or `claude`.
 
 `--service-ports` publishes the application port (`8080`) and the debug port (`5005`) on `127.0.0.1`. When the application uses another port, set it before you start:
 
@@ -186,17 +186,11 @@ The script publishes ports `8080` (application) and `5005` (remote debugging) on
 
 ### First Session In A Project
 
-Copy the template files that are missing (`AGENTS.md`, `opencode/memory/`, `openspec/config.yaml`, `opencode.json`, `.omo/omo.jsonc`, `docker-compose.yml`, `.github/copilot-instructions.md`). Existing files are never overwritten:
+Copy the template files that are missing (`AGENTS.md`, `openspec/config.yaml`, `opencode.json`, `.omo/omo.jsonc`, `.claude/settings.json`, `docker-compose.yml`, `.github/copilot-instructions.md`) and initialize OpenSpec. Existing files are never overwritten:
 
 ```bash
 cd /path/to/java/project
 DEVKIT_BOOTSTRAP_TEMPLATES=true ~/github/java-agentic-devkit/scripts/container/start-devkit-container.sh
-```
-
-Then set up OpenSpec once, inside the container:
-
-```bash
-openspec init --tools opencode,claude
 ```
 
 Review the new files with `git status`. Delete the files your team does not want, and commit the rest.
@@ -299,9 +293,9 @@ Template bootstrapping is controlled by `DEVKIT_BOOTSTRAP_TEMPLATES`. Container-
 
 See the [migration setup guide](templates/java21-migration/README.md) for complete macOS, Windows, Compose, and Dev Container instructions.
 
-## Shared Project Memory
+## Migration Project Memory
 
-The devkit maintains three concise target-project files:
+The java21-migration template maintains three concise target-project files, because its phase gates read and write them:
 
 | File | Purpose |
 |---|---|
@@ -326,39 +320,12 @@ Bootstrap files are seeds, not verified project facts. The migration workflow in
 
 Issues and pull requests are welcome. Before contributing, read the [contribution guide](.github/CONTRIBUTING.md), [code of conduct](.github/CODE_OF_CONDUCT.md), and [security policy](.github/SECURITY.md).
 
-## Memory-First Context (Token Saving)
+## Project Knowledge With OpenSpec
 
-This devkit uses shared memory files under `opencode/memory/`: `architecture.md`, `decisions.md`, and `status.md`.
+For Java 8 and Java 21 projects, OpenSpec is the project knowledge base. The devkit does not seed generic architecture or decision files, because every project is different.
 
-The files under `templates/*/opencode/memory/` are only seed files. Users should not edit those template files in normal target-project work. After the devkit bootstraps a target project, users should update the target project's own files:
+- On the first start with template bootstrap, the devkit copies `openspec/config.yaml` and runs `openspec init --tools opencode,claude`.
+- `openspec/specs/` starts empty and grows one capability at a time: when a change touches a capability without a spec, the agent first captures its current behavior with the `legacy-spec-baseline` skill.
+- Decisions stay in each change's `proposal.md` and `design.md`, in `openspec/changes/archive/`.
 
-- `opencode/memory/architecture.md`
-- `opencode/memory/decisions.md`
-- `opencode/memory/status.md`
-
-To initialize or refresh them, start OpenCode inside the target project container and use this prompt:
-
-```text
-Use the project-architecture-memory-writer skill.
-Initialize or refresh opencode/memory/architecture.md, opencode/memory/decisions.md, and opencode/memory/status.md for this target project.
-Read AGENTS.md first, inspect only the evidence needed, replace template seed values with verified project facts, keep unknowns explicit, and summarize the files changed.
-```
-
-For Java 8 to Java 21 migrations, run this prompt before starting the migration. Refresh memory after a phase only when architecture, decisions, risks, or delivery status changed.
-
-Agents read these concise files first, so they avoid repeating wide codebase scans for recurring context. This reduces token usage and usually improves response speed for follow-up questions.
-
-Keep these files updated whenever architecture, decisions, or project status changes.
-
-## Guides
-
-Each template has its own `AGENTS.md` with template-specific agent rules.
-
-| Guide | Use for |
-|-------|---------|
-| `opencode/README.md` | AI stack guide: OpenCode, oh-my-openagent (OMO), and skills. |
-| `opencode/container-and-env.md` | Container contents and environment variables. |
-| `templates/java8/AGENTS.md` | Agent rules for Java 8 target projects. |
-| `templates/java21/AGENTS.md` | Agent rules for Java 21 target projects. |
-| `templates/java21-migration/AGENTS.md` | Agent rules for Java 8 to Java 21 migration projects. |
-| `templates/java21-migration/README.md` | Java 8 to Java 21 migration setup and workflow. |
+The java21-migration template additionally keeps `opencode/memory/` for its phase status and evidence. See [Migration Project Memory](#migration-project-memory).

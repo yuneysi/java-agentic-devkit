@@ -379,7 +379,8 @@ RUN chmod +x /usr/local/bin/jdtls \
 RUN npm install -g opencode-ai@1.19.5 oh-my-openagent@5.1.65
 
 # OpenSpec: spec-driven changes with versioned specs and an archive of applied changes.
-# Run `openspec init --tools opencode,claude` once per target project.
+# The entrypoint runs `openspec init --tools opencode,claude` once per target project
+# when template bootstrap is enabled.
 RUN npm install -g @fission-ai/openspec@1.15.0 \
     && openspec --version
 
@@ -471,7 +472,9 @@ RUN java -version \
 COPY --chown=${USERNAME}:${USERNAME} opencode/opencode.json /home/${USERNAME}/.config/opencode/opencode.json
 COPY --chown=${USERNAME}:${USERNAME} opencode/omo.jsonc /home/${USERNAME}/.omo/omo.jsonc
 COPY --chown=${USERNAME}:${USERNAME} opencode/tui.json /home/${USERNAME}/.config/opencode/tui.json
+# Global agent instructions (work mode and OpenSpec), shared by Claude Code and OpenCode.
 COPY --chown=${USERNAME}:${USERNAME} claude/CLAUDE.md /home/${USERNAME}/.claude/CLAUDE.md
+COPY --chown=${USERNAME}:${USERNAME} claude/CLAUDE.md /home/${USERNAME}/.config/opencode/AGENTS.md
 # Claude Code starts in auto mode. Secret-file read denies ship in each project's
 # .claude/settings.json from the templates; the devkit policy is to keep them.
 COPY --chown=${USERNAME}:${USERNAME} claude/settings.json /home/${USERNAME}/.claude/settings.json
@@ -541,6 +544,15 @@ RUN printf '%s\n' \
     '            echo "Created ${RELATIVE_PATH} from ${JAVA_TEMPLATE} template"' \
     '        fi' \
     '    done < <(find "${TEMPLATE_DIR}" -type f ! -path "${TEMPLATE_DIR}/scripts/*" -print0)' \
+    'fi' \
+    '' \
+    '# Initialize OpenSpec once: generates the /opsx commands and keeps openspec/config.yaml.' \
+    'if [[ "${BOOTSTRAP_TEMPLATES}" != "false" && -f "${PROJECT_DIR}/openspec/config.yaml" && ! -d "${PROJECT_DIR}/.claude/commands/opsx" && ! -e "${PROJECT_DIR}/.opencode/commands/opsx-propose.md" ]]; then' \
+    '    if (cd "${PROJECT_DIR}" && openspec init --tools opencode,claude < /dev/null > /dev/null 2>&1); then' \
+    '        echo "Initialized OpenSpec (openspec/, .claude/, .opencode/)"' \
+    '    else' \
+    '        echo "OpenSpec init failed; run: openspec init --tools opencode,claude" >&2' \
+    '    fi' \
     'fi' \
     '' \
     'exec "$@"' \

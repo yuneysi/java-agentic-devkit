@@ -65,7 +65,7 @@ Each target-project template owns its own `AGENTS.md`:
 
 Do not reintroduce a shared `templates/AGENTS.md`.
 
-For target projects, `AGENTS.md` is the authoritative instruction file for OpenCode, oh-my-openagent, and Claude Code agents. `claude/CLAUDE.md` only points Claude Code to the project `AGENTS.md`. Do not duplicate project rules there.
+For target projects, `AGENTS.md` is the authoritative instruction file for OpenCode, oh-my-openagent, and Claude Code agents. `claude/CLAUDE.md` is installed as global instructions for Claude Code (`~/.claude/CLAUDE.md`) and OpenCode (`~/.config/opencode/AGENTS.md`). It only points agents to the project `AGENTS.md`, sets the work mode from `DEVKIT_JAVA_TEMPLATE`, and proposes OpenSpec specs. Do not duplicate project rules there.
 
 Skill names must match their directory names (Agent Skills convention, enforced by OpenCode and Claude Code). Install skills with `scripts/install-skills.py`; do not copy skill trees by hand.
 
