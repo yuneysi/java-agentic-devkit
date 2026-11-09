@@ -1,3 +1,8 @@
+---
+name: code-reviewer
+description: "Use this skill when the user asks to review code changes, review a pull request, or audit a diff for quality and risk."
+---
+
 # Code Reviewer Skill
 
 Use this skill when the user asks to review code changes, review a pull request, or audit a diff for quality and risk.
@@ -9,8 +14,8 @@ Review the diff for bugs, behavioral regressions, security issues, and Jakarta E
 ## Rules
 
 - Read the diff first (`git diff` or `git diff <branch>...HEAD`). Understand scope before diving into files.
-- Check Jakarta EE namespace: new code must use `jakarta.*`, not `javax.*`.
-- Check Spring Boot 3 error response handling — tests must handle RFC 7807 Problem Details JSON.
+- Check the project target: preserve `javax.*` for Java 8 / Spring Boot 2; use `jakarta.*` only when required by an authorized Jakarta / Spring Boot 3 migration.
+- For Spring Boot 3 projects, check their configured Problem Details behavior. Preserve existing error contracts on older Spring Boot projects.
 - Check JPA for N+1, lazy loading outside transaction, missing `@Transactional`.
 - Check SOAP/XML for namespace drift, element order changes, SOAPAction changes.
 - Check JMS for concurrency settings, redelivery config, transaction boundaries.

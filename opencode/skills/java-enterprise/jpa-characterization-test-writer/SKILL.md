@@ -1,3 +1,8 @@
+---
+name: jpa-characterization-test-writer
+description: "Use this skill when the user asks to create or improve JPA/Hibernate tests for a Java 8 to Java 21 migration."
+---
+
 # JPA Characterization Test Writer Skill
 
 Use this skill when the user asks to create or improve JPA/Hibernate tests for a Java 8 to Java 21 migration.

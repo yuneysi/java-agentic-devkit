@@ -1,3 +1,8 @@
+---
+name: soap-contract-test-writer
+description: "Use this skill when the user asks to create or improve tests for SOAP/XML behavior during a Java 8 to Java 21 migration."
+---
+
 # SOAP Contract Test Writer Skill
 
 Use this skill when the user asks to create or improve tests for SOAP/XML behavior during a Java 8 to Java 21 migration.

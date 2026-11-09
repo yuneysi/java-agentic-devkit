@@ -117,3 +117,13 @@ docker build --check -f .devcontainer/Dockerfile .
 ```
 
 When full builds are expensive, run the cheapest check that can catch the changed slice.
+
+## Small Commit Discipline
+
+Before implementation, load the installed `git-commit` skill. Plan small, independently reviewable changes and validate each checkpoint before starting unrelated work. Keep code and its tests together; split unrelated refactors, dependency upgrades and formatting. If the skill is unavailable, apply these rules directly and report that limitation.
+
+When the user authorizes commits for the task, commit each verified logical checkpoint instead of accumulating one final large commit. Existing task authorization remains valid; do not ask again for each checkpoint. Otherwise keep changes uncommitted and report the proposed checkpoints. Never stage unrelated user changes, bypass hooks, rewrite history or push without explicit authorization.
+
+Use `verification-before-completion` before claiming a checkpoint is validated. Use `grill-me` (and its `grilling` dependency) when the user asks to challenge a design; do not turn routine implementation into a mandatory interview. For Java 8 projects preserve javax APIs, existing Spring/Boot versions and SOAP wire contracts.
+
+Community skill examples never authorize modifying another person's staged changes. Preserve the pre-existing index; if it contains unrelated work, keep the intended checkpoint separate and ask only when ownership is ambiguous. A skill does not authorize commits or publication by itself.

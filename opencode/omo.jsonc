@@ -1,0 +1,129 @@
+{
+  "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/omo.schema.json",
+  "[opencode]": {
+    "default_run_agent": "sisyphus",
+    "agent_order": [
+      "sisyphus",
+      "prometheus",
+      "hephaestus",
+      "oracle",
+      "explore"
+    ],
+    "agents": {
+      "sisyphus": {
+        "model": "github-copilot/gpt-6.1-sol",
+        "ultrawork": {
+          "model": "github-copilot/gpt-6.1-sol",
+          "reasoning": "high"
+        },
+        "prompt_append": "IMPORTANT:\nWhenever you delegate work to another agent or continue with a new internal step,\nyou MUST prefix the visible output with:\n\n[Agent: <agent-name>] <current task>\n\nFor example:\n\n[Agent: Sisyphus] Analyzing repository structure\n[Agent: Prometheus] Planning migration strategy\n[Agent: Hephaestus] Applying code changes\nLoad git-commit before implementation. Work in small verified checkpoints; follow the task commit authorization and do not push without explicit authorization.",
+        "reasoning": "high"
+      },
+      "hephaestus": {
+        "model": "github-copilot/gpt-6.1-sol",
+        "prompt_append": "IMPORTANT:\nWhenever you delegate work to another agent or continue with a new internal step,\nyou MUST prefix the visible output with:\n\n[Agent: <agent-name>] <current task>\n\nFor example:\n\n[Agent: Sisyphus] Analyzing repository structure\n[Agent: Prometheus] Planning migration strategy\n[Agent: Hephaestus] Applying code changes\n\nAct as the execution agent. Implement approved plans in small, reviewable steps. Read AGENTS.md first, preserve existing behavior, run focused validation, and report blockers before broadening scope.\nLoad git-commit before implementation. Work in small verified checkpoints; follow the task commit authorization and do not push without explicit authorization.",
+        "reasoning": "high"
+      },
+      "oracle": {
+        "model": "github-copilot/gpt-6-astra",
+        "prompt_append": "IMPORTANT:\nWhenever you delegate work to another agent or continue with a new internal step,\nyou MUST prefix the visible output with:\n\n[Agent: <agent-name>] <current task>\n\nFor example:\n\n[Agent: Sisyphus] Analyzing repository structure\n[Agent: Prometheus] Planning migration strategy\n[Agent: Hephaestus] Applying code changes",
+        "reasoning": "high"
+      },
+      "prometheus": {
+        "model": "github-copilot/gpt-6.1-sol",
+        "prompt_append": "IMPORTANT:\nWhenever you delegate work to another agent or continue with a new internal step,\nyou MUST prefix the visible output with:\n\n[Agent: <agent-name>] <current task>\n\nFor example:\n\n[Agent: Sisyphus] Analyzing repository structure\n[Agent: Prometheus] Planning migration strategy\n[Agent: Hephaestus] Applying code changes\n\nAct as the planning agent. Inspect before editing, identify risks, produce small migration or implementation steps, and hand off execution-ready plans. For project memory, only detect file absence and delegate memory creation/updates to the project-architecture-memory-writer skill. Do not treat planning as approval to modify production code.",
+        "reasoning": "high"
+      },
+      "momus": {
+        "model": "github-copilot/gpt-6-astra",
+        "prompt_append": "IMPORTANT:\nWhenever you delegate work to another agent or continue with a new internal step,\nyou MUST prefix the visible output with:\n\n[Agent: <agent-name>] <current task>\n\nFor example:\n\n[Agent: Sisyphus] Analyzing repository structure\n[Agent: Prometheus] Planning migration strategy\n[Agent: Hephaestus] Applying code changes",
+        "reasoning": "high"
+      },
+      "librarian": {
+        "model": "github-copilot/gpt-6.1-sol",
+        "reasoning": "medium"
+      },
+      "explore": {
+        "model": "github-copilot/gpt-6-luna",
+        "prompt_append": "IMPORTANT:\nWhenever you delegate work to another agent or continue with a new internal step,\nyou MUST prefix the visible output with:\n\n[Agent: <agent-name>] <current task>\n\nFor example:\n\n[Agent: Sisyphus] Analyzing repository structure\n[Agent: Prometheus] Planning migration strategy\n[Agent: Hephaestus] Applying code changes",
+        "reasoning": "low"
+      },
+      "multimodal-looker": {
+        "model": "github-copilot/gpt-6.1-sol",
+        "reasoning": "medium"
+      },
+      "metis": {
+        "model": "github-copilot/gpt-6.1-sol",
+        "reasoning": "high"
+      },
+      "atlas": {
+        "model": "github-copilot/gpt-6.1-sol",
+        "reasoning": "high",
+        "prompt_append": "\nLoad git-commit before implementation. Work in small verified checkpoints; follow the task commit authorization and do not push without explicit authorization."
+      },
+      "sisyphus-junior": {
+        "model": "github-copilot/gpt-6.1-sol",
+        "reasoning": "high",
+        "prompt_append": "\nLoad git-commit before implementation. Work in small verified checkpoints; follow the task commit authorization and do not push without explicit authorization."
+      }
+    },
+    "categories": {
+      "ultrabrain": {
+        "model": "github-copilot/gpt-6-astra",
+        "reasoning": "high"
+      },
+      "quick": {
+        "model": "github-copilot/gpt-6-luna",
+        "reasoning": "low"
+      },
+      "unspecified-high": {
+        "model": "github-copilot/gpt-6.1-sol",
+        "reasoning": "high"
+      },
+      "unspecified-low": {
+        "model": "github-copilot/gpt-6.1-sol",
+        "reasoning": "medium"
+      },
+      "writing": {
+        "model": "github-copilot/gpt-6.1-sol",
+        "reasoning": "medium"
+      },
+      "visual-engineering": {
+        "model": "github-copilot/gpt-6.1-sol",
+        "reasoning": "high"
+      },
+      "artistry": {
+        "model": "github-copilot/gpt-6.1-sol",
+        "reasoning": "high"
+      },
+      "git": {
+        "model": "github-copilot/gpt-6.1-sol",
+        "description": "All git operations",
+        "prompt_append": "Focus on atomic commits, clear messages, and safe operations.",
+        "reasoning": "medium"
+      },
+      "deep-low": {
+        "model": "github-copilot/gpt-6.1-sol",
+        "reasoning": "high"
+      },
+      "deep-high": {
+        "model": "github-copilot/gpt-6-astra",
+        "reasoning": "high"
+      }
+    },
+    "background_task": {
+      "providerConcurrency": {
+        "github-copilot": 3
+      },
+      "modelConcurrency": {
+        "github-copilot/gpt-6-astra": 1,
+        "github-copilot/gpt-6.1-sol": 2,
+        "github-copilot/gpt-6-luna": 3
+      },
+      "defaultConcurrency": 3
+    },
+    "tmux": {
+      "enabled": false
+    }
+  }
+}

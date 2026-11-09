@@ -1,3 +1,8 @@
+---
+name: java21-migration-characterization
+description: "Use for the java21 migration characterization workflow, preserving behavior and following project migration gates."
+---
+
 # Characterization Phase
 
 ## Responsibility

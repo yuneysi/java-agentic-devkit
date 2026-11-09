@@ -1,3 +1,8 @@
+---
+name: jms-characterization-test-writer
+description: "Use this skill when the user asks to create or improve JMS tests for a Java 8 to Java 21 migration or ActiveMQ to IBM MQ migration."
+---
+
 # JMS Characterization Test Writer Skill
 
 Use this skill when the user asks to create or improve JMS tests for a Java 8 to Java 21 migration or ActiveMQ to IBM MQ migration.

@@ -1,10 +1,7 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "instructions": [
-    "{file:/workspace/AGENTS.md}"
-  ],
   "plugin": [
-    "oh-my-openagent",
+    "oh-my-openagent@5.1.65",
     "opencode-codebase-index",
     "@warp-dot-dev/opencode-warp"
   ],
@@ -46,13 +43,13 @@
       ]
     }
   },
-  "model": "github-copilot/gpt-5.6-terra",
+  "model": "github-copilot/gpt-6.1-sol",
   "permission": "ask",
   "agent": {
     "plan": {
       "mode": "primary",
       "description": "Read-only planning agent for project inspection, migration planning, risk analysis, and validation strategy.",
-      "model": "github-copilot/gpt-5.6-sol",
+      "model": "github-copilot/gpt-6.1-sol",
       "prompt": "You are the planning agent. Read AGENTS.md first and treat it as authoritative. Inspect the project, identify risks, propose small steps, and recommend validation commands. For project memory, do not validate memory content quality yourself. Only detect whether required memory files exist. If any required memory file is missing, delegate memory initialization/updates to the project-architecture-memory-writer skill. Do not modify files, apply patches, run mutating commands, commit, push, or change external systems. If execution is needed, hand off a concise plan to the build agent.",
       "permission": {
         "read": "allow",
@@ -71,8 +68,8 @@
     "build": {
       "mode": "primary",
       "description": "Execution agent for approved implementation, validation, commits, and operational commands.",
-      "model": "github-copilot/gpt-5.6-terra",
-      "prompt": "You are the execution agent. Read AGENTS.md first and treat it as authoritative. Implement the requested change or the approved plan in small, reviewable steps. Prefer existing project patterns, run the narrowest useful validation, report failures clearly, and keep risky operations such as commits, pushes, destructive commands, credentials, production writes, and external side effects explicit and reviewable.",
+      "model": "github-copilot/gpt-6.1-sol",
+      "prompt": "You are the execution agent. Read AGENTS.md first and treat it as authoritative. Implement the requested change or the approved plan in small, reviewable steps. Prefer existing project patterns, run the narrowest useful validation, report failures clearly, and keep risky operations such as commits, pushes, destructive commands, credentials, production writes, and external side effects explicit and reviewable. Before implementation, load git-commit and plan small verified checkpoints. Commit only when authorized for the task.",
       "permission": {
         "read": "allow",
         "glob": "allow",
@@ -154,28 +151,20 @@
         "apiKey": "{env:OPENAI_API_KEY}"
       },
       "models": {
-        "gpt-5.6-sol": {
-          "name": "GPT-5.6 Sol",
-          "tools": true,
-          "options": {
-            "temperature": 0.1
-          }
+        "gpt-6.1-sol": {
+          "name": "GPT-6.1 Sol",
+          "tools": true
         },
-        "gpt-5.6-terra": {
-          "name": "GPT-5.6 Terra",
-          "tools": true,
-          "options": {
-            "temperature": 0.1
-          }
+        "gpt-6-astra": {
+          "name": "GPT-6 Astra",
+          "tools": true
         },
-        "gpt-5.6-luna": {
-          "name": "GPT-5.6 Luna",
-          "tools": true,
-          "options": {
-            "temperature": 0.1
-          }
+        "gpt-6-luna": {
+          "name": "GPT-6 Luna",
+          "tools": true
         }
       }
     }
-  }
+  },
+  "small_model": "github-copilot/gpt-6-luna"
 }

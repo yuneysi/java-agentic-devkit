@@ -1,3 +1,8 @@
+---
+name: confluence-doc-writer
+description: "Use this skill when the user asks to create, clean up, or convert documentation for Confluence."
+---
+
 # Confluence Documentation Writer Skill
 
 Use this skill when the user asks to create, clean up, or convert documentation for Confluence.

@@ -54,6 +54,8 @@ ensure_docker_available
 printf '%b\n' "${YELLOW}Checking Docker image...${NC}"
 if docker image inspect "${FULL_IMAGE}" > /dev/null 2>&1; then
     printf '%b\n\n' "${GREEN}Image already exists: ${FULL_IMAGE}${NC}"
+    printf '%s\n' "After changing devkit config or skills, rebuild with:"
+    printf '  docker build -t %s -f \"%s/.devcontainer/Dockerfile\" \"%s\"\n' "${FULL_IMAGE}" "${DEVKIT_DIR}" "${DEVKIT_DIR}"
 else
     printf '%b\n' "${YELLOW}Building image: ${FULL_IMAGE}${NC}"
     docker build -t "${FULL_IMAGE}" -f "${DEVKIT_DIR}/.devcontainer/Dockerfile" "${DEVKIT_DIR}" > /dev/null 2>&1

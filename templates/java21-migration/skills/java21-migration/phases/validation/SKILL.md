@@ -1,3 +1,8 @@
+---
+name: java21-migration-validation
+description: "Use for the java21 migration validation workflow, preserving behavior and following project migration gates."
+---
+
 # Java 21 Validation Phase
 
 ## Responsibility

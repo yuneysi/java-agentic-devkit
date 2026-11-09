@@ -1,3 +1,8 @@
+---
+name: java21-migration-audit
+description: "Use for the java21 migration audit workflow, preserving behavior and following project migration gates."
+---
+
 # Migration Audit Phase
 
 ## Responsibility

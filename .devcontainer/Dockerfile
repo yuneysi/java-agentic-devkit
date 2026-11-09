@@ -360,21 +360,8 @@ RUN chmod +x /usr/local/bin/jdtls \
 # ---------------------------------------------------------------------
 # OpenCode + oh-my-openagent
 # ---------------------------------------------------------------------
-RUN curl -fsSL https://opencode.ai/install | bash \
-    && mv /root/.opencode/bin/opencode /usr/local/bin/opencode
-
-RUN bunx oh-my-openagent install \
-    --no-tui \
-    --skip-auth \
-    --claude=yes \
-    --openai=yes \
-    --gemini=yes \
-    --copilot=yes \
-    --opencode-go=no \
-    --opencode-zen=no \
-    --zai-coding-plan=no \
-    --kimi-for-coding=no \
-    --vercel-ai-gateway=no
+# Keep V1: OmO 5.1.65 does not activate its agents/tools/hooks on OpenCode 2.
+RUN npm install -g opencode-ai@1.19.5 oh-my-openagent@5.1.65
 
 RUN mkdir -p /workspace \
     && chown ${USERNAME}:${USERNAME} /workspace
@@ -450,9 +437,10 @@ RUN java -version \
 # External OpenCode config
 # ---------------------------------------------------------------------
 COPY --chown=${USERNAME}:${USERNAME} opencode/opencode.json /home/${USERNAME}/.config/opencode/opencode.json
-COPY --chown=${USERNAME}:${USERNAME} opencode/oh-my-openagent.jsonc /home/${USERNAME}/.config/opencode/oh-my-openagent.jsonc
+COPY --chown=${USERNAME}:${USERNAME} opencode/omo.jsonc /home/${USERNAME}/.omo/omo.jsonc
 COPY --chown=${USERNAME}:${USERNAME} opencode/tui.json /home/${USERNAME}/.config/opencode/tui.json
 COPY --chown=${USERNAME}:${USERNAME} opencode/skills/ /home/${USERNAME}/.config/opencode/skills/
+COPY --chown=${USERNAME}:${USERNAME} templates/java21-migration/skills/ /home/${USERNAME}/.config/opencode/skills/
 
 USER root
 
@@ -505,13 +493,6 @@ RUN printf '%s\n' \
     '            echo "Created ${RELATIVE_PATH} from ${JAVA_TEMPLATE} template"' \
     '        fi' \
     '    done < <(find "${TEMPLATE_DIR}" -type f ! -path "${TEMPLATE_DIR}/scripts/*" -print0)' \
-    'fi' \
-    '' \
-    'OPENCODE_CONFIG="${HOME}/.config/opencode/opencode.json"' \
-    'if [[ -f "${OPENCODE_CONFIG}" && -d "${PROJECT_DIR}" ]]; then' \
-    '    TMP_CONFIG="$(mktemp)"' \
-    '    jq --arg instructions_file "{file:${PROJECT_DIR}/AGENTS.md}" ".instructions = [\$instructions_file]" "${OPENCODE_CONFIG}" > "${TMP_CONFIG}"' \
-    '    mv "${TMP_CONFIG}" "${OPENCODE_CONFIG}"' \
     'fi' \
     '' \
     'exec "$@"' \

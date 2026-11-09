@@ -1,3 +1,8 @@
+---
+name: java21-migration-planning
+description: "Use for the java21 migration planning workflow, preserving behavior and following project migration gates."
+---
+
 # Migration Planning Phase
 
 ## Responsibility

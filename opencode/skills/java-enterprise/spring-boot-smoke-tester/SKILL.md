@@ -1,3 +1,8 @@
+---
+name: spring-boot-smoke-tester
+description: "Use this skill after making changes to a Spring Boot service to verify it starts, responds, and handles basic requests correctly."
+---
+
 # Spring Boot Smoke Tester Skill
 
 Use this skill after making changes to a Spring Boot service to verify it starts, responds, and handles basic requests correctly.

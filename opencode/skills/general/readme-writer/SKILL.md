@@ -1,3 +1,8 @@
+---
+name: readme-writer
+description: "Use this skill when the user asks to create, update, simplify, or review a repository `README.md`."
+---
+
 # README Writer Skill
 
 Use this skill when the user asks to create, update, simplify, or review a repository `README.md`.

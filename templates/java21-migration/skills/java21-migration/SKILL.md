@@ -1,3 +1,8 @@
+---
+name: java21-migration
+description: "Use for the java21 migration workflow, preserving behavior and following project migration gates."
+---
+
 # Java 8 To Java 21 Migration Skill
 
 ## Purpose

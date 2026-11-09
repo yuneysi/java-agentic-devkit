@@ -1,0 +1,51 @@
+{
+  "reviewed_on": "2026-11-09",
+  "sources": [
+    {
+      "name": "grill-me",
+      "repository": "https://github.com/mattpocock/skills",
+      "ref": "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d",
+      "path": "skills/productivity/grill-me",
+      "license": "MIT",
+      "files": {
+        "LICENSE": "0e7ac423bf2c6e223b7c5b156f8cf72da49d748e56a1641402c31f22ad07dbb5",
+        "SKILL.md": "caaf8b8de1684f96e26b28f3c29189db5c89cce4b73e1c93d86164f66ef88637",
+        "agents/openai.yaml": "c061e39c3e0f9d865fb1b97556d485704af2a8a58f4b8221a8917a5c2074a32b"
+      }
+    },
+    {
+      "name": "grilling",
+      "repository": "https://github.com/mattpocock/skills",
+      "ref": "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d",
+      "path": "skills/productivity/grilling",
+      "license": "MIT",
+      "files": {
+        "LICENSE": "0e7ac423bf2c6e223b7c5b156f8cf72da49d748e56a1641402c31f22ad07dbb5",
+        "SKILL.md": "a146842ed93ca43d833550fa9adf02e58cb63c83fea9d4b4522995b82242d4e2",
+        "agents/openai.yaml": "1411d7df7d99b7e621a1ff8283c8133cc2464be63d064e52d8ce169c6800ee9b"
+      }
+    },
+    {
+      "name": "verification-before-completion",
+      "repository": "https://github.com/obra/superpowers",
+      "ref": "22f0b463e7a5e579904dd6211a520321035526f7",
+      "path": "skills/verification-before-completion",
+      "license": "MIT",
+      "files": {
+        "LICENSE": "a37e0e9697144819e1d965176ac4ae5bc3fa02d11e7812036bbcadf6dafe2400",
+        "SKILL.md": "2befe7fc55bcadaa3d97dd9e8efeb633d2561c0ebe74c5a8b17c4d9e7e4520b3"
+      }
+    },
+    {
+      "name": "git-commit",
+      "repository": "https://github.com/github/awesome-copilot",
+      "ref": "b13e55f85ffdf451d40d09839cb1e337bf3eda98",
+      "path": "skills/git-commit",
+      "license": "MIT",
+      "files": {
+        "LICENSE": "e32449d23085399adc1222f7a17408b730550258e51627c153cb108ca9955823",
+        "SKILL.md": "a95bb7e996516a1c73df745b0598ba650d7161eb1da559712e8fabb5dacb7c5c"
+      }
+    }
+  ]
+}

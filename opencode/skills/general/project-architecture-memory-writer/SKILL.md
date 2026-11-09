@@ -1,3 +1,8 @@
+---
+name: project-architecture-memory-writer
+description: "Use this skill when the user asks what is happening in the project, asks for architecture status, or asks to reduce repeated token usage for recurring context."
+---
+
 # Project Architecture Memory Writer Skill
 
 Use this skill when the user asks what is happening in the project, asks for architecture status, or asks to reduce repeated token usage for recurring context.

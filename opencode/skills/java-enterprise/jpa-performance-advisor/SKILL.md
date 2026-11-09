@@ -1,3 +1,8 @@
+---
+name: jpa-performance-advisor
+description: "Use this skill when the user asks to optimize JPA queries, find N+1 problems, review entity mappings, or troubleshoot lazy loading issues."
+---
+
 # JPA Performance Advisor Skill
 
 Use this skill when the user asks to optimize JPA queries, find N+1 problems, review entity mappings, or troubleshoot lazy loading issues.

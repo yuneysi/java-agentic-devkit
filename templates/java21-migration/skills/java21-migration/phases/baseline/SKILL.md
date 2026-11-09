@@ -1,3 +1,8 @@
+---
+name: java21-migration-baseline
+description: "Use for the java21 migration baseline workflow, preserving behavior and following project migration gates."
+---
+
 # Java 8 Baseline Phase
 
 ## Responsibility
