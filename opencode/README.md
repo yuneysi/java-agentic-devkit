@@ -156,6 +156,7 @@ Enterprise and general skills:
 - `general/code-reviewer/SKILL.md`
 - `general/confluence-doc-writer/SKILL.md`
 - `general/readme-writer/SKILL.md`
+- `general/markdown-diagram-writer/SKILL.md` (Mermaid diagrams in Markdown, with an ASCII fallback)
 - `general/project-architecture-memory-writer/SKILL.md`
 
 The `project-architecture-memory-writer` skill updates shared project memory in:

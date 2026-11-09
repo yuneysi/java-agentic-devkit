@@ -185,6 +185,7 @@ Use the installed devkit skills (OpenCode: `~/.config/opencode/skills/`, Claude 
 - `soap-contract-test-writer` for SOAP/XML contract tests.
 - `spring-boot-smoke-tester` for basic application smoke tests.
 - `readme-writer` for target-project README updates.
+- `markdown-diagram-writer` for evidence-based Mermaid diagrams (architecture, flows, data models, migration plans) in Markdown.
 - `project-architecture-memory-writer` to capture architecture, decisions, and status in `opencode/memory/`.
 
 Keep skill output aligned with this `AGENTS.md`.
