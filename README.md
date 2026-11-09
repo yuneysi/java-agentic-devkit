@@ -1,7 +1,9 @@
 # java-agentic-devkit: Java 8 → 21 Migration
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Validate](https://github.com/yuneysi/java-agentic-devkit/actions/workflows/validate.yml/badge.svg)](https://github.com/yuneysi/java-agentic-devkit/actions/workflows/validate.yml)
 [![Publish DevKit Image](https://github.com/yuneysi/java-agentic-devkit/actions/workflows/publish-image.yml/badge.svg)](https://github.com/yuneysi/java-agentic-devkit/actions/workflows/publish-image.yml)
+[![Image: amd64 | arm64](https://img.shields.io/badge/image-amd64%20%7C%20arm64-2496ED.svg)](https://github.com/yuneysi/java-agentic-devkit/pkgs/container/java-agentic-devkit)
 [![Java 8 to 21](https://img.shields.io/badge/Java-8%20%E2%86%92%2021-orange.svg)](templates/java21-migration/README.md)
 
 [Quick start](#start-in-three-commands) · [Migration evidence](#what-a-migration-produces) · [How it works](#how-the-devkit-works) · [Detailed setup](templates/java21-migration/README.md) · [Contributing](.github/CONTRIBUTING.md)
@@ -15,6 +17,8 @@
 Each implementation slice is reviewed and validated before the next one begins. Java 21 results are compared with captured Java 8 evidence, and unresolved risks remain visible instead of being hidden behind a successful compile.
 
 This is not a one-click source rewrite. It is a controlled migration workflow for teams that need reviewable changes, reproducible evidence, and an explicit release decision.
+
+The image is built with a pinned and verified supply chain, scanned on every build, rebuilt weekly, and published with provenance and SBOM attestations. AI agents in the container get no access to the host Docker engine unless you opt in. See the [security policy](.github/SECURITY.md).
 
 ## Why Use It?
 
