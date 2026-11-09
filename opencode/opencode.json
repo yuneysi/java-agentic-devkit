@@ -40,7 +40,15 @@
     }
   },
   "model": "github-copilot/gpt-6.1-sol",
-  "permission": "ask",
+  "permission": {
+    "*": "ask",
+    "read": "allow",
+    "glob": "allow",
+    "grep": "allow",
+    "list": "allow",
+    "lsp": "allow",
+    "skill": "allow"
+  },
   "agent": {
     "plan": {
       "mode": "primary",
@@ -48,12 +56,6 @@
       "model": "github-copilot/gpt-6.1-sol",
       "prompt": "You are the planning agent. Read AGENTS.md first and treat it as authoritative. Inspect the project, identify risks, propose small steps, and recommend validation commands. For project memory, do not validate memory content quality yourself. Only detect whether required memory files exist. If any required memory file is missing, delegate memory initialization/updates to the project-architecture-memory-writer skill. Do not modify files, apply patches, run mutating commands, commit, push, or change external systems. If execution is needed, hand off a concise plan to the build agent.",
       "permission": {
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "list": "allow",
-        "lsp": "allow",
-        "skill": "allow",
         "edit": "deny",
         "bash": "deny",
         "external_directory": "ask",
@@ -67,12 +69,6 @@
       "model": "github-copilot/gpt-6.1-sol",
       "prompt": "You are the execution agent. Read AGENTS.md first and treat it as authoritative. Implement the requested change or the approved plan in small, reviewable steps. Prefer existing project patterns, run the narrowest useful validation, report failures clearly, and keep risky operations such as commits, pushes, destructive commands, credentials, production writes, and external side effects explicit and reviewable. Before implementation, load git-commit and plan small verified checkpoints. Commit only when authorized for the task.",
       "permission": {
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "list": "allow",
-        "lsp": "allow",
-        "skill": "allow",
         "edit": "ask",
         "bash": "ask",
         "external_directory": "ask",

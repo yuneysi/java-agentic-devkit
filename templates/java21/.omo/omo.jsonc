@@ -1,0 +1,10 @@
+{
+  "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/omo.schema.json",
+  // Project overrides for oh-my-openagent, tracked in Git with the project.
+  // This file deep-merges over the user config (~/.omo/omo.jsonc, which the devkit image provides),
+  // so add only the keys this project changes. mcp_env_allowlist and Playwright MCP arguments
+  // stay user-only and are ignored here.
+  // Keep model routing in the user config: GitHub Copilot model catalogs differ per account.
+  // Example: "[opencode]": { "background_task": { "defaultConcurrency": 2 } }
+  "[opencode]": {}
+}

@@ -247,6 +247,28 @@ claude
 
 Sign in on the first start. The start script runs the container with `--rm`, so Claude Code and OpenCode credentials are lost when the session ends unless you mount a volume for `/home/vscode/.claude` and `/home/vscode/.local/share/opencode`. Auto-updates are disabled for reproducibility. Rebuild the image to update Claude Code, or pin a version with `--build-arg CLAUDE_CODE_VERSION=X.Y.Z`.
 
+### Project-Level Config In Git
+
+Configuration has two layers. The devkit image provides the user layer: `~/.config/opencode/opencode.json` and `~/.omo/omo.jsonc`, versioned in this repository. Each target project tracks its own project layer, which both tools merge over the user layer:
+
+| File in the target project | Merge behavior | Devkit template content |
+| --- | --- | --- |
+| `opencode.json` | OpenCode merges it over the global config | Read denies for `.env`, `*/secrets/*`, keystores, and key files |
+| `.omo/omo.jsonc` | oh-my-openagent deep-merges it over `~/.omo/omo.jsonc`; `mcp_env_allowlist` and Playwright MCP arguments stay user-only | Empty `[opencode]` override with guidance |
+
+Keep model routing and credentials in the user layer, because Copilot model catalogs differ per account. Put only project rules in the project layer. Agent-level permissions override global patterns, so the devkit agents do not set `read` themselves. Keep it that way, or the project read denies stop applying to those agents.
+
+In the target project `.gitignore`, ignore only runtime state:
+
+```gitignore
+.opencode/index/
+.opencode/backup-*/
+.omo/*
+!.omo/omo.jsonc
+.playwright-mcp/
+.claude/settings.local.json
+```
+
 ### Spec-Driven Memory With OpenSpec
 
 The image includes [OpenSpec](https://github.com/Fission-AI/OpenSpec) **1.15.0**. It gives each target project a versioned behavior memory:
