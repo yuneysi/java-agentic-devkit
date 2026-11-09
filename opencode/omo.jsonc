@@ -1,6 +1,9 @@
 {
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/omo.schema.json",
   "[opencode]": {
+    // Anonymous OmO usage telemetry stays enabled (upstream default), as documented in .github/PRIVACY.md.
+    // Set to false to opt out.
+    "telemetry": true,
     "default_run_agent": "sisyphus",
     "agent_order": [
       "sisyphus",

@@ -184,8 +184,8 @@ Planner-memory policy:
 
 This devkit follows a privacy-safe default usage model:
 
-- no personal tracking scripts in skills or templates
-- no mandatory telemetry to use skills or container images
+- no personal tracking scripts or telemetry in skills or templates
+- anonymous third-party telemetry stays at upstream defaults: oh-my-openagent (`"telemetry": true` in `opencode/omo.jsonc`) and Claude Code; see `.github/PRIVACY.md` for opt-out steps
 - aggregate-only usage visibility through platform analytics
 
 Recommended visibility sources:
@@ -193,7 +193,7 @@ Recommended visibility sources:
 - GitHub repository traffic analytics (aggregate views/clones)
 - GitHub Container Registry image pull counts by tag
 
-If you add custom telemetry in the future, keep it opt-in and document it in `.github/PRIVACY.md`.
+If you add devkit-owned telemetry in the future, keep it opt-in and document it in `.github/PRIVACY.md`.
 
 ## Reviewed Runtime And Community Skills
 
