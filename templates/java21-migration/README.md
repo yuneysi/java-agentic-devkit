@@ -40,39 +40,47 @@ Required environment value for migration mode:
 
 - `DEVKIT_JAVA_TEMPLATE=java21-migration`
 
+Get the Compose file without cloning the devkit. From the target project root, the image copies its missing template files, including `docker-compose.yml`:
+
+```bash
+docker run --rm -v "$PWD:/workspace" -e DEVKIT_JAVA_TEMPLATE=java21-migration -e DEVKIT_BOOTSTRAP_TEMPLATES=true ghcr.io/yuneysi/java-agentic-devkit:latest true
+```
+
+In Windows PowerShell, use `"${PWD}:/workspace"`.
+
 Reference Compose service:
 
 ```yaml
+# Project-owned launcher for java-agentic-devkit. Start it from the project folder:
+#   docker compose run --rm --service-ports devkit
+# Pin a version for reproducible sessions, for example DEVKIT_IMAGE=ghcr.io/yuneysi/java-agentic-devkit:0.1.42
 services:
   devkit:
-    image: ghcr.io/yuneysi/java-agentic-devkit:latest
-    platform: linux/amd64
+    image: ${DEVKIT_IMAGE:-ghcr.io/yuneysi/java-agentic-devkit:latest}
     working_dir: /workspace
     environment:
       DEVKIT_PROJECT_DIR: /workspace
       DEVKIT_JAVA_TEMPLATE: java21-migration
+      # Copies missing template files on start; never overwrites. Set to false to skip.
+      DEVKIT_BOOTSTRAP_TEMPLATES: ${DEVKIT_BOOTSTRAP_TEMPLATES:-true}
       MAVEN_OPTS: -Dmaven.repo.local=/home/vscode/.m2/repository
+      # Optional: enables the GitHub MCP server. Empty when unset on the host.
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
     volumes:
       - .:/workspace
-      - ${HOME}/.m2:/home/vscode/.m2
+      # HOME on macOS, Linux, and WSL; USERPROFILE on Windows PowerShell and Command Prompt.
+      - ${HOME:-${USERPROFILE}}/.m2:/home/vscode/.m2
       - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      # Bound to 127.0.0.1 so the application is not exposed on the network.
+      - "127.0.0.1:${DEVKIT_APP_PORT:-8080}:${DEVKIT_APP_PORT:-8080}"
+      - "127.0.0.1:${DEVKIT_DEBUG_PORT:-5005}:5005"
     stdin_open: true
     tty: true
     command: /bin/bash
 ```
 
-For macOS users, keep `platform: linux/amd64` in the Compose service.
-
-For Windows users, remove `platform: linux/amd64`.
-
-Windows PowerShell or Command Prompt volume mapping:
-
-```yaml
-    volumes:
-      - .:/workspace
-      - ${USERPROFILE}/.m2:/home/vscode/.m2
-      - /var/run/docker.sock:/var/run/docker.sock
-```
+The same file works on macOS, Linux, WSL2, and Windows shells: the image is published for `linux/amd64` and `linux/arm64`, and the Maven mount falls back from `HOME` to `USERPROFILE`.
 
 ### Option B: `.devcontainer/devcontainer.json` (no Compose)
 
@@ -134,7 +142,7 @@ Run from the target project root:
 
 ```bash
 docker compose pull
-docker compose run --rm devkit
+docker compose run --rm --service-ports devkit
 ```
 
 This matches the tested migration workflow: pull image, start disposable devkit shell, run all migration work inside the container.
