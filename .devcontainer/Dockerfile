@@ -378,8 +378,13 @@ RUN chmod +x /usr/local/bin/jdtls \
 # Keep V1: OmO 5.1.65 does not activate its agents/tools/hooks on OpenCode 2.
 RUN npm install -g opencode-ai@1.19.5 oh-my-openagent@5.1.65
 
+# OpenAI Codex CLI. Pinned; rebuild the image to update.
+ARG CODEX_VERSION=0.164.0
+RUN npm install -g @openai/codex@${CODEX_VERSION} \
+    && codex --version
+
 # OpenSpec: spec-driven changes with versioned specs and an archive of applied changes.
-# The entrypoint runs `openspec init --tools opencode,claude` once per target project
+# The entrypoint runs `openspec init --tools opencode,claude,codex` once per target project
 # when template bootstrap is enabled.
 RUN npm install -g @fission-ai/openspec@1.15.0 \
     && openspec --version
@@ -390,8 +395,11 @@ RUN mkdir -p /workspace \
 RUN mkdir -p \
     /home/${USERNAME}/.config/opencode \
     /home/${USERNAME}/.local/share/opencode \
+    /home/${USERNAME}/.codex \
+    /home/${USERNAME}/.agents \
     && chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.config \
-    && chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.local
+    && chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.local \
+    && chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.codex /home/${USERNAME}/.agents
 
 # ---------------------------------------------------------------------
 # Git performance + shell helpers
@@ -472,9 +480,12 @@ RUN java -version \
 COPY --chown=${USERNAME}:${USERNAME} opencode/opencode.json /home/${USERNAME}/.config/opencode/opencode.json
 COPY --chown=${USERNAME}:${USERNAME} opencode/omo.jsonc /home/${USERNAME}/.omo/omo.jsonc
 COPY --chown=${USERNAME}:${USERNAME} opencode/tui.json /home/${USERNAME}/.config/opencode/tui.json
-# Global agent instructions (work mode and OpenSpec), shared by Claude Code and OpenCode.
+# Global agent instructions (work mode and OpenSpec), shared by Claude Code, OpenCode, and Codex.
 COPY --chown=${USERNAME}:${USERNAME} claude/CLAUDE.md /home/${USERNAME}/.claude/CLAUDE.md
 COPY --chown=${USERNAME}:${USERNAME} claude/CLAUDE.md /home/${USERNAME}/.config/opencode/AGENTS.md
+COPY --chown=${USERNAME}:${USERNAME} claude/CLAUDE.md /home/${USERNAME}/.codex/AGENTS.md
+# Codex: approval on request; the container is the sandbox boundary (see the file header).
+COPY --chown=${USERNAME}:${USERNAME} codex/config.toml /home/${USERNAME}/.codex/config.toml
 # Claude Code starts in auto mode. Secret-file read denies ship in each project's
 # .claude/settings.json from the templates; the devkit policy is to keep them.
 COPY --chown=${USERNAME}:${USERNAME} claude/settings.json /home/${USERNAME}/.claude/settings.json
@@ -491,7 +502,8 @@ COPY opencode/skills/ ${SKILLS_SRC}/opencode/skills/
 COPY templates/java21-migration/skills/ ${SKILLS_SRC}/templates/java21-migration/skills/
 
 RUN python3 -I ${SKILLS_SRC}/scripts/install-skills.py --agent opencode \
-    && python3 -I ${SKILLS_SRC}/scripts/install-skills.py --agent claude
+    && python3 -I ${SKILLS_SRC}/scripts/install-skills.py --agent claude \
+    && python3 -I ${SKILLS_SRC}/scripts/install-skills.py --agent codex
 
 USER root
 
@@ -548,10 +560,10 @@ RUN printf '%s\n' \
     '' \
     '# Initialize OpenSpec once: generates the /opsx commands and keeps openspec/config.yaml.' \
     'if [[ "${BOOTSTRAP_TEMPLATES}" != "false" && -f "${PROJECT_DIR}/openspec/config.yaml" && ! -d "${PROJECT_DIR}/.claude/commands/opsx" && ! -e "${PROJECT_DIR}/.opencode/commands/opsx-propose.md" ]]; then' \
-    '    if (cd "${PROJECT_DIR}" && openspec init --tools opencode,claude < /dev/null > /dev/null 2>&1); then' \
-    '        echo "Initialized OpenSpec (openspec/, .claude/, .opencode/)"' \
+    '    if (cd "${PROJECT_DIR}" && openspec init --tools opencode,claude,codex < /dev/null > /dev/null 2>&1); then' \
+    '        echo "Initialized OpenSpec (openspec/, .claude/, .opencode/, .agents/)"' \
     '    else' \
-    '        echo "OpenSpec init failed; run: openspec init --tools opencode,claude" >&2' \
+    '        echo "OpenSpec init failed; run: openspec init --tools opencode,claude,codex" >&2' \
     '    fi' \
     'fi' \
     '' \

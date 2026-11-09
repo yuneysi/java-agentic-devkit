@@ -1,0 +1,24 @@
+# OpenAI Codex CLI configuration for java-agentic-devkit (installed as ~/.codex/config.toml).
+#
+# Codex's own Linux sandbox (bubblewrap) cannot create user namespaces inside a Docker
+# container, so the devkit container is the isolation boundary: it mounts only the project
+# (/workspace) and ~/.m2, and never the Docker socket unless you opt in.
+# Codex asks for approval when it judges an action risky (on-request).
+approval_policy = "on-request"
+sandbox_mode = "danger-full-access"
+
+[projects."/workspace"]
+trust_level = "trusted"
+
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp@4.4.4"]
+
+[mcp_servers.playwright]
+command = "npx"
+args = ["-y", "@playwright/mcp@0.0.83", "--headless", "--no-sandbox", "--browser", "chromium", "--viewport-size", "1280x720", "--image-responses", "omit"]
+
+# Optional: enabled when GITHUB_TOKEN is set on the host.
+[mcp_servers.github]
+url = "https://api.githubcopilot.com/mcp/"
+bearer_token_env_var = "GITHUB_TOKEN"

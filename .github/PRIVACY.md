@@ -16,6 +16,7 @@ Some tools in the container image send anonymous usage telemetry by default. The
 | --- | --- | --- |
 | oh-my-openagent | enabled (`"telemetry": true` in `opencode/omo.jsonc`) | set `"telemetry": false` in `~/.omo/omo.jsonc` or in the project `.omo/omo.jsonc` |
 | Claude Code | enabled (upstream default) | set the `DISABLE_TELEMETRY=1` environment variable in the container |
+| Codex CLI | enabled (upstream default) | add `[analytics]` with `enabled = false` to `~/.codex/config.toml` |
 | OpenSpec | enabled (upstream default; command names and version only, disabled in CI) | set `OPENSPEC_TELEMETRY=0` or run `openspec config set telemetry.enabled false` |
 
 Opting out does not break any devkit functionality.

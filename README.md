@@ -88,7 +88,7 @@ cd /path/to/java/project
 docker compose run --rm --service-ports devkit
 ```
 
-Then, in the container shell, run `claude` or `opencode`. The agents read `AGENTS.md`, check `openspec/specs/`, and propose capturing the spec of the part you work on when it is missing.
+Then, in the container shell, run `claude`, `opencode`, or `codex`. The agents read `AGENTS.md`, check `openspec/specs/`, and propose capturing the spec of the part you work on when it is missing.
 
 | Need | Command |
 |---|---|
@@ -102,7 +102,7 @@ Then, in the container shell, run `claude` or `opencode`. The agents read `AGENT
 
 ### Notes
 
-- Sign-ins for Claude Code and OpenCode do not persist, because each session container is removed (`--rm`).
+- Sign-ins for Claude Code, OpenCode, and Codex do not persist, because each session container is removed (`--rm`). For Codex, use `codex login --device-auth` (the browser callback cannot reach the container) or set `OPENAI_API_KEY` on the host.
 - The container runs as user `vscode` (UID 1000). Docker Desktop maps file ownership on macOS and Windows, and WSL2 users are UID 1000 by default.
 - On Windows, keep the project in the WSL file system (`~/...`) for fast file access.
 - VS Code users can open the same image as a Dev Container; see the [migration guide](templates/java21-migration/README.md#option-b-devcontainerdevcontainerjson-no-compose).
@@ -230,7 +230,7 @@ Issues and pull requests are welcome. Before contributing, read the [contributio
 
 For Java 8 and Java 21 projects, OpenSpec is the project knowledge base. The devkit does not seed generic architecture or decision files, because every project is different.
 
-- On the first start with template bootstrap, the devkit copies `openspec/config.yaml` and runs `openspec init --tools opencode,claude`.
+- On the first start with template bootstrap, the devkit copies `openspec/config.yaml` and runs `openspec init --tools opencode,claude,codex`.
 - `openspec/specs/` starts empty and grows one capability at a time: when a change touches a capability without a spec, the agent first captures its current behavior with the `legacy-spec-baseline` skill.
 - Decisions stay in each change's `proposal.md` and `design.md`, in `openspec/changes/archive/`.
 

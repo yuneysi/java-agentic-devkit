@@ -81,7 +81,7 @@ For web applications, use Playwright only after compile and startup checks pass.
 
 `openspec/specs/` is the source of truth for the behavior of this project. `openspec/changes/` holds proposed and in-progress changes, and `openspec/changes/archive/` holds applied changes. `openspec/config.yaml` adds project rules to every artifact.
 
-Treat each migration slice from `skills/java21-migration/SKILL.md` as one OpenSpec change. Commands are spelled `/opsx:<name>` in Claude Code and `/opsx-<name>` in OpenCode. `openspec init --tools opencode,claude` generates them in `.claude/` and `.opencode/`; track those generated `commands/` and `skills/` folders in Git, together with the project-level `opencode.json`, `.omo/omo.jsonc`, and `.claude/settings.json`. Never relax their read denies for secret or key files.
+Treat each migration slice from `skills/java21-migration/SKILL.md` as one OpenSpec change. Commands are spelled `/opsx:<name>` in Claude Code and `/opsx-<name>` in OpenCode; Codex uses the `openspec-<name>` skills. `openspec init --tools opencode,claude,codex` generates them in `.claude/`, `.opencode/`, and `.agents/skills/`; track those generated `commands/` and `skills/` folders in Git, together with the project-level `opencode.json`, `.omo/omo.jsonc`, and `.claude/settings.json`. Never relax their read denies for secret or key files.
 
 Use OpenSpec for any change that alters observable behavior, contracts, or integrations:
 

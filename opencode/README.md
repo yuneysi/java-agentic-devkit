@@ -237,7 +237,19 @@ claude
 
 Claude Code starts in auto mode (`permissions.defaultMode: "auto"` in `claude/settings.json`): a classifier approves routine actions and blocks risky ones, so agents work without a prompt for every command. Read denies for `.env` files, `secrets/` folders, keystores, certificates, and private keys live in the project `.claude/settings.json`, which the templates provide next to `opencode.json`. The devkit does not accept secrets in agent context: keep these denies in every project. They sit at project level only because Claude Code cannot override a user-level deny, which would leave no way to handle a project-specific exception outside the devkit. Override the mode for one session with `claude --permission-mode manual`, or set `defaultMode` in the project `.claude/settings.json`.
 
-Sign in on the first start. The start script runs the container with `--rm`, so Claude Code and OpenCode credentials are lost when the session ends unless you mount a volume for `/home/vscode/.claude` and `/home/vscode/.local/share/opencode`. Auto-updates are disabled for reproducibility. Rebuild the image to update Claude Code, or pin a version with `--build-arg CLAUDE_CODE_VERSION=X.Y.Z`.
+Sign in on the first start. The start script runs the container with `--rm`, so Claude Code, OpenCode, and Codex credentials are lost when the session ends unless you mount a volume for `/home/vscode/.claude`, `/home/vscode/.local/share/opencode`, and `/home/vscode/.codex`. Auto-updates are disabled for reproducibility. Rebuild the image to update Claude Code, or pin a version with `--build-arg CLAUDE_CODE_VERSION=X.Y.Z`.
+
+### Codex In The Same Container
+
+The image also installs the OpenAI Codex CLI (`@openai/codex`, pinned with the `CODEX_VERSION` build argument). Codex reads the same global instructions from `~/.codex/AGENTS.md`, the project `AGENTS.md`, and the devkit skills from `~/.agents/skills/`. `codex/config.toml` configures the same MCP servers (Context7, Playwright, and GitHub when `GITHUB_TOKEN` is set).
+
+```bash
+cd /workspace
+codex login --device-auth   # once per session, or set OPENAI_API_KEY on the host
+codex
+```
+
+Codex's own Linux sandbox (bubblewrap) cannot create user namespaces inside Docker, so `codex/config.toml` sets `sandbox_mode = "danger-full-access"` with `approval_policy = "on-request"`. The devkit container is the isolation boundary: it mounts only the project and `~/.m2`, and never the Docker socket unless you opt in. Codex has no file read denies, so the secret rules in `AGENTS.md` are the only guard for Codex; prefer Claude Code or OpenCode for projects that keep secret files in the repository.
 
 ### Project-Level Config In Git
 
@@ -272,14 +284,14 @@ The image includes [OpenSpec](https://github.com/Fission-AI/OpenSpec) **1.15.0**
 | `openspec/changes/archive/<date>-<change>/` | Applied changes, kept for audit |
 | `openspec/config.yaml` | Devkit template with legacy-Java rules that OpenSpec adds to every artifact and operation |
 
-With template bootstrap enabled, the container entrypoint copies `openspec/config.yaml` and runs `openspec init --tools opencode,claude` once, when the project has no generated OpenSpec commands yet. Without bootstrap, run it yourself inside the container:
+With template bootstrap enabled, the container entrypoint copies `openspec/config.yaml` and runs `openspec init --tools opencode,claude,codex` once, when the project has no generated OpenSpec commands yet. Without bootstrap, run it yourself inside the container:
 
 ```bash
 cd /workspace
-openspec init --tools opencode,claude
+openspec init --tools opencode,claude,codex
 ```
 
-`openspec init` keeps an existing `openspec/config.yaml`. Track `openspec/`, `.opencode/commands/`, `.opencode/skills/`, `.claude/commands/`, and `.claude/skills/` in Git.
+`openspec init` keeps an existing `openspec/config.yaml`. Track `openspec/`, `.opencode/commands/`, `.opencode/skills/`, `.claude/commands/`, `.claude/skills/`, and `.agents/skills/` in Git.
 
 Workflow (Claude Code spelling; OpenCode uses `/opsx-propose` and so on):
 

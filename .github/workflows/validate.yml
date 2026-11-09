@@ -34,6 +34,12 @@ jobs:
             python3 -I -c 'import json, re, sys; json.loads(re.sub(r"^\s*//.*$", "", open(sys.argv[1], encoding="utf-8").read(), flags=re.M))' "$f"
           done
 
+      - name: Validate TOML files
+        run: |
+          for f in $(git ls-files '*.toml'); do
+            python3 -I -c 'import sys, tomllib; tomllib.load(open(sys.argv[1], "rb"))' "$f"
+          done
+
       - name: Check shell scripts
         run: |
           git ls-files '*.sh' | xargs -r -n1 bash -n

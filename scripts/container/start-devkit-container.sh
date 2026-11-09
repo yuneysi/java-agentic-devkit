@@ -139,6 +139,7 @@ docker run -it --rm \
     -e "DEVKIT_BOOTSTRAP_TEMPLATES=${BOOTSTRAP_TEMPLATES}" \
     -e "MAVEN_OPTS=-Dmaven.repo.local=/home/vscode/.m2/repository" \
     -e GITHUB_TOKEN \
+    -e OPENAI_API_KEY \
     -v "${MOUNT_PATH}:${CONTAINER_MOUNT}" \
     -v "${HOST_M2_DIR}:/home/vscode/.m2" \
     ${DOCKER_SOCKET_ARGS[@]+"${DOCKER_SOCKET_ARGS[@]}"} \
@@ -163,6 +164,7 @@ docker run -it --rm \
         echo '  mvn clean verify'
         echo '  opencode'
         echo '  claude'
+        echo '  codex'
         echo '  start-tomcat9'
         echo '  start-activemq'
         echo ''

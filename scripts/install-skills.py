@@ -10,6 +10,7 @@ import shutil
 DEFAULT_DESTINATIONS = {
     "opencode": Path.home() / ".config/opencode/skills",
     "claude": Path.home() / ".claude/skills",
+    "codex": Path.home() / ".agents/skills",
 }
 
 

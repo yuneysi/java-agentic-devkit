@@ -13,6 +13,8 @@ services:
       MAVEN_OPTS: -Dmaven.repo.local=/home/vscode/.m2/repository
       # Optional: enables the GitHub MCP server. Empty when unset on the host.
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      # Optional: Codex API-key login. Empty when unset; `codex login --device-auth` also works.
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     volumes:
       - .:/workspace
       # HOME on macOS, Linux, and WSL; USERPROFILE on Windows PowerShell and Command Prompt.

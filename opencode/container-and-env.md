@@ -18,6 +18,7 @@ The Docker image is built from `.devcontainer/Dockerfile`. It includes:
 - OpenCode, oh-my-openagent, `opencode-codebase-index`, and the devkit skills
 - OpenSpec CLI (`openspec`) for spec-driven changes with archived history
 - Claude Code, with the same devkit skills in `~/.claude/skills/` and global instructions in `~/.claude/CLAUDE.md`, and auto permission mode in `~/.claude/settings.json` (secret-file read denies come from the project `.claude/settings.json`)
+- OpenAI Codex CLI, with the devkit skills in `~/.agents/skills/`, global instructions in `~/.codex/AGENTS.md`, and MCP servers in `~/.codex/config.toml`
 - MCP tooling for Context7, GitHub (remote server, needs `GITHUB_TOKEN`), and Playwright (headless Chromium in `/opt/ms-playwright`)
 
 Useful commands inside the container:
@@ -53,7 +54,7 @@ Use these variables from the target project's `docker-compose.yml`, from the man
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `DEVKIT_PROJECT_DIR` | `/workspace` | Mounted target project path inside the container. OpenCode and Claude Code read `AGENTS.md` from this directory. |
+| `DEVKIT_PROJECT_DIR` | `/workspace` | Mounted target project path inside the container. OpenCode, Claude Code, and Codex read `AGENTS.md` from this directory. |
 | `DEVKIT_IMAGE` | `ghcr.io/yuneysi/java-agentic-devkit:latest` | Host-side only, read by the template `docker-compose.yml`. Pin a version tag for reproducible sessions. |
 | `DEVKIT_APP_PORT` | `8080` | Host-side only, read by the template `docker-compose.yml`. Application port published on `127.0.0.1` with `--service-ports`. |
 | `DEVKIT_DEBUG_PORT` | `5005` | Host-side only, read by the template `docker-compose.yml`. Host port for remote debugging. |
@@ -66,7 +67,7 @@ Use these variables from the target project's `docker-compose.yml`, from the man
 
 | Variable | Purpose |
 |----------|---------|
-| `OPENAI_API_KEY` | Used by the bundled OpenCode OpenAI provider. |
+| `OPENAI_API_KEY` | Used by the bundled OpenCode OpenAI provider and by Codex (API-key login). Optional; `codex login --device-auth` also works. |
 | `GITHUB_TOKEN` | Passed to the GitHub MCP server as `GITHUB_PERSONAL_ACCESS_TOKEN`. |
 | `GITHUB_PERSONAL_ACCESS_TOKEN` | Internal MCP environment variable populated from `GITHUB_TOKEN` by `opencode/opencode.json`. |
 | `ANTHROPIC_API_KEY` | Optional for Anthropic-compatible tools if enabled by the user. |
@@ -124,5 +125,6 @@ These are build arguments, not runtime environment variables. Override them only
 | `SEMGREP_VERSION` / `CHECKOV_VERSION` | `1.181.1` / `3.3.30` |
 | `PLAYWRIGHT_MCP_VERSION` / `PLAYWRIGHT_VERSION` | `0.0.83` / matching Playwright build |
 | `CLAUDE_CODE_VERSION` | `stable` |
+| `CODEX_VERSION` | `0.164.0` |
 
 Every download is pinned to a version and verified: Temurin JDKs (latest patch release, by design) with the SHA-256 that Adoptium publishes, and Maven, Tomcat, and ActiveMQ with the Apache `.sha512` files.
