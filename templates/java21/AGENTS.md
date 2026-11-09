@@ -18,6 +18,8 @@ This is a **Java 21 maintenance** project (`DEVKIT_JAVA_TEMPLATE=java21`), not a
 
 At the start of a session, check `openspec/specs/`. If it is empty or missing the capability the user is working on, say so and propose to capture that capability's current behavior with the `legacy-spec-baseline` skill before you change code. Do it only after the user agrees.
 
+Review every change with the `java-maintenance-reviewer` skill before you report it as done, and when the user asks for a review. It reviews as a senior architect and Java developer: correctness first, then clean code, clean architecture, readability, and best practices, without over-engineering. Show its suggestions and apply them only after the user agrees.
+
 ---
 
 ## Agent Compatibility
@@ -194,7 +196,7 @@ OpenSpec is the only project knowledge base. There is no `opencode/memory/` fold
 
 Use the installed devkit skills (OpenCode: `~/.config/opencode/skills/`, Claude Code: `~/.claude/skills/`) when they fit the task:
 
-- `code-reviewer` for diff review and risk classification.
+- `java-maintenance-reviewer` for code review: correctness, clean code, clean architecture, readability, and best practices, with improvement suggestions and no over-engineering.
 - `confluence-doc-writer` for human-facing documentation and Confluence exports.
 - `jms-characterization-test-writer` for JMS behavior tests.
 - `jpa-characterization-test-writer` for JPA behavior tests.

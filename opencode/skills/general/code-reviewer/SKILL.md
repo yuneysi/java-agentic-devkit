@@ -1,6 +1,6 @@
 ---
 name: code-reviewer
-description: "Use this skill when the user asks to review code changes, review a pull request, or audit a diff for quality and risk."
+description: "Use this skill to review code changes in Java 8 to Java 21 migration work (java21-migration template), including javax/jakarta and Spring Boot 3 risks. For java8 and java21 maintenance work, use java-maintenance-reviewer instead."
 ---
 
 # Code Reviewer Skill

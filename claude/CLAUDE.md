@@ -16,6 +16,8 @@ Determine the work mode from the `DEVKIT_JAVA_TEMPLATE` environment variable bef
 
 In a maintenance mode, do not propose or start Java 21, Jakarta, Spring Boot 3, or Spring Framework 6 migration work, and do not load the `java21-migration` skill, unless the user asks for it explicitly.
 
+In a maintenance mode, review every change with the `java-maintenance-reviewer` skill before you report it as done, and when the user asks for a review. Show its suggestions and apply them only after the user agrees.
+
 ## Specs With OpenSpec
 
 In every mode, OpenSpec is the project knowledge base (`openspec/specs/`, `openspec/changes/archive/`).

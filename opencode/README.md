@@ -155,7 +155,8 @@ Enterprise and general skills:
 - `java-enterprise/jpa-performance-advisor/SKILL.md`
 - `java-enterprise/soap-contract-test-writer/SKILL.md`
 - `java-enterprise/spring-boot-smoke-tester/SKILL.md`
-- `general/code-reviewer/SKILL.md`
+- `general/code-reviewer/SKILL.md` (migration reviews)
+- `general/java-maintenance-reviewer/SKILL.md` (maintenance reviews: senior architect and Java developer, clean code and clean architecture, suggestions without over-engineering)
 - `general/confluence-doc-writer/SKILL.md`
 - `general/readme-writer/SKILL.md`
 - `general/markdown-diagram-writer/SKILL.md` (Mermaid diagrams in Markdown, with an ASCII fallback)
