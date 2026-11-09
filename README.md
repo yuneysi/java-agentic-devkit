@@ -6,7 +6,7 @@
 [![Image: amd64 | arm64](https://img.shields.io/badge/image-amd64%20%7C%20arm64-2496ED.svg)](https://github.com/yuneysi/java-agentic-devkit/pkgs/container/java-agentic-devkit)
 [![Java 8 to 21](https://img.shields.io/badge/Java-8%20%E2%86%92%2021-orange.svg)](templates/java21-migration/README.md)
 
-[Quick start](#start-in-three-commands) · [Migration evidence](#what-a-migration-produces) · [How it works](#how-the-devkit-works) · [Detailed setup](templates/java21-migration/README.md) · [Contributing](.github/CONTRIBUTING.md)
+[Quick start](#start-the-devkit) · [Migration evidence](#what-a-migration-produces) · [How it works](#how-the-devkit-works) · [Detailed setup](templates/java21-migration/README.md) · [Contributing](.github/CONTRIBUTING.md)
 
 **Migrate legacy Java 8 applications to Java 21 with small, reversible changes, evidence gates, and human sign-off.**
 
@@ -54,51 +54,32 @@ The primary use case is Java 8 to Java 21 migration. The devkit also includes te
 - Teams that need an auditable migration record rather than a single generated patch.
 - Developers who want AI assistance while retaining human control over scope and release decisions.
 
-## Start In Three Commands
+## Start The DevKit
 
-Docker Desktop must be running, and the target project must contain the migration [docker-compose.yml](templates/java21-migration/docker-compose.yml). No clone is needed: [Use The Published Image Without Cloning](#use-the-published-image-without-cloning) shows how to get that file from the image.
+There is one way to start the devkit: from your project folder, with the published image and the project's `docker-compose.yml`. You do not need to clone this repository. You only need Docker Desktop (on Windows, with the WSL2 backend).
 
-From the target project root:
-
-```bash
-docker compose pull
-docker compose run --rm --service-ports devkit
-opencode
-```
-
-The second command opens the devkit shell. Run the third command inside that shell, then use one prompt:
-
-```text
-Start the Java 21 migration.
-```
-
-The workflow first establishes what the Java 8 application does, identifies risks and missing evidence, and then proposes the next safe action. It does not modify production code during baseline capture.
-
-For setup details, Windows and macOS notes, and alternative VS Code Dev Container usage, see the [Java 8 to Java 21 migration guide](templates/java21-migration/README.md).
-
-## Use The Published Image Without Cloning
-
-The devkit is published as `ghcr.io/yuneysi/java-agentic-devkit` for `linux/amd64` and `linux/arm64`, so it runs natively on Intel and AMD machines, Apple Silicon Macs, and Windows on Arm. You only need Docker Desktop (on Windows, with the WSL2 backend). Every push to `main` publishes `latest` and a version tag such as `0.1.42`.
+The image `ghcr.io/yuneysi/java-agentic-devkit` is published for `linux/amd64` and `linux/arm64`, so it runs natively on Intel and AMD machines, Apple Silicon Macs, and Windows on Arm.
 
 ### 1. First Time In A Project
 
-From the project folder, let the image copy its template files into the project. Existing files are never overwritten. Choose the template that fits the project: `java8`, `java21`, or `java21-migration`.
+Choose the template that matches the work. It sets how the agents behave:
 
-macOS, Linux, WSL2, or Git Bash:
+| Template | Use when | Agents |
+|---|---|---|
+| `java8` | Maintaining a Java 8 application, with no migration now | Keep Java 8 and do not propose migration work |
+| `java21` | Maintaining an application that already runs on Java 21 | Keep the current platform |
+| `java21-migration` | Migrating from Java 8 to Java 21 | Follow the phased migration workflow |
+
+From the project folder, copy the template files into the project (macOS, Linux, WSL2, or Git Bash):
 
 ```bash
 cd /path/to/java/project
 docker run --rm -v "$PWD:/workspace" -e DEVKIT_JAVA_TEMPLATE=java8 -e DEVKIT_BOOTSTRAP_TEMPLATES=true ghcr.io/yuneysi/java-agentic-devkit:latest true
 ```
 
-Windows PowerShell:
+In Windows PowerShell, use `-v "${PWD}:/workspace"`.
 
-```powershell
-cd C:\path\to\java\project
-docker run --rm -v "${PWD}:/workspace" -e DEVKIT_JAVA_TEMPLATE=java8 -e DEVKIT_BOOTSTRAP_TEMPLATES=true ghcr.io/yuneysi/java-agentic-devkit:latest true
-```
-
-This creates the missing files: `docker-compose.yml`, `AGENTS.md`, `opencode.json`, `.omo/omo.jsonc`, `openspec/config.yaml`, `.claude/settings.json`, and `.github/copilot-instructions.md`, and runs `openspec init` once. Review them with `git status` and commit the ones your team wants.
+This creates only the missing files and never overwrites existing ones: `docker-compose.yml`, `AGENTS.md`, `opencode.json`, `.omo/omo.jsonc`, `.claude/settings.json`, `openspec/config.yaml`, and `.github/copilot-instructions.md`. It also runs `openspec init` once. The template choice is stored in `docker-compose.yml`, so you do not repeat it. Review the files with `git status` and commit the ones your team wants.
 
 ### 2. Every Session
 
@@ -107,100 +88,37 @@ cd /path/to/java/project
 docker compose run --rm --service-ports devkit
 ```
 
-Then, in the container shell, run `opencode` or `claude`.
+Then, in the container shell, run `claude` or `opencode`. The agents read `AGENTS.md`, check `openspec/specs/`, and propose capturing the spec of the part you work on when it is missing.
 
-`--service-ports` publishes the application port (`8080`) and the debug port (`5005`) on `127.0.0.1`. When the application uses another port, set it before you start:
+| Need | Command |
+|---|---|
+| Application on another port | `DEVKIT_APP_PORT=8083 docker compose run --rm --service-ports devkit` (PowerShell: `$env:DEVKIT_APP_PORT=8083` first) |
+| GitHub MCP server | Set `GITHUB_TOKEN` on the host before you start |
+| Testcontainers | Uncomment the Docker socket line in `docker-compose.yml` (gives agents control of the host Docker engine) |
+| Use the newest image | `docker compose pull` |
+| Pin a version | Set `DEVKIT_IMAGE=ghcr.io/yuneysi/java-agentic-devkit:<version>`; tags are on the [package page](https://github.com/yuneysi/java-agentic-devkit/pkgs/container/java-agentic-devkit) |
 
-| Shell | Command |
-| --- | --- |
-| macOS, Linux, WSL2 | `DEVKIT_APP_PORT=8083 docker compose run --rm --service-ports devkit` |
-| PowerShell | `$env:DEVKIT_APP_PORT=8083; docker compose run --rm --service-ports devkit` |
-
-The Compose file mounts the project at `/workspace` and your Maven folder (`~/.m2`, or `%USERPROFILE%\.m2` in Windows shells) at `/home/vscode/.m2`, so `settings.xml` and repository credentials are available. Set `GITHUB_TOKEN` on the host to enable the GitHub MCP server.
-
-### 3. Update Or Pin The Image
-
-```bash
-docker compose pull
-```
-
-For reproducible team sessions, pin a version instead of `latest`: set `DEVKIT_IMAGE=ghcr.io/yuneysi/java-agentic-devkit:0.1.42`, or write that tag into the project's `docker-compose.yml`. The available tags are listed on the package page: `https://github.com/yuneysi/java-agentic-devkit/pkgs/container/java-agentic-devkit`.
-
-### Without A Compose File
-
-```bash
-cd /path/to/java/project
-docker run -it --rm -v "$PWD:/workspace" -v "$HOME/.m2:/home/vscode/.m2" -p 127.0.0.1:8080:8080 -p 127.0.0.1:5005:5005 -e GITHUB_TOKEN -e DEVKIT_BOOTSTRAP_TEMPLATES=false ghcr.io/yuneysi/java-agentic-devkit:latest
-```
-
-In PowerShell, use `"${PWD}:/workspace"` and `"$env:USERPROFILE\.m2:/home/vscode/.m2"`.
+`--service-ports` publishes the application port (`8080`) and the debug port (`5005`) on `127.0.0.1` only. On Java 8, start the debug agent with `address=5005`; on Java 9 and later, use `address=*:5005`. Your Maven folder (`~/.m2`, or `%USERPROFILE%\.m2` in Windows shells) is mounted, so `settings.xml` and repository credentials are available.
 
 ### Notes
 
-- The container runs as user `vscode` (UID 1000). Docker Desktop on macOS and Windows maps file ownership automatically, and WSL2 users are UID 1000 by default. On native Linux with a different UID, files created in the project can be owned by UID 1000.
-- Sign-ins for OpenCode and Claude Code do not persist, because each session container is removed (`--rm`).
-- The Docker socket is not mounted by default, because it gives the container and its AI agents root-equivalent control of the host Docker engine. Uncomment the line in `docker-compose.yml` only when you need Testcontainers.
-- To work with unreleased devkit changes, clone the repository and follow [Start The DevKit From Your Project Folder](#start-the-devkit-from-your-project-folder).
+- Sign-ins for Claude Code and OpenCode do not persist, because each session container is removed (`--rm`).
+- The container runs as user `vscode` (UID 1000). Docker Desktop maps file ownership on macOS and Windows, and WSL2 users are UID 1000 by default.
+- On Windows, keep the project in the WSL file system (`~/...`) for fast file access.
+- VS Code users can open the same image as a Dev Container; see the [migration guide](templates/java21-migration/README.md#option-b-devcontainerdevcontainerjson-no-compose).
 
-## Start The DevKit From Your Project Folder
+### Developing The DevKit Itself
 
-Work from your Java project folder and start the devkit from there. The devkit checkout stays in its own folder; the container mounts the folder you are in at `/workspace`.
-
-### One-Time Setup
-
-Clone the devkit and build the image:
+Only to test unreleased devkit changes: clone this repository, build the image locally, and start it with the script. The script uses the local `java-agentic-devkit:latest` image, not the published one.
 
 ```bash
 git clone https://github.com/yuneysi/java-agentic-devkit.git ~/github/java-agentic-devkit
-cd ~/github/java-agentic-devkit
-docker build -t java-agentic-devkit:latest -f .devcontainer/Dockerfile .
-```
-
-Rebuild the image after you pull devkit changes. The start script builds the image only when it does not exist, so it does not update an old image.
-
-### Every Session
-
-```bash
+docker build -t java-agentic-devkit:latest -f ~/github/java-agentic-devkit/.devcontainer/Dockerfile ~/github/java-agentic-devkit
 cd /path/to/java/project
 ~/github/java-agentic-devkit/scripts/container/start-devkit-container.sh
 ```
 
-Without arguments, the script mounts the current folder and uses the `java8` template. Then, in the container shell:
-
-```bash
-opencode    # or: claude
-```
-
-Options. Pass `.` as the first argument when you set a template:
-
-| Need | Command from the project folder |
-| --- | --- |
-| Java 21 project | `~/github/java-agentic-devkit/scripts/container/start-devkit-container.sh . java21` |
-| Java 8 to Java 21 migration | `~/github/java-agentic-devkit/scripts/container/start-devkit-container.sh . java21-migration` |
-| Application on another port | `DEVKIT_PORTS="8083 5005" ~/github/java-agentic-devkit/scripts/container/start-devkit-container.sh` |
-| No published ports (second container) | `DEVKIT_PORTS="" ~/github/java-agentic-devkit/scripts/container/start-devkit-container.sh` |
-| GitHub MCP server | `export GITHUB_TOKEN=<fine-grained token>` before you start |
-| Docker socket for Testcontainers (opt-in; gives agents control of the host Docker engine) | `DEVKIT_DOCKER_SOCKET=true ~/github/java-agentic-devkit/scripts/container/start-devkit-container.sh` |
-
-The script publishes ports `8080` (application) and `5005` (remote debugging) on `127.0.0.1` by default. On Java 8, start the debug agent with `address=5005`. On Java 9 and later, use `address=*:5005` so that the host can connect. The host `~/.m2` folder is mounted, so your Maven `settings.xml` and repository credentials are available in the container.
-
-### First Session In A Project
-
-Copy the template files that are missing (`AGENTS.md`, `openspec/config.yaml`, `opencode.json`, `.omo/omo.jsonc`, `.claude/settings.json`, `docker-compose.yml`, `.github/copilot-instructions.md`) and initialize OpenSpec. Existing files are never overwritten:
-
-```bash
-cd /path/to/java/project
-DEVKIT_BOOTSTRAP_TEMPLATES=true ~/github/java-agentic-devkit/scripts/container/start-devkit-container.sh
-```
-
-Review the new files with `git status`. Delete the files your team does not want, and commit the rest.
-
-### Platform Notes
-
-- macOS: use the commands above in Terminal with Docker Desktop running.
-- Windows: run the same commands in a WSL2 terminal (for example Ubuntu) with Docker Desktop WSL integration enabled. Keep the project and the devkit checkout in the WSL file system (`~/...`) for fast file access. Projects under `/mnt/c/...` work, but they are slower. Inside WSL, `~/.m2` is the WSL home folder, not `%USERPROFILE%\.m2`.
-- Git Bash on Windows: the script also accepts Windows paths such as `C:/Git/project` as the first argument.
-- Logins: the container is removed when the session ends (`--rm`), so OpenCode and Claude Code sign-ins do not persist between sessions.
+The script options (`DEVKIT_PORTS`, `DEVKIT_DOCKER_SOCKET`, template argument) are listed in the [container reference](opencode/container-and-env.md).
 
 ## Designed For Real Java Migration Risk
 
@@ -280,18 +198,6 @@ java-agentic-devkit/
 ```
 
 </details>
-
-## Setup Options
-
-| Option | Use when | Start here |
-|---|---|---|
-| Published image, no clone | Recommended for a shared team workflow | Follow [Use The Published Image Without Cloning](#use-the-published-image-without-cloning) |
-| VS Code Dev Container | The team works directly in VS Code containers | Follow the platform-specific examples in the migration guide |
-| Start from the project folder | You work inside your project and keep a local devkit checkout | Follow [Start The DevKit From Your Project Folder](#start-the-devkit-from-your-project-folder) |
-
-Template bootstrapping is controlled by `DEVKIT_BOOTSTRAP_TEMPLATES`. Container-based target-project flows enable it so required files are copied when missing. The start script disables it by default to avoid modifying an arbitrary mounted workspace.
-
-See the [migration setup guide](templates/java21-migration/README.md) for complete macOS, Windows, Compose, and Dev Container instructions.
 
 ## Migration Project Memory
 

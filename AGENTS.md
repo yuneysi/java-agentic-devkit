@@ -75,14 +75,17 @@ Do not reintroduce `opencode/instructions.md`.
 
 ## Command Style
 
-Use this command style in documentation:
+Document one way to start the devkit in a target project: the published image and the project's `docker-compose.yml`, started from the project folder.
 
 ```bash
-cd ~/github/java-agentic-devkit
-./scripts/container/start-devkit-container.sh /path/to/java/project
+# First time in a project (choose java8, java21, or java21-migration)
+docker run --rm -v "$PWD:/workspace" -e DEVKIT_JAVA_TEMPLATE=java8 -e DEVKIT_BOOTSTRAP_TEMPLATES=true ghcr.io/yuneysi/java-agentic-devkit:latest true
+
+# Every session
+docker compose run --rm --service-ports devkit
 ```
 
-For the start-from-the-project-folder workflow, use this style:
+Keep these commands in the README section "Start The DevKit" and link to it from other documents instead of repeating startup instructions. Use `scripts/container/start-devkit-container.sh` only in documentation about developing the devkit itself, in this style:
 
 ```bash
 cd /path/to/java/project

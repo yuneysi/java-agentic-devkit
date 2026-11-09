@@ -308,5 +308,6 @@ Changing source files does not update a previously built `latest` image. Rebuild
 ```bash
 cd ~/github/java-agentic-devkit
 docker build -t java-agentic-devkit:latest -f .devcontainer/Dockerfile .
-./scripts/container/start-devkit-container.sh /path/to/java/project java8
+cd /path/to/java/project
+~/github/java-agentic-devkit/scripts/container/start-devkit-container.sh
 ```
