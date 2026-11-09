@@ -155,6 +155,22 @@ If tests cannot be run, explain why and identify the command that should be run 
 
 ---
 
+## Spec-Driven Changes (OpenSpec)
+
+`openspec/specs/` is the source of truth for the behavior of this project. `openspec/changes/` holds proposed and in-progress changes, and `openspec/changes/archive/` holds applied changes. `openspec/config.yaml` adds project rules to every artifact.
+
+Commands are spelled `/opsx:<name>` in Claude Code and `/opsx-<name>` in OpenCode. `openspec init --tools opencode,claude` generates them in `.claude/` and `.opencode/`; track those generated `commands/` and `skills/` folders in Git.
+
+Use OpenSpec for any change that alters observable behavior, contracts, or integrations:
+
+1. Explore with `/opsx:explore` when the scope is unclear.
+2. Propose with `/opsx:propose <change-name>`. This creates `proposal.md`, delta specs, `design.md`, and `tasks.md`. Wait for human approval before implementation.
+3. If a touched capability has no spec yet, run the `legacy-spec-baseline` skill first so the delta is measured against verified current behavior.
+4. Implement with `/opsx:apply`, one verified checkpoint per task.
+5. Archive with `/opsx:archive` only after all tasks are complete and validated. Archiving merges the deltas into `openspec/specs/` and moves the change to `openspec/changes/archive/`. Then update `opencode/memory/` through `project-architecture-memory-writer`.
+
+Run `openspec validate --all --strict` before you ask for review. Small fixes without behavior change (typos, formatting, dependency-free refactors with unchanged tests) do not need a change folder.
+
 ## Shared Project Memory (Token Saving)
 
 Use `opencode/memory/` as the first source for recurring project context before running wide codebase scans.
@@ -185,6 +201,7 @@ Use the installed devkit skills (OpenCode: `~/.config/opencode/skills/`, Claude 
 - `soap-contract-test-writer` for SOAP/XML contract tests.
 - `spring-boot-smoke-tester` for basic application smoke tests.
 - `readme-writer` for target-project README updates.
+- `legacy-spec-baseline` to capture current behavior as OpenSpec specs before the first change to a capability.
 - `markdown-diagram-writer` for evidence-based Mermaid diagrams (architecture, flows, data models, migration plans) in Markdown.
 - `project-architecture-memory-writer` to capture architecture, decisions, and status in `opencode/memory/`.
 

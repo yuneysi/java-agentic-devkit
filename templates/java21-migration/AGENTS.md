@@ -77,6 +77,22 @@ If a required check cannot run, record why, the exact command to run later, the 
 
 For web applications, use Playwright only after compile and startup checks pass. Prefer read-only smoke tests and never trigger payments, external sends, data deletion, or production writes.
 
+## Spec-Driven Changes (OpenSpec)
+
+`openspec/specs/` is the source of truth for the behavior of this project. `openspec/changes/` holds proposed and in-progress changes, and `openspec/changes/archive/` holds applied changes. `openspec/config.yaml` adds project rules to every artifact.
+
+Treat each migration slice from `skills/java21-migration/SKILL.md` as one OpenSpec change. Commands are spelled `/opsx:<name>` in Claude Code and `/opsx-<name>` in OpenCode. `openspec init --tools opencode,claude` generates them in `.claude/` and `.opencode/`; track those generated `commands/` and `skills/` folders in Git.
+
+Use OpenSpec for any change that alters observable behavior, contracts, or integrations:
+
+1. Explore with `/opsx:explore` when the scope is unclear.
+2. Propose with `/opsx:propose <change-name>`. This creates `proposal.md`, delta specs, `design.md`, and `tasks.md`. Wait for human approval before implementation.
+3. If a touched capability has no spec yet, run the `legacy-spec-baseline` skill first so the delta is measured against verified current behavior.
+4. Implement with `/opsx:apply`, one verified checkpoint per task.
+5. Archive with `/opsx:archive` only after all tasks are complete and validated. Archiving merges the deltas into `openspec/specs/` and moves the change to `openspec/changes/archive/`. Then update `opencode/memory/` through `project-architecture-memory-writer`.
+
+Run `openspec validate --all --strict` before you ask for review. Small fixes without behavior change (typos, formatting, dependency-free refactors with unchanged tests) do not need a change folder.
+
 ## Project Memory And Records
 
 Use `opencode/memory/` as concise shared context, not as a substitute for source evidence:

@@ -370,6 +370,11 @@ RUN chmod +x /usr/local/bin/jdtls \
 # Keep V1: OmO 5.1.65 does not activate its agents/tools/hooks on OpenCode 2.
 RUN npm install -g opencode-ai@1.19.5 oh-my-openagent@5.1.65
 
+# OpenSpec: spec-driven changes with versioned specs and an archive of applied changes.
+# Run `openspec init --tools opencode,claude` once per target project.
+RUN npm install -g @fission-ai/openspec@1.15.0 \
+    && openspec --version
+
 RUN mkdir -p /workspace \
     && chown ${USERNAME}:${USERNAME} /workspace
 

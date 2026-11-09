@@ -51,6 +51,17 @@ Update memory files when any of these happen:
 - Build/test baseline changes.
 - Migration phase or risk status changes.
 - Human approval or rejection of a technical decision.
+- An OpenSpec change is archived (`openspec/changes/archive/<date>-<change>/`).
+
+## OpenSpec Integration
+
+Specs in `openspec/specs/` own behavior. Memory owns architecture, decisions, and status. Link between them; do not copy requirements into memory.
+
+When an OpenSpec change is archived:
+
+1. Add a row to `opencode/memory/decisions.md` with the change name, the decision, the reason from `proposal.md`, and a link to the archive folder.
+2. Update `opencode/memory/status.md` with what was delivered and what is next.
+3. Update `opencode/memory/architecture.md` only when the change altered modules, runtime wiring, integrations, or packaging.
 
 ## Suggested Workflow
 

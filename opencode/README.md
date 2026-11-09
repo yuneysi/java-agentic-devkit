@@ -157,6 +157,7 @@ Enterprise and general skills:
 - `general/confluence-doc-writer/SKILL.md`
 - `general/readme-writer/SKILL.md`
 - `general/markdown-diagram-writer/SKILL.md` (Mermaid diagrams in Markdown, with an ASCII fallback)
+- `general/legacy-spec-baseline/SKILL.md` (captures current behavior as OpenSpec specs before the first change)
 - `general/project-architecture-memory-writer/SKILL.md`
 
 The `project-architecture-memory-writer` skill updates shared project memory in:
@@ -185,7 +186,7 @@ Planner-memory policy:
 This devkit follows a privacy-safe default usage model:
 
 - no personal tracking scripts or telemetry in skills or templates
-- anonymous third-party telemetry stays at upstream defaults: oh-my-openagent (`"telemetry": true` in `opencode/omo.jsonc`) and Claude Code; see `.github/PRIVACY.md` for opt-out steps
+- anonymous third-party telemetry stays at upstream defaults: oh-my-openagent (`"telemetry": true` in `opencode/omo.jsonc`), Claude Code, and OpenSpec; see `.github/PRIVACY.md` for opt-out steps
 - aggregate-only usage visibility through platform analytics
 
 Recommended visibility sources:
@@ -245,6 +246,37 @@ claude
 ```
 
 Sign in on the first start. The start script runs the container with `--rm`, so Claude Code and OpenCode credentials are lost when the session ends unless you mount a volume for `/home/vscode/.claude` and `/home/vscode/.local/share/opencode`. Auto-updates are disabled for reproducibility. Rebuild the image to update Claude Code, or pin a version with `--build-arg CLAUDE_CODE_VERSION=X.Y.Z`.
+
+### Spec-Driven Memory With OpenSpec
+
+The image includes [OpenSpec](https://github.com/Fission-AI/OpenSpec) **1.15.0**. It gives each target project a versioned behavior memory:
+
+| Path | Role |
+| --- | --- |
+| `openspec/specs/<capability>/spec.md` | Source of truth: what the system does today, as requirements with WHEN/THEN scenarios |
+| `openspec/changes/<change>/` | A proposed change: `proposal.md`, delta specs (`ADDED`/`MODIFIED`/`REMOVED`), `design.md`, `tasks.md` |
+| `openspec/changes/archive/<date>-<change>/` | Applied changes, kept for audit |
+| `openspec/config.yaml` | Devkit template with legacy-Java rules that OpenSpec adds to every artifact and operation |
+| `opencode/memory/` | Architecture, decisions, and status; updated on every archive through `project-architecture-memory-writer` |
+
+Set up a project once, inside the container:
+
+```bash
+cd /workspace
+openspec init --tools opencode,claude
+```
+
+`openspec init` keeps an existing `openspec/config.yaml`. Copy the template config first with `DEVKIT_BOOTSTRAP_TEMPLATES=true`, or copy `templates/<template>/openspec/config.yaml` by hand. Track `openspec/`, `.opencode/commands/`, `.opencode/skills/`, `.claude/commands/`, and `.claude/skills/` in Git.
+
+Workflow (Claude Code spelling; OpenCode uses `/opsx-propose` and so on):
+
+1. `/opsx:explore`: clarify the scope.
+2. `legacy-spec-baseline` skill: capture current behavior for a capability without a spec.
+3. `/opsx:propose <change>`: create the change folder, then review it.
+4. `/opsx:apply`: implement the tasks in verified checkpoints.
+5. `/opsx:archive`: merge the deltas into `openspec/specs/`, move the change to the archive, and update `opencode/memory/`.
+
+Check everything with `openspec validate --all --strict`, and see active work with `openspec list`.
 
 ### MCP Servers
 

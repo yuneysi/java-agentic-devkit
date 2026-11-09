@@ -1,0 +1,48 @@
+# OpenSpec project configuration for a Java 21 project (java-agentic-devkit template).
+# `openspec init` keeps this file when it already exists.
+schema: spec-driven
+
+context: |
+  Enterprise Java 21 project maintained with java-agentic-devkit.
+  AGENTS.md at the repository root is authoritative; read it before any artifact.
+  Priority: preserve existing behavior. Specs describe what the system does today
+  (verified from code, tests, configuration, WSDL/XSD, or OpenAPI contracts) plus
+  the approved deltas. They are not a wish list.
+  Constraints: Java 21, the namespaces (javax.* or jakarta.*) and Spring and
+  Spring Boot versions the project already uses, and unchanged SOAP/REST wire contracts unless a change
+  explicitly approves a contract change.
+  Project memory: opencode/memory/architecture.md, decisions.md, and status.md.
+  Specs own behavior; memory owns architecture, decisions, and status. Do not
+  duplicate one in the other; link instead.
+  Write all artifacts in English.
+
+rules:
+  proposal:
+    - State the behavior that must not change, in addition to what changes.
+    - List the affected modules, contracts (SOAP operations, REST endpoints, JMS destinations, tables), and the rollback approach.
+    - Mark any dependency, runtime, or wire-contract change as high risk and name the approver.
+  specs:
+    - Every requirement needs at least one scenario with WHEN and THEN, and references the evidence as path:line.
+    - When a capability has no spec yet, first capture its current behavior as the baseline, then add the delta.
+    - Mark behavior that is inferred and not verified as "(unverified)" and list it as an open question.
+    - Never write secrets, API keys, passwords, or personal data into specs, even as examples.
+  design:
+    - Prefer the smallest change that follows existing project patterns; record rejected alternatives.
+    - Name the characterization tests that lock current behavior before risky refactors.
+  tasks:
+    - Order tasks as small, independently verifiable checkpoints; keep code and its tests in the same task.
+    - Each task names its validation command, for example ./mvnw -pl <module> test.
+    - Add a task for characterization tests before any task that changes risky legacy code.
+
+operations:
+  apply:
+    guidance:
+      - Load git-commit before implementation and work in verified checkpoints; commit only when the user authorized commits for the task.
+      - Use verification-before-completion before marking a task done.
+      - Stop and report if implementation reveals behavior that contradicts the spec; update the spec deltas before continuing.
+  archive:
+    guidance:
+      - Archive only after all tasks are complete and their validation commands passed.
+      - Check that the merged specs describe the behavior that was actually implemented.
+      - Use the project-architecture-memory-writer skill to add a row to opencode/memory/decisions.md that links the archive folder, and to update opencode/memory/status.md.
+      - Update opencode/memory/architecture.md only when the change altered modules, runtime wiring, integrations, or packaging.
