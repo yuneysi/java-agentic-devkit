@@ -122,6 +122,14 @@ for PORT_SPEC in ${PUBLISHED_PORTS}; do
 done
 printf '%b\n\n' "${GREEN}Published ports: ${PUBLISHED_PORTS:-none}${NC}"
 
+# The Docker socket gives the container (and any AI agent in it) control of the host Docker
+# engine, which is equivalent to root on the Docker host. Mount it only on explicit request.
+DOCKER_SOCKET_ARGS=()
+if [[ "${DEVKIT_DOCKER_SOCKET:-false}" == "true" ]]; then
+    DOCKER_SOCKET_ARGS=(-v /var/run/docker.sock:/var/run/docker.sock)
+    printf '%b\n\n' "${YELLOW}Docker socket mounted: agents can control the host Docker engine${NC}"
+fi
+
 printf '%b\n' "${BLUE}===========================================================${NC}"
 printf '%b\n\n' "${YELLOW}Starting container...${NC}"
 
@@ -133,7 +141,7 @@ docker run -it --rm \
     -e GITHUB_TOKEN \
     -v "${MOUNT_PATH}:${CONTAINER_MOUNT}" \
     -v "${HOST_M2_DIR}:/home/vscode/.m2" \
-    -v /var/run/docker.sock:/var/run/docker.sock \
+    ${DOCKER_SOCKET_ARGS[@]+"${DOCKER_SOCKET_ARGS[@]}"} \
     ${PORT_ARGS[@]+"${PORT_ARGS[@]}"} \
     "${FULL_IMAGE}" \
     /bin/bash -c "

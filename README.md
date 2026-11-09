@@ -135,6 +135,7 @@ In PowerShell, use `"${PWD}:/workspace"` and `"$env:USERPROFILE\.m2:/home/vscode
 
 - The container runs as user `vscode` (UID 1000). Docker Desktop on macOS and Windows maps file ownership automatically, and WSL2 users are UID 1000 by default. On native Linux with a different UID, files created in the project can be owned by UID 1000.
 - Sign-ins for OpenCode and Claude Code do not persist, because each session container is removed (`--rm`).
+- The Docker socket is not mounted by default, because it gives the container and its AI agents root-equivalent control of the host Docker engine. Uncomment the line in `docker-compose.yml` only when you need Testcontainers.
 - To work with unreleased devkit changes, clone the repository and follow [Start The DevKit From Your Project Folder](#start-the-devkit-from-your-project-folder).
 
 ## Start The DevKit From Your Project Folder
@@ -175,6 +176,7 @@ Options. Pass `.` as the first argument when you set a template:
 | Application on another port | `DEVKIT_PORTS="8083 5005" ~/github/java-agentic-devkit/scripts/container/start-devkit-container.sh` |
 | No published ports (second container) | `DEVKIT_PORTS="" ~/github/java-agentic-devkit/scripts/container/start-devkit-container.sh` |
 | GitHub MCP server | `export GITHUB_TOKEN=<fine-grained token>` before you start |
+| Docker socket for Testcontainers (opt-in; gives agents control of the host Docker engine) | `DEVKIT_DOCKER_SOCKET=true ~/github/java-agentic-devkit/scripts/container/start-devkit-container.sh` |
 
 The script publishes ports `8080` (application) and `5005` (remote debugging) on `127.0.0.1` by default. On Java 8, start the debug agent with `address=5005`. On Java 9 and later, use `address=*:5005` so that the host can connect. The host `~/.m2` folder is mounted, so your Maven `settings.xml` and repository credentials are available in the container.
 

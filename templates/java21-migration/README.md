@@ -70,7 +70,9 @@ services:
       - .:/workspace
       # HOME on macOS, Linux, and WSL; USERPROFILE on Windows PowerShell and Command Prompt.
       - ${HOME:-${USERPROFILE}}/.m2:/home/vscode/.m2
-      - /var/run/docker.sock:/var/run/docker.sock
+      # Optional, for Testcontainers or Docker-in-Docker workflows only. The socket gives the
+      # container and its AI agents control of the host Docker engine (root-equivalent).
+      # - /var/run/docker.sock:/var/run/docker.sock
     ports:
       # Bound to 127.0.0.1 so the application is not exposed on the network.
       - "127.0.0.1:${DEVKIT_APP_PORT:-8080}:${DEVKIT_APP_PORT:-8080}"
@@ -103,8 +105,7 @@ Linux and macOS example:
   },
   "forwardPorts": [8080, 5005],
   "mounts": [
-    "source=${localEnv:HOME}/.m2,target=/home/vscode/.m2,type=bind",
-    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+    "source=${localEnv:HOME}/.m2,target=/home/vscode/.m2,type=bind"
   ],
   "postStartCommand": "bash -lc 'use-java8 && java -version && mvn -v'"
 }
@@ -127,8 +128,7 @@ Windows example using `USERPROFILE`:
   },
   "forwardPorts": [8080, 5005],
   "mounts": [
-    "source=${localEnv:USERPROFILE}/.m2,target=/home/vscode/.m2,type=bind",
-    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+    "source=${localEnv:USERPROFILE}/.m2,target=/home/vscode/.m2,type=bind"
   ],
   "postStartCommand": "bash -lc 'use-java8 && java -version && mvn -v'"
 }

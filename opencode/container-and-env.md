@@ -57,6 +57,7 @@ Use these variables from the target project's `docker-compose.yml`, from the man
 | `DEVKIT_IMAGE` | `ghcr.io/yuneysi/java-agentic-devkit:latest` | Host-side only, read by the template `docker-compose.yml`. Pin a version tag for reproducible sessions. |
 | `DEVKIT_APP_PORT` | `8080` | Host-side only, read by the template `docker-compose.yml`. Application port published on `127.0.0.1` with `--service-ports`. |
 | `DEVKIT_DEBUG_PORT` | `5005` | Host-side only, read by the template `docker-compose.yml`. Host port for remote debugging. |
+| `DEVKIT_DOCKER_SOCKET` | `false` | Host-side only, read by `start-devkit-container.sh`. `true` mounts `/var/run/docker.sock` for Testcontainers. This gives agents in the container control of the host Docker engine. |
 | `DEVKIT_PORTS` | `8080 5005` | Host-side only, read by `start-devkit-container.sh`. Space-separated `PORT` (bound to `127.0.0.1`) or `HOST_PORT:CONTAINER_PORT` entries. Set to an empty string to publish no ports. |
 | `DEVKIT_JAVA_TEMPLATE` | `java8` | Selects the runtime and template. Supported values: `java8`, `java21`, `java21-migration`. |
 | `DEFAULT_JAVA_TEMPLATE` | `java8` | Container fallback when `DEVKIT_JAVA_TEMPLATE` is not set. |

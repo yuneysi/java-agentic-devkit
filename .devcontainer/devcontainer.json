@@ -14,8 +14,7 @@
     "MAVEN_OPTS": "-Dmaven.repo.local=/home/vscode/.m2/repository"
   },
   "mounts": [
-    "source=java-agentic-devkit-m2,target=/home/vscode/.m2,type=volume",
-    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+    "source=java-agentic-devkit-m2,target=/home/vscode/.m2,type=volume"
   ],
   "forwardPorts": [8080, 5005, 61616, 6379, 8161],
   "customizations": {
