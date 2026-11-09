@@ -1,0 +1,63 @@
+name: Validate
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Lint and validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate JSON files
+        run: |
+          git ls-files '*.json' | xargs -r -n1 jq empty
+
+      - name: Validate JSONC files
+        run: |
+          for f in $(git ls-files '*.jsonc'); do
+            python3 -I -c 'import json, re, sys; json.loads(re.sub(r"^\s*//.*$", "", open(sys.argv[1], encoding="utf-8").read(), flags=re.M))' "$f"
+          done
+
+      - name: Check shell scripts
+        run: |
+          git ls-files '*.sh' | xargs -r -n1 bash -n
+          git ls-files '*.sh' | xargs -r shellcheck --severity=error
+
+      - name: Check Compose templates
+        run: |
+          for f in templates/*/docker-compose.yml; do docker compose -f "$f" config -q; done
+
+      - name: Check Dockerfile
+        run: |
+          docker build --check -f .devcontainer/Dockerfile .
+
+      - name: Check skills install and names
+        run: |
+          python3 -I scripts/install-skills.py --agent claude --dest "${RUNNER_TEMP}/skills"
+          for f in $(find "${RUNNER_TEMP}/skills" -name SKILL.md); do
+            dir="$(basename "$(dirname "$f")")"
+            name="$(awk '/^---/{c++; next} c==1 && /^name:/{print $2}' "$f")"
+            [ "$dir" = "$name" ] || { echo "Skill name mismatch: $f ($name)"; exit 1; }
+          done
+
+      - name: Check for committed secrets
+        run: |
+          if git grep -n -I -E '(AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{36,}|github_pat_[A-Za-z0-9_]{40,}|sk-ant-api[0-9A-Za-z_-]{20,}|-----BEGIN [A-Z ]*PRIVATE KEY-----)'; then
+            echo "Possible secret committed." && exit 1
+          fi

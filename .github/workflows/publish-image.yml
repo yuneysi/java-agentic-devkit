@@ -4,11 +4,13 @@ on:
   push:
     branches:
       - main
+  schedule:
+    # Weekly rebuild picks up Ubuntu, Temurin, and browser security patches.
+    - cron: "17 4 * * 1"
   workflow_dispatch:
 
 permissions:
   contents: read
-  packages: write
 
 concurrency:
   group: publish-devkit-image-${{ github.ref }}
@@ -20,22 +22,31 @@ env:
 
 jobs:
   publish:
-    name: Build and publish image
+    name: Build, scan, and publish image
     if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
 
     steps:
+      # Actions are pinned to full commit SHAs; the comment shows the release tag.
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Set up QEMU for arm64 builds
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -46,14 +57,53 @@ jobs:
         run: |
           echo "version=${IMAGE_MINOR_VERSION}.${GITHUB_RUN_NUMBER}" >> "${GITHUB_OUTPUT}"
 
-      - name: Build and push versioned image
-        uses: docker/build-push-action@v6
+      - name: Build amd64 image for scanning
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: .devcontainer/Dockerfile
+          platforms: linux/amd64
+          load: true
+          tags: java-agentic-devkit:scan
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Scan image for vulnerabilities
+        env:
+          GRYPE_VERSION: "0.121.0"
+        run: |
+          curl -sSfL "https://raw.githubusercontent.com/anchore/grype/v${GRYPE_VERSION}/install.sh" \
+            | sh -s -- -b "${RUNNER_TEMP}/bin" "v${GRYPE_VERSION}"
+          "${RUNNER_TEMP}/bin/grype" java-agentic-devkit:scan --only-fixed \
+            -o table=grype-report.txt -o json=grype-report.json || true
+          {
+            echo "## Vulnerability scan (fixable findings, amd64)"
+            echo
+            echo '```'
+            jq -r '.matches[].vulnerability.severity' grype-report.json | sort | uniq -c | sort -rn || echo "No scan report produced."
+            echo '```'
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Upload scan report
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: grype-report
+          path: |
+            grype-report.txt
+            grype-report.json
+          retention-days: 30
+
+      - name: Build and push multi-arch image
+        id: push
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           file: .devcontainer/Dockerfile
           # arm64 runs natively on Apple Silicon and Windows on Arm; amd64 covers Intel/AMD hosts.
           platforms: linux/amd64,linux/arm64
           push: true
+          provenance: mode=max
+          sbom: true
           tags: |
             ${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
@@ -67,3 +117,10 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-name: ${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
