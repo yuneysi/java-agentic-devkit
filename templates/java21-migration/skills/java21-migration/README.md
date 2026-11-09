@@ -9,12 +9,12 @@ All paths in this document are relative to the bootstrapped target project root.
 ## Structure
 
 - `SKILL.md`: top-level orchestrator for migration phase flow.
-- `phases/baseline/SKILL.md`: baseline and readiness responsibility.
-- `phases/characterization/SKILL.md`: optional regression-lock tests for risky or under-covered behavior.
-- `phases/planning/SKILL.md`: staged migration planning responsibility.
-- `phases/implementation/SKILL.md`: execution of approved migration slices.
-- `phases/validation/SKILL.md`: candidate validation and drift detection.
-- `phases/audit/SKILL.md`: final audit and go/no-go recommendation.
+- `phases/java21-migration-baseline/SKILL.md`: baseline and readiness responsibility.
+- `phases/java21-migration-characterization/SKILL.md`: optional regression-lock tests for risky or under-covered behavior.
+- `phases/java21-migration-planning/SKILL.md`: staged migration planning responsibility.
+- `phases/java21-migration-implementation/SKILL.md`: execution of approved migration slices.
+- `phases/java21-migration-validation/SKILL.md`: candidate validation and drift detection.
+- `phases/java21-migration-audit/SKILL.md`: final audit and go/no-go recommendation.
 
 ## Design goals
 

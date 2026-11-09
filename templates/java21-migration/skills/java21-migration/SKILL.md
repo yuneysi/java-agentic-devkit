@@ -78,11 +78,11 @@ Do not duplicate raw logs in memory files.
 
 ## Phase Skills
 
-- `phases/baseline/SKILL.md`
-- `phases/characterization/SKILL.md`
-- `phases/planning/SKILL.md`
-- `phases/implementation/SKILL.md`
-- `phases/validation/SKILL.md`
-- `phases/audit/SKILL.md`
+- `phases/java21-migration-baseline/SKILL.md`
+- `phases/java21-migration-characterization/SKILL.md`
+- `phases/java21-migration-planning/SKILL.md`
+- `phases/java21-migration-implementation/SKILL.md`
+- `phases/java21-migration-validation/SKILL.md`
+- `phases/java21-migration-audit/SKILL.md`
 
 For a high-level request such as `Start the Java 21 migration`, inspect recorded state and run or recommend the next valid phase. Do not require the user to know the phase names.

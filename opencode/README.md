@@ -135,12 +135,12 @@ Use the orchestrator entrypoint:
 
 Phase responsibilities are documented under:
 
-- `phases/baseline/SKILL.md`
-- `phases/characterization/SKILL.md` (optional)
-- `phases/planning/SKILL.md`
-- `phases/implementation/SKILL.md`
-- `phases/validation/SKILL.md`
-- `phases/audit/SKILL.md`
+- `phases/java21-migration-baseline/SKILL.md`
+- `phases/java21-migration-characterization/SKILL.md` (optional)
+- `phases/java21-migration-planning/SKILL.md`
+- `phases/java21-migration-implementation/SKILL.md`
+- `phases/java21-migration-validation/SKILL.md`
+- `phases/java21-migration-audit/SKILL.md`
 
 Enterprise and general skills:
 
