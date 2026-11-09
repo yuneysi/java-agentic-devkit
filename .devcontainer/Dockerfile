@@ -1,7 +1,7 @@
 # DevKit Java Enterprise — Java 8/21 + Maven + Tomcat 9/11 + ActiveMQ + IBM MQ ready
 # Base: Ubuntu 24.04
 
-FROM ubuntu:24.04
+FROM ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852
 
 LABEL org.opencontainers.image.title="java-agentic-devkit" \
       org.opencontainers.image.description="Docker-based Java development kit for Java 8, Java 21, and Java 8 to Java 21 migrations." \
@@ -13,19 +13,32 @@ ARG USERNAME=vscode
 ARG USER_UID=1000
 ARG USER_GID=${USER_UID}
 
-ARG MAVEN_VERSION=3.9.11
-ARG TOMCAT9_VERSION=9.0.105
-ARG TOMCAT11_VERSION=11.0.7
-ARG ACTIVEMQ_VERSION=5.18.7
+ARG MAVEN_VERSION=3.9.16
+ARG TOMCAT9_VERSION=9.0.123
+ARG TOMCAT11_VERSION=11.0.27
+# ActiveMQ Classic 6 (Spring 6, Java 17+); Java 8 clients still connect over OpenWire.
+ARG ACTIVEMQ_VERSION=6.4.0
+
+# Pinned tool versions (supply chain: no "latest" downloads).
+ARG BUN_VERSION=1.4.4
+ARG HADOLINT_VERSION=2.15.1
+ARG SYFT_VERSION=1.55.0
+ARG GRYPE_VERSION=0.121.0
+ARG SONAR_SCANNER_VERSION=8.2.0.6438
+ARG SEMGREP_VERSION=1.181.1
+ARG CHECKOV_VERSION=3.3.30
+ARG PLAYWRIGHT_MCP_VERSION=0.0.83
+# Must match the Playwright build that @playwright/mcp@${PLAYWRIGHT_MCP_VERSION} depends on.
+ARG PLAYWRIGHT_VERSION=1.64.0-alpha-1790635538000
 
 ENV DEBIAN_FRONTEND=noninteractive
-
-RUN echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99no-check-valid-until
 
 # ---------------------------------------------------------------------
 # Base OS tooling
 # ---------------------------------------------------------------------
-RUN apt-get -o Acquire::Check-Valid-Until=false update && apt-get install -y --no-install-recommends \
+RUN apt-get update \
+    && apt-get upgrade -y --no-install-recommends \
+    && apt-get install -y --no-install-recommends \
     bash \
     ca-certificates \
     curl \
@@ -50,7 +63,6 @@ RUN apt-get -o Acquire::Check-Valid-Until=false update && apt-get install -y --n
     nano \
     tree \
     htop \
-    fzf \
     tmux \
     xmlstarlet \
     libxml2-utils \
@@ -77,7 +89,7 @@ RUN groupadd --gid ${USER_GID} ${USERNAME} 2>/dev/null \
     && chmod 0440 /etc/sudoers.d/${USERNAME}
 
 # ---------------------------------------------------------------------
-# Java 8 + Java 21
+# Java 8 + Java 21 (latest Temurin patch release on every build, SHA-256 verified)
 # ---------------------------------------------------------------------
 RUN mkdir -p /opt/java
 
@@ -87,8 +99,11 @@ RUN ARCH="$(dpkg --print-architecture)" \
         arm64) ADOPTIUM_ARCH="aarch64" ;; \
         *) echo "Unsupported architecture: $ARCH" && exit 1 ;; \
     esac \
-    && curl -L -o /tmp/temurin8.tar.gz \
-       "https://api.adoptium.net/v3/binary/latest/8/ga/linux/${ADOPTIUM_ARCH}/jdk/hotspot/normal/eclipse" \
+    && ASSET="$(curl -fsSL "https://api.adoptium.net/v3/assets/latest/8/hotspot?architecture=${ADOPTIUM_ARCH}&image_type=jdk&os=linux&vendor=eclipse")" \
+    && JDK_URL="$(printf '%s' "${ASSET}" | jq -r '.[0].binary.package.link')" \
+    && JDK_SHA256="$(printf '%s' "${ASSET}" | jq -r '.[0].binary.package.checksum')" \
+    && curl -fsSL -o /tmp/temurin8.tar.gz "${JDK_URL}" \
+    && echo "${JDK_SHA256}  /tmp/temurin8.tar.gz" | sha256sum -c - \
     && tar -xzf /tmp/temurin8.tar.gz -C /opt/java \
     && mv /opt/java/jdk8* /opt/java/jdk8 \
     && rm /tmp/temurin8.tar.gz
@@ -99,8 +114,11 @@ RUN ARCH="$(dpkg --print-architecture)" \
         arm64) ADOPTIUM_ARCH="aarch64" ;; \
         *) echo "Unsupported architecture: $ARCH" && exit 1 ;; \
     esac \
-    && curl -L -o /tmp/temurin21.tar.gz \
-       "https://api.adoptium.net/v3/binary/latest/21/ga/linux/${ADOPTIUM_ARCH}/jdk/hotspot/normal/eclipse" \
+    && ASSET="$(curl -fsSL "https://api.adoptium.net/v3/assets/latest/21/hotspot?architecture=${ADOPTIUM_ARCH}&image_type=jdk&os=linux&vendor=eclipse")" \
+    && JDK_URL="$(printf '%s' "${ASSET}" | jq -r '.[0].binary.package.link')" \
+    && JDK_SHA256="$(printf '%s' "${ASSET}" | jq -r '.[0].binary.package.checksum')" \
+    && curl -fsSL -o /tmp/temurin21.tar.gz "${JDK_URL}" \
+    && echo "${JDK_SHA256}  /tmp/temurin21.tar.gz" | sha256sum -c - \
     && tar -xzf /tmp/temurin21.tar.gz -C /opt/java \
     && mv /opt/java/jdk-21* /opt/java/jdk21 \
     && rm /tmp/temurin21.tar.gz
@@ -155,6 +173,7 @@ RUN chmod +x /usr/local/bin/use-java21
 # ---------------------------------------------------------------------
 RUN curl -fsSL "https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" \
     -o /tmp/maven.tar.gz \
+    && echo "$(curl -fsSL "https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz.sha512" | cut -d" " -f1)  /tmp/maven.tar.gz" | sha512sum -c - \
     && tar -xzf /tmp/maven.tar.gz -C /opt \
     && ln -s /opt/apache-maven-${MAVEN_VERSION} /opt/maven \
     && ln -s /opt/maven/bin/mvn /usr/local/bin/mvn \
@@ -172,19 +191,15 @@ RUN mkdir -p /home/${USERNAME}/.m2/repository \
 # ---------------------------------------------------------------------
 RUN mkdir -p /opt/tomcat
 
-RUN (curl -fsSL "https://archive.apache.org/dist/tomcat/tomcat-9/v${TOMCAT9_VERSION}/bin/apache-tomcat-${TOMCAT9_VERSION}-bin.tar.gz" \
-        -o /tmp/tomcat9.tar.gz \
-    || curl -fsSL "https://archive.apache.org/dist/tomcat/tomcat-9/v${TOMCAT9_VERSION}/bin/apache-tomcat-${TOMCAT9_VERSION}.tar.gz" \
-        -o /tmp/tomcat9.tar.gz) \
+RUN curl -fsSL "https://archive.apache.org/dist/tomcat/tomcat-9/v${TOMCAT9_VERSION}/bin/apache-tomcat-${TOMCAT9_VERSION}.tar.gz" -o /tmp/tomcat9.tar.gz \
+    && echo "$(curl -fsSL "https://archive.apache.org/dist/tomcat/tomcat-9/v${TOMCAT9_VERSION}/bin/apache-tomcat-${TOMCAT9_VERSION}.tar.gz.sha512" | cut -d" " -f1)  /tmp/tomcat9.tar.gz" | sha512sum -c - \
     && tar -xzf /tmp/tomcat9.tar.gz -C /opt/tomcat \
     && mv /opt/tomcat/apache-tomcat-${TOMCAT9_VERSION} /opt/tomcat/tomcat9 \
     && rm /tmp/tomcat9.tar.gz \
     && chmod +x /opt/tomcat/tomcat9/bin/*.sh
 
-RUN (curl -fsSL "https://archive.apache.org/dist/tomcat/tomcat-11/v${TOMCAT11_VERSION}/bin/apache-tomcat-${TOMCAT11_VERSION}-bin.tar.gz" \
-        -o /tmp/tomcat11.tar.gz \
-    || curl -fsSL "https://archive.apache.org/dist/tomcat/tomcat-11/v${TOMCAT11_VERSION}/bin/apache-tomcat-${TOMCAT11_VERSION}.tar.gz" \
-        -o /tmp/tomcat11.tar.gz) \
+RUN curl -fsSL "https://archive.apache.org/dist/tomcat/tomcat-11/v${TOMCAT11_VERSION}/bin/apache-tomcat-${TOMCAT11_VERSION}.tar.gz" -o /tmp/tomcat11.tar.gz \
+    && echo "$(curl -fsSL "https://archive.apache.org/dist/tomcat/tomcat-11/v${TOMCAT11_VERSION}/bin/apache-tomcat-${TOMCAT11_VERSION}.tar.gz.sha512" | cut -d" " -f1)  /tmp/tomcat11.tar.gz" | sha512sum -c - \
     && tar -xzf /tmp/tomcat11.tar.gz -C /opt/tomcat \
     && mv /opt/tomcat/apache-tomcat-${TOMCAT11_VERSION} /opt/tomcat/tomcat11 \
     && rm /tmp/tomcat11.tar.gz \
@@ -232,12 +247,8 @@ RUN chmod +x /usr/local/bin/stop-tomcat11
 # ActiveMQ Classic
 # ---------------------------------------------------------------------
 RUN mkdir -p /opt/activemq \
-    && (curl -fsSL "https://repo.maven.apache.org/maven2/org/apache/activemq/apache-activemq/${ACTIVEMQ_VERSION}/apache-activemq-${ACTIVEMQ_VERSION}-bin.tar.gz" \
-            -o /tmp/activemq.tar.gz \
-        || curl -fsSL "https://dlcdn.apache.org/activemq/${ACTIVEMQ_VERSION}/apache-activemq-${ACTIVEMQ_VERSION}-bin.tar.gz" \
-            -o /tmp/activemq.tar.gz \
-        || curl -fsSL "https://archive.apache.org/dist/activemq/${ACTIVEMQ_VERSION}/apache-activemq-${ACTIVEMQ_VERSION}-bin.tar.gz" \
-            -o /tmp/activemq.tar.gz) \
+    && curl -fsSL "https://archive.apache.org/dist/activemq/${ACTIVEMQ_VERSION}/apache-activemq-${ACTIVEMQ_VERSION}-bin.tar.gz" -o /tmp/activemq.tar.gz \
+    && echo "$(curl -fsSL "https://archive.apache.org/dist/activemq/${ACTIVEMQ_VERSION}/apache-activemq-${ACTIVEMQ_VERSION}-bin.tar.gz.sha512" | cut -d" " -f1)  /tmp/activemq.tar.gz" | sha512sum -c - \
     && tar -xzf /tmp/activemq.tar.gz -C /opt/activemq --strip-components=1 \
     && rm /tmp/activemq.tar.gz \
     && chmod +x /opt/activemq/bin/activemq
@@ -247,7 +258,7 @@ ENV PATH="${ACTIVEMQ_HOME}/bin:${PATH}"
 
 RUN printf '%s\n' \
     '#!/usr/bin/env bash' \
-    'export JAVA_HOME=/opt/java/jdk8' \
+    'export JAVA_HOME=/opt/java/jdk21' \
     'exec /opt/activemq/bin/activemq console' \
     > /usr/local/bin/start-activemq
 
@@ -284,22 +295,20 @@ RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
     && npm config set update-notifier false
 
 RUN npm install -g \
-    typescript \
-    typescript-language-server \
-    @biomejs/biome \
-    opencode-codebase-index \
-    @modelcontextprotocol/server-sequential-thinking \
-    @playwright/mcp@0.0.69
+    typescript@6.0.3 \
+    typescript-language-server@6.0.2 \
+    @biomejs/biome@2.6.3 \
+    opencode-codebase-index@0.38.2 \
+    @playwright/mcp@${PLAYWRIGHT_MCP_VERSION}
 
-# Browser for the Playwright MCP server. The Playwright version must match the
-# one pinned by @playwright/mcp@0.0.69, or the MCP server cannot find the build.
+# Browser for the Playwright MCP server.
 ENV PLAYWRIGHT_BROWSERS_PATH=/opt/ms-playwright
-RUN npx -y playwright@1.59.0-alpha-1774912654000 install --with-deps chromium \
+RUN npx -y playwright@${PLAYWRIGHT_VERSION} install --with-deps chromium \
     && chmod -R a+rX /opt/ms-playwright \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN curl -fsSL https://bun.sh/install | bash \
+RUN curl -fsSL https://bun.sh/install | bash -s "bun-v${BUN_VERSION}" \
     && mv /root/.bun/bin/bun /usr/local/bin/bun \
     && ln -sf /usr/local/bin/bun /usr/local/bin/bunx \
     && rm -rf /root/.bun
@@ -308,20 +317,19 @@ RUN curl -fsSL https://bun.sh/install | bash \
 # Quality/security tools
 # ---------------------------------------------------------------------
 RUN python3 -m pip install --no-cache-dir --break-system-packages \
-    semgrep \
-    checkov
+    "semgrep==${SEMGREP_VERSION}" \
+    "checkov==${CHECKOV_VERSION}"
 
 RUN ARCH="$(uname -m)" \
     && case "$ARCH" in x86_64) HADOLINT_ARCH="x86_64" ;; aarch64) HADOLINT_ARCH="arm64" ;; *) exit 1 ;; esac \
-    && curl -sSfL "https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-${HADOLINT_ARCH}" \
+    && curl -sSfL "https://github.com/hadolint/hadolint/releases/download/v${HADOLINT_VERSION}/hadolint-Linux-${HADOLINT_ARCH}" \
        -o /usr/local/bin/hadolint \
     && chmod +x /usr/local/bin/hadolint
 
-RUN curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin \
-    && curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+RUN curl -sSfL "https://raw.githubusercontent.com/anchore/syft/v${SYFT_VERSION}/install.sh" | sh -s -- -b /usr/local/bin "v${SYFT_VERSION}" \
+    && curl -sSfL "https://raw.githubusercontent.com/anchore/grype/v${GRYPE_VERSION}/install.sh" | sh -s -- -b /usr/local/bin "v${GRYPE_VERSION}"
 
-RUN SONAR_SCANNER_VERSION="$(curl -fsSL https://api.github.com/repos/SonarSource/sonar-scanner-cli/releases/latest | jq -r '.tag_name' | sed 's/^v//')" \
-    && ARCH="$(uname -m)" \
+RUN ARCH="$(uname -m)" \
     && case "$ARCH" in \
         x86_64) SONAR_ARCH="linux-x64" ;; \
         aarch64) SONAR_ARCH="linux-aarch64" ;; \

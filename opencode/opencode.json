@@ -2,8 +2,8 @@
   "$schema": "https://opencode.ai/config.json",
   "plugin": [
     "oh-my-openagent@5.1.65",
-    "opencode-codebase-index",
-    "@warp-dot-dev/opencode-warp"
+    "opencode-codebase-index@0.38.2",
+    "@warp-dot-dev/opencode-warp@0.1.7"
   ],
   "lsp": true,
   "mcp": {
@@ -27,7 +27,7 @@
       "command": [
         "npx",
         "-y",
-        "@playwright/mcp@0.0.69",
+        "@playwright/mcp@0.0.83",
         "--headless",
         "--no-sandbox",
         "--browser",

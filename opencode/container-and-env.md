@@ -13,7 +13,7 @@ The Docker image is built from `.devcontainer/Dockerfile`. It includes:
 - IBM MQ tooling path placeholders
 - Node.js, npm, Bun, TypeScript, and TypeScript language server
 - Python 3
-- `jq`, `ripgrep`, `ag`, `fd`, `xmlstarlet`, `xmllint`, `xsltproc`, `fzf`, `tmux`, and common shell tools
+- `jq`, `ripgrep`, `ag`, `fd`, `xmlstarlet`, `xmllint`, `xsltproc`, `tmux`, and common shell tools
 - Semgrep, Checkov, Hadolint, Syft, Grype, and SonarScanner
 - OpenCode, oh-my-openagent, `opencode-codebase-index`, and the devkit skills
 - OpenSpec CLI (`openspec`) for spec-driven changes with archived history
@@ -112,7 +112,16 @@ These are build arguments, not runtime environment variables. Override them only
 | `USERNAME` | `vscode` |
 | `USER_UID` | `1000` |
 | `USER_GID` | `${USER_UID}` |
-| `MAVEN_VERSION` | `3.9.11` |
-| `TOMCAT9_VERSION` | `9.0.105` |
-| `TOMCAT11_VERSION` | `11.0.7` |
-| `ACTIVEMQ_VERSION` | `5.18.7` |
+| `MAVEN_VERSION` | `3.9.16` |
+| `TOMCAT9_VERSION` | `9.0.123` |
+| `TOMCAT11_VERSION` | `11.0.27` |
+| `ACTIVEMQ_VERSION` | `6.4.0` (runs on JDK 21; Java 8 clients connect over OpenWire) |
+| `BUN_VERSION` | `1.4.4` |
+| `HADOLINT_VERSION` | `2.15.1` |
+| `SYFT_VERSION` / `GRYPE_VERSION` | `1.55.0` / `0.121.0` |
+| `SONAR_SCANNER_VERSION` | `8.2.0.6438` |
+| `SEMGREP_VERSION` / `CHECKOV_VERSION` | `1.181.1` / `3.3.30` |
+| `PLAYWRIGHT_MCP_VERSION` / `PLAYWRIGHT_VERSION` | `0.0.83` / matching Playwright build |
+| `CLAUDE_CODE_VERSION` | `stable` |
+
+Every download is pinned to a version and verified: Temurin JDKs (latest patch release, by design) with the SHA-256 that Adoptium publishes, and Maven, Tomcat, and ActiveMQ with the Apache `.sha512` files.
