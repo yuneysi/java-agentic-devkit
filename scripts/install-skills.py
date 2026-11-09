@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install the devkit skills into OpenCode; preserve other skills and back up replacements."""
+"""Install the devkit skills into OpenCode or Claude Code; preserve other skills and back up replacements."""
 import argparse
 import datetime
 import json
@@ -7,13 +7,21 @@ import hashlib
 from pathlib import Path
 import shutil
 
+DEFAULT_DESTINATIONS = {
+    "opencode": Path.home() / ".config/opencode/skills",
+    "claude": Path.home() / ".claude/skills",
+}
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--dest", type=Path, default=Path.home() / ".config/opencode/skills")
+    parser.add_argument("--agent", choices=sorted(DEFAULT_DESTINATIONS), default="opencode",
+                        help="Agent runtime that selects the default skills directory.")
+    parser.add_argument("--dest", type=Path, help="Override the skills directory.")
     args = parser.parse_args()
+    args.dest = args.dest or DEFAULT_DESTINATIONS[args.agent]
     root = Path(__file__).resolve().parents[1]
-    lock = json.loads((root / "opencode/community-skills.lock.json").read_text())
+    lock = json.loads((root / "opencode/community-skills.lock.json").read_text(encoding="utf-8"))
     for source in lock["sources"]:
         directory = root / "opencode/skills/community" / source["name"]
         for relative, expected in source["files"].items():
@@ -27,7 +35,7 @@ def main():
             if "phases" in entry.relative_to(source).parts:
                 continue
             # All bundled entry points use a plain scalar name.
-            name = next(line.split(":", 1)[1].strip() for line in entry.read_text().splitlines() if line.startswith("name:"))
+            name = next(line.split(":", 1)[1].strip() for line in entry.read_text(encoding="utf-8").splitlines() if line.startswith("name:"))
             if name in skills:
                 raise SystemExit("Duplicate skill: " + name)
             skills[name] = entry.parent
@@ -46,7 +54,7 @@ def main():
         print("Installed " + name)
     if backup.exists():
         print("Backup: " + str(backup))
-    print("Restart OpenCode to reload skills. Existing runtime configuration was preserved.")
+    print("Restart the agent session to reload skills. Existing runtime configuration was preserved.")
 
 
 if __name__ == "__main__":

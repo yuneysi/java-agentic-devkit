@@ -384,6 +384,18 @@ RUN mkdir -p \
 # ---------------------------------------------------------------------
 USER ${USERNAME}
 
+# ---------------------------------------------------------------------
+# Claude Code (native installer, per-user under ~/.local/bin)
+# ---------------------------------------------------------------------
+# Channel or exact version accepted by the installer: stable, latest, or X.Y.Z.
+ARG CLAUDE_CODE_VERSION=stable
+# Keep the image reproducible; rebuild the image to update Claude Code.
+ENV DISABLE_AUTOUPDATER=1
+ENV PATH="/home/${USERNAME}/.local/bin:${PATH}"
+
+RUN curl -fsSL https://claude.ai/install.sh | bash -s -- "${CLAUDE_CODE_VERSION}" \
+    && claude --version
+
 RUN git config --global core.untrackedcache true \
     && git config --global core.fsmonitor true \
     && git config --global feature.manyFiles true \
@@ -446,8 +458,21 @@ RUN java -version \
 COPY --chown=${USERNAME}:${USERNAME} opencode/opencode.json /home/${USERNAME}/.config/opencode/opencode.json
 COPY --chown=${USERNAME}:${USERNAME} opencode/omo.jsonc /home/${USERNAME}/.omo/omo.jsonc
 COPY --chown=${USERNAME}:${USERNAME} opencode/tui.json /home/${USERNAME}/.config/opencode/tui.json
-COPY --chown=${USERNAME}:${USERNAME} opencode/skills/ /home/${USERNAME}/.config/opencode/skills/
-COPY --chown=${USERNAME}:${USERNAME} templates/java21-migration/skills/ /home/${USERNAME}/.config/opencode/skills/
+COPY --chown=${USERNAME}:${USERNAME} claude/CLAUDE.md /home/${USERNAME}/.claude/CLAUDE.md
+
+# ---------------------------------------------------------------------
+# Skills for OpenCode and Claude Code
+# ---------------------------------------------------------------------
+# The installer verifies community skill checksums and installs one flat
+# directory per skill, which both runtimes discover.
+ARG SKILLS_SRC=/opt/java-agentic-devkit/skills-src
+COPY scripts/install-skills.py ${SKILLS_SRC}/scripts/install-skills.py
+COPY opencode/community-skills.lock.json ${SKILLS_SRC}/opencode/community-skills.lock.json
+COPY opencode/skills/ ${SKILLS_SRC}/opencode/skills/
+COPY templates/java21-migration/skills/ ${SKILLS_SRC}/templates/java21-migration/skills/
+
+RUN python3 -I ${SKILLS_SRC}/scripts/install-skills.py --agent opencode \
+    && python3 -I ${SKILLS_SRC}/scripts/install-skills.py --agent claude
 
 USER root
 

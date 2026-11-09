@@ -97,6 +97,9 @@ Container paths:
 | oh-my-openagent config | `/home/vscode/.omo/omo.jsonc` |
 | TUI config | `/home/vscode/.config/opencode/tui.json` |
 | Skills root | `/home/vscode/.config/opencode/skills/` |
+| Claude Code binary | `/home/vscode/.local/bin/claude` |
+| Claude Code instructions | `/home/vscode/.claude/CLAUDE.md` |
+| Claude Code skills root | `/home/vscode/.claude/skills/` |
 
 ## Skills In This Container
 
@@ -106,9 +109,10 @@ Skill source in this repository:
 - `opencode/skills/general/`
 - `templates/java21-migration/skills/java21-migration/`
 
-Installed location inside the container:
+Installed location inside the container (one flat directory per skill, written by `scripts/install-skills.py` during the image build):
 
 - `/home/vscode/.config/opencode/skills/`
+- `/home/vscode/.claude/skills/`
 
 Skill organization:
 
@@ -212,12 +216,12 @@ Use the same skills with an existing host installation, without Docker:
 
 ```bash
 cd ~/github/java-agentic-devkit
-python3 scripts/install-opencode-skills.py
+python3 scripts/install-skills.py
 cd /path/to/java/project
 opencode
 ```
 
-On Windows PowerShell, use `py -3 scripts/install-opencode-skills.py` from the devkit directory. The installer preserves runtime configs and unrelated skills, and backs up replaced skill directories outside the discovery root. Restart OpenCode after installation. Host and container installations are separate; host model configuration is not changed by this installer.
+Use `--agent claude` to install the same skills into `~/.claude/skills/` for Claude Code. On Windows PowerShell, use `py -3 scripts/install-skills.py` from the devkit directory. The installer preserves runtime configs and unrelated skills, and backs up replaced skill directories outside the discovery root. Restart OpenCode after installation. Host and container installations are separate; host model configuration is not changed by this installer.
 
 Example task prompt:
 
@@ -229,6 +233,17 @@ and verification-before-completion before claiming success. Do not push.
 ```
 
 For a routine fix with an agreed scope, skip the interview and ask directly for `git-commit` and `verification-before-completion`. Keep implementation and its tests together; isolate unrelated refactors and upgrades.
+
+### Claude Code In The Same Container
+
+The image also installs Claude Code with the native installer. Claude Code reads `~/.claude/CLAUDE.md`, which tells it to treat the project `AGENTS.md` as authoritative, and it discovers the same devkit skills in `~/.claude/skills/`.
+
+```bash
+cd /workspace
+claude
+```
+
+Sign in on the first start. The start script runs the container with `--rm`, so Claude Code and OpenCode credentials are lost when the session ends unless you mount a volume for `/home/vscode/.claude` and `/home/vscode/.local/share/opencode`. Auto-updates are disabled for reproducibility. Rebuild the image to update Claude Code, or pin a version with `--build-arg CLAUDE_CODE_VERSION=X.Y.Z`.
 
 ### MCP Servers
 

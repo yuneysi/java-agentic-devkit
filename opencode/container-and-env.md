@@ -15,7 +15,8 @@ The Docker image is built from `.devcontainer/Dockerfile`. It includes:
 - Python 3
 - `jq`, `ripgrep`, `ag`, `fd`, `xmlstarlet`, `xmllint`, `xsltproc`, `fzf`, `tmux`, and common shell tools
 - Semgrep, Checkov, Hadolint, Syft, Grype, and SonarScanner
-- OpenCode, oh-my-openagent, `opencode-codebase-index`, and OpenCode skills from `opencode/skills/`
+- OpenCode, oh-my-openagent, `opencode-codebase-index`, and the devkit skills
+- Claude Code, with the same devkit skills in `~/.claude/skills/` and global instructions in `~/.claude/CLAUDE.md`
 - MCP tooling for Context7, GitHub (remote server, needs `GITHUB_TOKEN`), and Playwright (headless Chromium in `/opt/ms-playwright`)
 
 Useful commands inside the container:
@@ -25,6 +26,7 @@ use-java8
 use-java21
 mvn clean verify
 opencode
+claude
 start-tomcat9
 start-tomcat11
 start-activemq

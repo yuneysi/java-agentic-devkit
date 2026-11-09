@@ -173,9 +173,9 @@ When the user asks what is happening in the project, prefer answering from these
 
 ---
 
-## OpenCode Skills
+## Agent Skills
 
-Use the installed OpenCode skills from `opencode/skills/java-enterprise/` and `opencode/skills/general/` when they fit the task:
+Use the installed devkit skills (OpenCode: `~/.config/opencode/skills/`, Claude Code: `~/.claude/skills/`) when they fit the task:
 
 - `code-reviewer` for diff review and risk classification.
 - `confluence-doc-writer` for human-facing documentation and Confluence exports.

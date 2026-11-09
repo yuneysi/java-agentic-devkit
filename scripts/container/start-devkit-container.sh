@@ -135,6 +135,7 @@ docker run -it --rm \
         echo '  use-java21      - Switch to Java 21'
         echo '  mvn clean verify'
         echo '  opencode'
+        echo '  claude'
         echo '  start-tomcat9'
         echo '  start-activemq'
         echo ''
