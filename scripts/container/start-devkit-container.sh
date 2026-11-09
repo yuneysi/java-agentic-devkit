@@ -104,6 +104,24 @@ esac
 
 printf '%b\n\n' "${GREEN}Template bootstrap: ${BOOTSTRAP_TEMPLATES}${NC}"
 
+# Published ports: space-separated "PORT" or "HOST_PORT:CONTAINER_PORT" entries.
+# A bare PORT binds to 127.0.0.1 only, so the app is not exposed on the network.
+# Set DEVKIT_PORTS="" to publish nothing (for example, to run a second container).
+PUBLISHED_PORTS="${DEVKIT_PORTS-8080 5005}"
+PORT_ARGS=()
+for PORT_SPEC in ${PUBLISHED_PORTS}; do
+    if [[ "${PORT_SPEC}" =~ ^[0-9]+$ ]]; then
+        PORT_ARGS+=(-p "127.0.0.1:${PORT_SPEC}:${PORT_SPEC}")
+    elif [[ "${PORT_SPEC}" =~ ^([0-9.]+:)?[0-9]+:[0-9]+$ ]]; then
+        PORT_ARGS+=(-p "${PORT_SPEC}")
+    else
+        printf '%b\n' "${RED}Invalid DEVKIT_PORTS entry: ${PORT_SPEC}${NC}"
+        printf '%b\n' "${YELLOW}Use PORT, HOST_PORT:CONTAINER_PORT, or IP:HOST_PORT:CONTAINER_PORT${NC}"
+        exit 1
+    fi
+done
+printf '%b\n\n' "${GREEN}Published ports: ${PUBLISHED_PORTS:-none}${NC}"
+
 printf '%b\n' "${BLUE}===========================================================${NC}"
 printf '%b\n\n' "${YELLOW}Starting container...${NC}"
 
@@ -116,6 +134,7 @@ docker run -it --rm \
     -v "${MOUNT_PATH}:${CONTAINER_MOUNT}" \
     -v "${HOST_M2_DIR}:/home/vscode/.m2" \
     -v /var/run/docker.sock:/var/run/docker.sock \
+    ${PORT_ARGS[@]+"${PORT_ARGS[@]}"} \
     "${FULL_IMAGE}" \
     /bin/bash -c "
         ${JAVA_SETUP}
