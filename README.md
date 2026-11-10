@@ -94,10 +94,44 @@ Then, in the container shell, run `claude`, `opencode`, or `codex`. The agents r
 | GitHub MCP server | Set `GITHUB_TOKEN` on the host before you start |
 | Release version check (`check-release-version <version>`) | Set `NEXUS_REPOSITORY_URL` (release repository), `NEXUS_REPOSITORY_ID` (server id in `settings.xml`), and `RELEASE_ARTIFACT` (`groupId:artifactId`) on the host. Run `git fetch` on the host first: the container has no SSH keys, so it checks the refs from your last fetch |
 | Testcontainers | Uncomment the Docker socket line in `docker-compose.yml` (gives agents control of the host Docker engine) |
-| Use the newest image | `docker compose pull` |
+| Use the newest image | See [3. When A New Image Is Published](#3-when-a-new-image-is-published) |
 | Pin a version | Set `DEVKIT_IMAGE=ghcr.io/yuneysi/java-agentic-devkit:<version>`; tags are on the [package page](https://github.com/yuneysi/java-agentic-devkit/pkgs/container/java-agentic-devkit) |
 
 `--service-ports` publishes the application port (`8080`) and the debug port (`5005`) on `127.0.0.1` only. On Java 8, start the debug agent with `address=5005`; on Java 9 and later, use `address=*:5005`. Your Maven folder (`~/.m2`, or `%USERPROFILE%\.m2` in Windows shells) is mounted, so `settings.xml` and repository credentials are available.
+
+### 3. When A New Image Is Published
+
+You run the first-time command only once. For a new image version:
+
+1. **Pull the image** from the project folder:
+
+   ```bash
+   docker compose pull
+   ```
+
+   Everything inside the image updates with it: the agents, Java and Maven tooling, skills, MCP servers, global agent instructions, and `check-release-version`.
+
+2. **Start a session as usual.** Template files that are new in this version are added on start, because `docker-compose.yml` keeps template bootstrap on. Existing files are never overwritten. Check `git status` for new files.
+
+3. **Refresh the OpenSpec commands**, inside the container:
+
+   ```bash
+   openspec update
+   ```
+
+   This rewrites only the generated `/opsx` commands and skills in `.claude/`, `.opencode/`, and `.agents/`. Your specs, changes, and `openspec/config.yaml` stay as they are.
+
+4. **Compare your project files with the new template** when the release notes mention rule changes. Your `AGENTS.md`, `opencode.json`, `.claude/settings.json`, `openspec/config.yaml`, and `docker-compose.yml` belong to your project, so the devkit never changes them. Write the new template to a temporary folder and compare (macOS, Linux, WSL2, or Git Bash):
+
+   ```bash
+   mkdir -p /tmp/devkit-template
+   docker run --rm -v /tmp/devkit-template:/workspace -e DEVKIT_JAVA_TEMPLATE=java8 -e DEVKIT_BOOTSTRAP_TEMPLATES=true ghcr.io/yuneysi/java-agentic-devkit:latest true
+   git diff --no-index /tmp/devkit-template/AGENTS.md AGENTS.md
+   ```
+
+   Copy the parts you want into your files and commit them. In PowerShell, use a folder such as `$env:TEMP\devkit-template` and `-v "${env:TEMP}\devkit-template:/workspace"`.
+
+To stay on a known version instead, pin it with `DEVKIT_IMAGE=ghcr.io/yuneysi/java-agentic-devkit:<version>`.
 
 ### Notes
 
