@@ -564,13 +564,16 @@ RUN printf '%s\n' \
     '    done < <(find "${TEMPLATE_DIR}" -type f ! -path "${TEMPLATE_DIR}/scripts/*" -print0)' \
     'fi' \
     '' \
-    '# Initialize OpenSpec once: generates the /opsx commands and keeps openspec/config.yaml.' \
+    '# OpenSpec: initialize once, then keep the generated /opsx commands in step with the image.' \
+    '# Both keep openspec/config.yaml, specs, and changes.' \
     'if [[ "${BOOTSTRAP_TEMPLATES}" != "false" && -f "${PROJECT_DIR}/openspec/config.yaml" && ! -d "${PROJECT_DIR}/.claude/commands/opsx" && ! -e "${PROJECT_DIR}/.opencode/commands/opsx-propose.md" ]]; then' \
     '    if (cd "${PROJECT_DIR}" && openspec init --tools opencode,claude,codex < /dev/null > /dev/null 2>&1); then' \
     '        echo "Initialized OpenSpec (openspec/, .claude/, .opencode/, .agents/)"' \
     '    else' \
     '        echo "OpenSpec init failed; run: openspec init --tools opencode,claude,codex" >&2' \
     '    fi' \
+    'elif [[ "${BOOTSTRAP_TEMPLATES}" != "false" && -f "${PROJECT_DIR}/openspec/config.yaml" ]]; then' \
+    '    (cd "${PROJECT_DIR}" && openspec update < /dev/null > /dev/null 2>&1) || echo "OpenSpec update failed; run: openspec update" >&2' \
     'fi' \
     '' \
     'exec "$@"' \

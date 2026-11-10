@@ -111,17 +111,9 @@ You run the first-time command only once. For a new image version:
 
    Everything inside the image updates with it: the agents, Java and Maven tooling, skills, MCP servers, global agent instructions, and `check-release-version`.
 
-2. **Start a session as usual.** Template files that are new in this version are added on start, because `docker-compose.yml` keeps template bootstrap on. Existing files are never overwritten. Check `git status` for new files.
+2. **Start a session as usual.** On start, the devkit adds template files that are new in this version and refreshes the generated OpenSpec commands (`.claude/`, `.opencode/`, `.agents/`), because `docker-compose.yml` keeps template bootstrap on. Existing project files, specs, and changes are never overwritten. Check `git status` for what changed.
 
-3. **Refresh the OpenSpec commands**, inside the container:
-
-   ```bash
-   openspec update
-   ```
-
-   This rewrites only the generated `/opsx` commands and skills in `.claude/`, `.opencode/`, and `.agents/`. Your specs, changes, and `openspec/config.yaml` stay as they are.
-
-4. **Compare your project files with the new template** when the release notes mention rule changes. Your `AGENTS.md`, `opencode.json`, `.claude/settings.json`, `openspec/config.yaml`, and `docker-compose.yml` belong to your project, so the devkit never changes them. Write the new template to a temporary folder and compare (macOS, Linux, WSL2, or Git Bash):
+3. **Compare your project files with the new template** when the release notes mention rule changes. Your `AGENTS.md`, `opencode.json`, `.claude/settings.json`, `openspec/config.yaml`, and `docker-compose.yml` belong to your project, so the devkit never changes them. Write the new template to a temporary folder and compare (macOS, Linux, WSL2, or Git Bash):
 
    ```bash
    mkdir -p /tmp/devkit-template
