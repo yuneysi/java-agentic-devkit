@@ -1,57 +1,55 @@
-# java-agentic-devkit: Java 8 → 21 Migration
+# java-agentic-devkit: AI-Assisted Java Maintenance and Migration
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Validate](https://github.com/yuneysi/java-agentic-devkit/actions/workflows/validate.yml/badge.svg)](https://github.com/yuneysi/java-agentic-devkit/actions/workflows/validate.yml)
 [![Publish DevKit Image](https://github.com/yuneysi/java-agentic-devkit/actions/workflows/publish-image.yml/badge.svg)](https://github.com/yuneysi/java-agentic-devkit/actions/workflows/publish-image.yml)
 [![Image: amd64 | arm64](https://img.shields.io/badge/image-amd64%20%7C%20arm64-2496ED.svg)](https://github.com/yuneysi/java-agentic-devkit/pkgs/container/java-agentic-devkit)
-[![Java 8 to 21](https://img.shields.io/badge/Java-8%20%E2%86%92%2021-orange.svg)](templates/java21-migration/README.md)
+[![Java 8 | 21](https://img.shields.io/badge/Java-8%20%7C%2021-orange.svg)](#two-modes-one-set-of-rules)
 
-[Quick start](#start-the-devkit) · [Migration evidence](#what-a-migration-produces) · [How it works](#how-the-devkit-works) · [Detailed setup](templates/java21-migration/README.md) · [Contributing](.github/CONTRIBUTING.md)
+[Quick start](#start-the-devkit) · [Rules](#same-rules-for-every-java-version) · [Migration](#designed-for-real-java-migration-risk) · [How it works](#how-the-devkit-works) · [Contributing](.github/CONTRIBUTING.md)
 
-**Migrate legacy Java 8 applications to Java 21 with small, reversible changes, evidence gates, and human sign-off.**
+**Maintain and migrate enterprise Java applications with AI agents, under the same engineering rules: specs first, small reviewed changes, and human sign-off.**
 
-`java-agentic-devkit` gives Java teams a repeatable migration environment and an AI-assisted workflow that treats the existing Java 8 application as the behavioral baseline. It does not ask an agent to rewrite the project in one large change. It guides the migration through explicit phases:
-
-**Baseline → Characterization → Planning → Implementation → Validation → Audit**
-
-Each implementation slice is reviewed and validated before the next one begins. Java 21 results are compared with captured Java 8 evidence, and unresolved risks remain visible instead of being hidden behind a successful compile.
-
-This is not a one-click source rewrite. It is a controlled migration workflow for teams that need reviewable changes, reproducible evidence, and an explicit release decision.
+`java-agentic-devkit` is a Docker-based development environment for Java teams. It runs Claude Code, OpenCode (with oh-my-openagent), and OpenAI Codex next to Java 8, Java 21, Maven, Tomcat, and ActiveMQ, and it gives every agent the same project rules. You mount your project, choose a mode, and work.
 
 The image is built with a pinned and verified supply chain, scanned on every build, rebuilt weekly, and published with provenance and SBOM attestations. AI agents in the container get no access to the host Docker engine unless you opt in. See the [security policy](.github/SECURITY.md).
 
-## Why Use It?
+## Two Modes, One Set Of Rules
 
-Compiling on Java 21 does not prove that an application is safe to release. Enterprise Java migrations can change API payloads, XML contracts, persistence behavior, transactions, messaging, security, startup, and operational behavior without producing a compilation error.
+| Mode | Template | Use it for |
+|---|---|---|
+| **Maintenance** | `java8` or `java21` | Bug fixes and small features in an application that stays on its Java version. Agents never propose a migration unless you ask. |
+| **Migration** | `java21-migration` | Moving a Java 8 application to Java 21 through explicit phases: Baseline → Characterization → Planning → Implementation → Validation → Audit. |
 
-This devkit makes those risks part of the workflow.
+The devkit started as a migration tool. It is now used just as much for day-to-day maintenance, starting with Java 8 projects.
 
-| Typical migration | With `java-agentic-devkit` |
-|---|---|
-| One large upgrade that is difficult to review | Small migration slices that can be reviewed and reverted independently |
-| “The tests pass” | Java 8 baseline evidence compared with Java 21 candidate evidence |
-| Compatibility risks discovered late | Risk map and test gaps captured from the baseline |
-| Runtime, dependency, and source changes mixed together | Build, dependency, source, and behavior changes isolated when practical |
-| Informal decisions scattered across chats and commits | Architecture, decisions, status, evidence, and human sign-off recorded in the project |
-| Ad hoc upgrade process | Baseline → plan → implementation → validation → audit |
+## Same Rules For Every Java Version
+
+Maintenance follows the same rules on Java 8 and Java 21. Only the language rules differ: Java 8 projects keep Java 8 APIs and `javax.*`, and Java 21 projects use modern features only when they make the code clearer.
+
+- **Behavior first.** Existing behavior is the baseline. SOAP, REST, JMS, and database contracts do not change without an approved spec change.
+- **Specs with OpenSpec.** `openspec/specs/` is the project's knowledge base. It starts empty and grows one capability at a time: when work touches a capability without a spec, the agent first proposes to capture its current behavior (`legacy-spec-baseline`).
+- **One change per ticket.** Every bug-fix ticket becomes an OpenSpec change named `<ticket-id>-<slug>`, with a scenario that reproduces the bug and a failing test before the fix. Archiving the change updates the spec, and its `proposal.md` and `design.md` stay as the decision record.
+- **Senior review.** Every change is reviewed by the `java-maintenance-reviewer` skill: correctness, clean code, clean architecture, readability, and best practices, with concrete suggestions and no over-engineering. Suggestions are applied only after you agree.
+- **Small commits.** Work is split into small verified checkpoints. Agents commit only when you authorize it and never push on their own.
+- **Release versions.** Before a version is set, `check-release-version` confirms that it is not already used as a release branch, tag, or Nexus artifact.
+- **Secrets stay out.** The project templates block agents from reading `.env` files, keystores, certificates, and keys.
+
+The rules live in the project's `AGENTS.md` (from the template) and in global instructions that the image installs for all three agents, so Claude Code, OpenCode, and Codex behave the same way.
 
 ## What You Get
 
-- A Docker-based environment with Java 8, Java 21, Maven, OpenCode, and oh-my-openagent ready to use.
-- A migration orchestrator that selects the next valid phase from project state and evidence.
-- Focused skills for baseline capture, characterization tests, planning, implementation, validation, and audit.
-- Guardrails against broad refactors, opportunistic modernization, and unapproved behavior changes.
-- Explicit build, test, contract, runtime, evidence, and rollback gates.
-- Shared project memory for architecture, decisions, risks, blockers, and next actions.
-- A concise human sign-off tracker for the final `Go`, `Go with conditions`, or `No-go` decision.
-
-The primary use case is Java 8 to Java 21 migration. The devkit also includes templates for Java 8 maintenance and Java 21 development.
+- A Docker image with Java 8, Java 21, Maven, Tomcat 9 and 11, ActiveMQ, Claude Code, OpenCode with oh-my-openagent, OpenAI Codex, and OpenSpec.
+- The same skills, MCP servers (Context7, Playwright, GitHub), and global instructions for all three agents.
+- Project templates for Java 8 maintenance, Java 21 maintenance, and Java 8 to Java 21 migration.
+- Skills for spec capture, code review, characterization tests (JPA, JMS, SOAP), smoke tests, diagrams, and documentation.
+- A migration orchestrator with explicit build, test, contract, runtime, evidence, and rollback gates, and a human sign-off tracker.
 
 ### Best Fit
 
 - Maven-based Java applications with behavior that must remain stable.
 - Enterprise systems using REST, SOAP, JMS, JDBC, JPA, Spring, JSP, or external integrations.
-- Teams that need an auditable migration record rather than a single generated patch.
+- Teams that want a reviewable, spec-backed record of every change rather than a single generated patch.
 - Developers who want AI assistance while retaining human control over scope and release decisions.
 
 ## Start The DevKit
@@ -123,6 +121,19 @@ The script options (`DEVKIT_PORTS`, `DEVKIT_DOCKER_SOCKET`, template argument) a
 
 ## Designed For Real Java Migration Risk
 
+Compiling on Java 21 does not prove that an application is safe to release. Enterprise Java migrations can change API payloads, XML contracts, persistence behavior, transactions, messaging, security, startup, and operational behavior without producing a compilation error.
+
+In migration mode, the devkit makes those risks part of the workflow.
+
+| Typical migration | With `java-agentic-devkit` |
+|---|---|
+| One large upgrade that is difficult to review | Small migration slices that can be reviewed and reverted independently |
+| “The tests pass” | Java 8 baseline evidence compared with Java 21 candidate evidence |
+| Compatibility risks discovered late | Risk map and test gaps captured from the baseline |
+| Runtime, dependency, and source changes mixed together | Build, dependency, source, and behavior changes isolated when practical |
+| Informal decisions scattered across chats and commits | Architecture, decisions, status, evidence, and human sign-off recorded in the project |
+| Ad hoc upgrade process | Baseline → plan → implementation → validation → audit |
+
 The workflow explicitly checks affected areas such as:
 
 - Java EE and Jakarta EE boundaries, including `javax.*` to `jakarta.*` decisions
@@ -153,13 +164,14 @@ Raw baseline and candidate outputs stay in the target repository under `docs/mig
 
 ## How The DevKit Works
 
-The target Java project is mounted at `/workspace`; the devkit remains outside it. On startup, migration templates bootstrap the agent rules, workflow, human tracker, and shared memory required by the target project. OpenCode and oh-my-openagent then execute the migration using the project-local rules and evidence.
+The target Java project is mounted at `/workspace`; the devkit remains outside it. On the first start, the chosen template adds the project rules (`AGENTS.md`), the agent configuration, and the OpenSpec setup, and never overwrites existing files. Claude Code, OpenCode, or Codex then work inside the container with those rules.
 
-The canonical workflow is the [Java 21 migration skill](templates/java21-migration/skills/java21-migration/SKILL.md). The [migration agent rules](templates/java21-migration/AGENTS.md) define behavior preservation, change discipline, risk handling, dependency policy, and validation standards.
+- **Maintenance:** the [Java 8 rules](templates/java8/AGENTS.md) or [Java 21 rules](templates/java21/AGENTS.md) define behavior preservation, the OpenSpec ticket workflow, review, testing, and commit discipline.
+- **Migration:** the canonical workflow is the [Java 21 migration skill](templates/java21-migration/skills/java21-migration/SKILL.md), and the [migration agent rules](templates/java21-migration/AGENTS.md) define change discipline, risk handling, dependency policy, and validation standards.
 
 Created and maintained by Yuneysi Gerat Gil. Licensed under the [MIT License](LICENSE).
 
-If you use the devkit, open a GitHub Issue with the project type, what worked, what failed, and how long the migration took. Real migration feedback drives the roadmap.
+If you use the devkit, open a GitHub Issue with the project type, the mode, what worked, and what failed. Real project feedback drives the roadmap.
 
 ## Repository Structure
 
@@ -216,6 +228,8 @@ Bootstrap files are seeds, not verified project facts. The migration workflow in
 
 | Guide | Use for |
 |---|---|
+| [Java 8 maintenance rules](templates/java8/AGENTS.md) | Rules for Java 8 maintenance projects |
+| [Java 21 maintenance rules](templates/java21/AGENTS.md) | Rules for Java 21 maintenance projects |
 | [Migration setup guide](templates/java21-migration/README.md) | Full Java 8 to Java 21 setup and startup options |
 | [Migration agent rules](templates/java21-migration/AGENTS.md) | Behavior preservation, change discipline, and validation standards |
 | [Migration workflow](templates/java21-migration/skills/java21-migration/SKILL.md) | Phase order, shared gates, evidence, and state transitions |
@@ -226,13 +240,3 @@ Bootstrap files are seeds, not verified project facts. The migration workflow in
 ## Contributing
 
 Issues and pull requests are welcome. Before contributing, read the [contribution guide](.github/CONTRIBUTING.md), [code of conduct](.github/CODE_OF_CONDUCT.md), and [security policy](.github/SECURITY.md).
-
-## Project Knowledge With OpenSpec
-
-For Java 8 and Java 21 projects, OpenSpec is the project knowledge base. The devkit does not seed generic architecture or decision files, because every project is different.
-
-- On the first start with template bootstrap, the devkit copies `openspec/config.yaml` and runs `openspec init --tools opencode,claude,codex`.
-- `openspec/specs/` starts empty and grows one capability at a time: when a change touches a capability without a spec, the agent first captures its current behavior with the `legacy-spec-baseline` skill.
-- Decisions stay in each change's `proposal.md` and `design.md`, in `openspec/changes/archive/`.
-
-The java21-migration template additionally keeps `opencode/memory/` for its phase status and evidence. See [Migration Project Memory](#migration-project-memory).
