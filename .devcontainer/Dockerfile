@@ -389,6 +389,9 @@ RUN npm install -g @openai/codex@${CODEX_VERSION} \
 # OpenSpec: spec-driven changes with versioned specs and an archive of applied changes.
 # The entrypoint runs `openspec init --tools opencode,claude,codex` once per target project
 # when template bootstrap is enabled.
+# Versions are pinned in the image and global npm packages are root-owned, so a self-upgrade
+# prompt can only fail with EACCES. Rebuild the image to update OpenSpec.
+ENV OPENSPEC_NO_UPDATE_CHECK=1
 RUN npm install -g @fission-ai/openspec@1.15.0 \
     && openspec --version
 

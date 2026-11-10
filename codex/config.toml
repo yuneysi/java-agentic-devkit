@@ -7,6 +7,9 @@
 approval_policy = "on-request"
 sandbox_mode = "danger-full-access"
 
+# The version is pinned in the image and cannot self-update; rebuild the image instead.
+check_for_update_on_startup = false
+
 [projects."/workspace"]
 trust_level = "trusted"
 
