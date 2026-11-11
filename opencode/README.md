@@ -238,7 +238,21 @@ claude
 
 Claude Code starts in auto mode (`permissions.defaultMode: "auto"` in `claude/settings.json`): a classifier approves routine actions and blocks risky ones, so agents work without a prompt for every command. Read denies for `.env` files, `secrets/` folders, keystores, certificates, and private keys live in the project `.claude/settings.json`, which the templates provide next to `opencode.json`. The devkit does not accept secrets in agent context: keep these denies in every project. They sit at project level only because Claude Code cannot override a user-level deny, which would leave no way to handle a project-specific exception outside the devkit. Override the mode for one session with `claude --permission-mode manual`, or set `defaultMode` in the project `.claude/settings.json`.
 
-Sign in on the first start. The start script runs the container with `--rm`, so Claude Code, OpenCode, and Codex credentials are lost when the session ends unless you mount a volume for `/home/vscode/.claude`, `/home/vscode/.local/share/opencode`, and `/home/vscode/.codex`. Auto-updates are disabled for reproducibility. Rebuild the image to update Claude Code, or pin a version with `--build-arg CLAUDE_CODE_VERSION=X.Y.Z`.
+Sign in on the first start. The container runs with `--rm`, so logins are kept in named volumes:
+
+| Tool | Container path | Volume (compose template) | Volume (start script) |
+| --- | --- | --- | --- |
+| OpenCode | `/home/vscode/.local/share/opencode` | `opencode-data` | `java-agentic-devkit-opencode-data` |
+| Claude Code | `/home/vscode/.claude` | `claude-data` | `java-agentic-devkit-claude-data` |
+| Codex | `/home/vscode/.codex` | `codex-data` | `java-agentic-devkit-codex-data` |
+
+Compose prefixes its volumes with the project name, so each project signs in once. The start script uses global names, so all projects share one login. To sign out, remove the volume with `docker volume rm <name>`.
+
+- The image sets `CLAUDE_CONFIG_DIR=/home/vscode/.claude`, so Claude Code keeps its account state (`.claude.json`) inside the volume, not in `$HOME`.
+- `~/.claude` and `~/.codex` also hold files that the image provides: `CLAUDE.md`, `settings.json`, and `skills/` for Claude Code, and `AGENTS.md` and `config.toml` for Codex. The entrypoint copies them from `/opt/java-agentic-devkit/home-defaults/` on every start, so a volume never keeps an outdated version. Do not edit them inside the container; change them in this repository and rebuild the image.
+- Without the OpenCode login, oh-my-openagent agents report their configured model as not valid, and OpenCode falls back to a default model.
+
+Auto-updates are disabled for reproducibility. Rebuild the image to update Claude Code, or pin a version with `--build-arg CLAUDE_CODE_VERSION=X.Y.Z`.
 
 ### Codex In The Same Container
 
@@ -246,11 +260,11 @@ The image also installs the OpenAI Codex CLI (`@openai/codex`, pinned with the `
 
 ```bash
 cd /workspace
-codex login --device-auth   # once per session, or set OPENAI_API_KEY on the host
+codex login --device-auth   # once; the login is kept in the Codex volume. Or set OPENAI_API_KEY on the host
 codex
 ```
 
-Codex's own Linux sandbox (bubblewrap) cannot create user namespaces inside Docker, so `codex/config.toml` sets `sandbox_mode = "danger-full-access"` with `approval_policy = "on-request"`. The devkit container is the isolation boundary: it mounts only the project and `~/.m2`, and never the Docker socket unless you opt in. Codex has no file read denies, so the secret rules in `AGENTS.md` are the only guard for Codex; prefer Claude Code or OpenCode for projects that keep secret files in the repository.
+Codex's own Linux sandbox (bubblewrap) cannot create user namespaces inside Docker, so `codex/config.toml` sets `sandbox_mode = "danger-full-access"` with `approval_policy = "on-request"`. The devkit container is the isolation boundary: it mounts only the project, `~/.m2`, and the login volumes, and never the Docker socket unless you opt in. Codex has no file read denies, so the secret rules in `AGENTS.md` are the only guard for Codex; prefer Claude Code or OpenCode for projects that keep secret files in the repository.
 
 ### Project-Level Config In Git
 

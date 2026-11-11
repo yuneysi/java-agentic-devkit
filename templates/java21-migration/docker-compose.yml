@@ -24,6 +24,13 @@ services:
       - .:/workspace
       # HOME on macOS, Linux, and WSL; USERPROFILE on Windows PowerShell and Command Prompt.
       - ${HOME:-${USERPROFILE}}/.m2:/home/vscode/.m2
+      # Keeps the OpenCode provider login (auth.json) and sessions across `run --rm` starts.
+      # Without it, GitHub Copilot models are missing and oh-my-openagent agents fall back to a default model.
+      - opencode-data:/home/vscode/.local/share/opencode
+      # Keep the Claude Code and Codex logins. The entrypoint refreshes the image-owned files in
+      # these directories (instructions, settings, skills) on every start.
+      - claude-data:/home/vscode/.claude
+      - codex-data:/home/vscode/.codex
       # Optional, for Testcontainers or Docker-in-Docker workflows only. The socket gives the
       # container and its AI agents control of the host Docker engine (root-equivalent).
       # - /var/run/docker.sock:/var/run/docker.sock
@@ -34,3 +41,8 @@ services:
     stdin_open: true
     tty: true
     command: /bin/bash
+
+volumes:
+  opencode-data:
+  claude-data:
+  codex-data:

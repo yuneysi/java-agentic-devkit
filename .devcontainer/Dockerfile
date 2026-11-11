@@ -495,6 +495,10 @@ COPY --chown=${USERNAME}:${USERNAME} codex/config.toml /home/${USERNAME}/.codex/
 # Claude Code starts in auto mode. Secret-file read denies ship in each project's
 # .claude/settings.json from the templates; the devkit policy is to keep them.
 COPY --chown=${USERNAME}:${USERNAME} claude/settings.json /home/${USERNAME}/.claude/settings.json
+# Claude Code keeps its account state (.claude.json) inside CLAUDE_CONFIG_DIR, so a single volume
+# on ~/.claude persists the whole login. Without the variable that file lives in $HOME.
+ENV CLAUDE_CONFIG_DIR=/home/${USERNAME}/.claude
+RUN if [ -f /home/${USERNAME}/.claude.json ]; then mv /home/${USERNAME}/.claude.json /home/${USERNAME}/.claude/.claude.json; fi
 
 # ---------------------------------------------------------------------
 # Skills for OpenCode and Claude Code
@@ -512,6 +516,16 @@ RUN python3 -I ${SKILLS_SRC}/scripts/install-skills.py --agent opencode \
     && python3 -I ${SKILLS_SRC}/scripts/install-skills.py --agent codex
 
 USER root
+
+# Image-owned files in ~/.claude and ~/.codex. The project templates mount volumes on both
+# directories to keep logins, so the entrypoint copies these files back on every start;
+# otherwise the volumes would keep the files from the image that first created them.
+RUN mkdir -p /opt/java-agentic-devkit/home-defaults/claude /opt/java-agentic-devkit/home-defaults/codex \
+    && cp -R /home/${USERNAME}/.claude/CLAUDE.md /home/${USERNAME}/.claude/settings.json /home/${USERNAME}/.claude/skills \
+        /opt/java-agentic-devkit/home-defaults/claude/ \
+    && cp -R /home/${USERNAME}/.codex/AGENTS.md /home/${USERNAME}/.codex/config.toml \
+        /opt/java-agentic-devkit/home-defaults/codex/ \
+    && chmod -R a+rX /opt/java-agentic-devkit/home-defaults
 
 COPY templates/java8/ /opt/java-agentic-devkit/templates/java8/
 COPY templates/java21/ /opt/java-agentic-devkit/templates/java21/
@@ -544,6 +558,18 @@ RUN printf '%s\n' \
     '        exit 1' \
     '        ;;' \
     'esac' \
+    '' \
+    '# Logins persist in volumes on ~/.claude and ~/.codex. Refresh the image-owned files there,' \
+    '# and never touch credentials, sessions, or history.' \
+    'DEFAULTS_DIR=/opt/java-agentic-devkit/home-defaults' \
+    'for TOOL in claude codex; do' \
+    '    if [[ -d "${DEFAULTS_DIR}/${TOOL}" && -d "${HOME}/.${TOOL}" && -w "${HOME}/.${TOOL}" ]]; then' \
+    '        for ENTRY in "${DEFAULTS_DIR}/${TOOL}"/*; do' \
+    '            rm -rf "${HOME}/.${TOOL}/$(basename "${ENTRY}")"' \
+    '            cp -R "${ENTRY}" "${HOME}/.${TOOL}/"' \
+    '        done' \
+    '    fi' \
+    'done' \
     '' \
     'TEMPLATE_DIR="/opt/java-agentic-devkit/templates/${JAVA_TEMPLATE}"' \
     'if [[ "${BOOTSTRAP_TEMPLATES}" != "false" && -d "${PROJECT_DIR}" && -d "${TEMPLATE_DIR}" ]]; then' \

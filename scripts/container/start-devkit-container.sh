@@ -133,6 +133,8 @@ fi
 printf '%b\n' "${BLUE}===========================================================${NC}"
 printf '%b\n\n' "${YELLOW}Starting container...${NC}"
 
+# The named volumes below keep the OpenCode, Claude Code, and Codex logins across sessions.
+# They are shared by all projects; remove them with `docker volume rm` to sign out everywhere.
 docker run -it --rm \
     -e "DEVKIT_JAVA_TEMPLATE=${JAVA_TEMPLATE}" \
     -e "DEVKIT_PROJECT_DIR=${CONTAINER_MOUNT}" \
@@ -145,6 +147,9 @@ docker run -it --rm \
     -e RELEASE_ARTIFACT \
     -v "${MOUNT_PATH}:${CONTAINER_MOUNT}" \
     -v "${HOST_M2_DIR}:/home/vscode/.m2" \
+    -v java-agentic-devkit-opencode-data:/home/vscode/.local/share/opencode \
+    -v java-agentic-devkit-claude-data:/home/vscode/.claude \
+    -v java-agentic-devkit-codex-data:/home/vscode/.codex \
     ${DOCKER_SOCKET_ARGS[@]+"${DOCKER_SOCKET_ARGS[@]}"} \
     ${PORT_ARGS[@]+"${PORT_ARGS[@]}"} \
     "${FULL_IMAGE}" \
